@@ -1,0 +1,466 @@
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 1.202 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/goog/deps.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[31mFailed to compile "app/dev/js/front.js" in 0.136 seconds.[0m
+[36m----  Could not Analyze  src_front/skarbnik_front/core.cljs   line:1  column:1  ----[0m
+
+  [1mOnly :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [cljs.nodejs :as nodejs reagent.core :as reagent :refer [atom]] at line 1 src_front/skarbnik_front/core.cljs[0m
+
+  [33m1[0m  [1m(ns skarbnik-front.core[0m
+  [0m [0m  [33m^--- Only :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [cljs.nodejs :as nodejs reagent.core :as reagent :refer [atom]] at line 1 src_front/skarbnik_front/core.cljs[0m
+  [36m2[0m  [36m  (:require  [cljs.nodejs :as nodejs[0m
+  [36m3[0m  [36m              reagent.core :as reagent :refer [atom]]))[0m
+
+[36m----  Analysis Error : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[31mFailed to compile "app/dev/js/front.js" in 0.159 seconds.[0m
+[36m----  Could not Analyze  src_front/skarbnik_front/core.cljs   line:1  column:1  ----[0m
+
+  [1mLibrary name must be specified as a symbol in :require / :require-macros; offending spec: [[cljs.nodejs :as nodejs] [reagent.core :as reagent :refer [atom]]] at line 1 src_front/skarbnik_front/core.cljs[0m
+
+  [33m1[0m  [1m(ns skarbnik-front.core[0m
+  [0m [0m  [33m^--- Library name must be specified as a symbol in :require / :require-macros; offending spec: [[cljs.nodejs :as nodejs] [reagent.core :as reagent :refer [atom]]] at line 1 src_front/skarbnik_front/core.cljs[0m
+  [36m2[0m  [36m  (:require  [[cljs.nodejs :as nodejs][0m
+  [36m3[0m  [36m              [reagent.core :as reagent :refer [atom]]]))[0m
+
+[36m----  Analysis Error : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[31mFailed to compile "app/dev/js/front.js" in 0.184 seconds.[0m
+[36m----  Could not Analyze  src_front/skarbnik_front/core.cljs   line:1  column:1  ----[0m
+
+  [1mLibrary name must be specified as a symbol in :require / :require-macros; offending spec: [[cljs.nodejs :as nodejs] [reagent.core :as reagent :refer [atom]]] at line 1 src_front/skarbnik_front/core.cljs[0m
+
+  [33m1[0m  [1m(ns skarbnik-front.core[0m
+  [0m [0m  [33m^--- Library name must be specified as a symbol in :require / :require-macros; offending spec: [[cljs.nodejs :as nodejs] [reagent.core :as reagent :refer [atom]]] at line 1 src_front/skarbnik_front/core.cljs[0m
+  [36m2[0m  [36m  (:require  [[cljs.nodejs :as nodejs][0m
+  [36m3[0m  [36m              [reagent.core :as reagent :refer [atom]]]))[0m
+
+[36m----  Analysis Error : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:4  column:16  ----[0m
+
+  [1mNo such namespace: nodejs, could not locate nodejs.cljs, nodejs.cljc, or Closure namespace ""[0m
+
+  [36m1[0m  [36m(ns skarbnik-front.core[0m
+  [36m2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]]))[0m
+  [36m3[0m  [36m[0m
+  [33m4[0m  [1m(def Electron (nodejs/require "electron"))[0m
+  [0m [0m  [33m               ^--- No such namespace: nodejs, could not locate nodejs.cljs, nodejs.cljc, or Closure namespace ""[0m
+  [36m5[0m  [36m[0m
+  [36m6[0m  [36m;; Your code[0m
+  [36m7[0m  [36m[0m
+  [36m8[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:4  column:16  ----[0m
+
+  [1mUse of undeclared Var nodejs/require[0m
+
+  [36m1[0m  [36m(ns skarbnik-front.core[0m
+  [36m2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]]))[0m
+  [36m3[0m  [36m[0m
+  [33m4[0m  [1m(def Electron (nodejs/require "electron"))[0m
+  [0m [0m  [33m               ^--- Use of undeclared Var nodejs/require[0m
+  [36m5[0m  [36m[0m
+  [36m6[0m  [36m;; Your code[0m
+  [36m7[0m  [36m[0m
+  [36m8[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 1.292 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/goog/deps.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:4  column:16  ----[0m
+
+  [1mUse of undeclared Var cljs.nodejs/require[0m
+
+  [36m1[0m  [36m(ns skarbnik-front.core[0m
+  [36m2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]]))[0m
+  [36m3[0m  [36m[0m
+  [33m4[0m  [1m(def Electron (cljs.nodejs/require "electron"))[0m
+  [0m [0m  [33m               ^--- Use of undeclared Var cljs.nodejs/require[0m
+  [36m5[0m  [36m[0m
+  [36m6[0m  [36m;; Your code[0m
+  [36m7[0m  [36m[0m
+  [36m8[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.424 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:4  column:16  ----[0m
+
+  [1mNo such namespace: js.nodejs, could not locate js/nodejs.cljs, js/nodejs.cljc, or Closure namespace ""[0m
+
+  [36m1[0m  [36m(ns skarbnik-front.core[0m
+  [36m2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]]))[0m
+  [36m3[0m  [36m[0m
+  [33m4[0m  [1m(def Electron (js.nodejs/require "electron"))[0m
+  [0m [0m  [33m               ^--- No such namespace: js.nodejs, could not locate js/nodejs.cljs, js/nodejs.cljc, or Closure namespace ""[0m
+  [36m5[0m  [36m[0m
+  [36m6[0m  [36m;; Your code[0m
+  [36m7[0m  [36m[0m
+  [36m8[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:4  column:16  ----[0m
+
+  [1mUse of undeclared Var js.nodejs/require[0m
+
+  [36m1[0m  [36m(ns skarbnik-front.core[0m
+  [36m2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]]))[0m
+  [36m3[0m  [36m[0m
+  [33m4[0m  [1m(def Electron (js.nodejs/require "electron"))[0m
+  [0m [0m  [33m               ^--- Use of undeclared Var js.nodejs/require[0m
+  [36m5[0m  [36m[0m
+  [36m6[0m  [36m;; Your code[0m
+  [36m7[0m  [36m[0m
+  [36m8[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.449 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front_profile/skarbnik_front/dev/init.cljs   line:13  column:4  ----[0m
+
+  [1mUse of undeclared Var skarbnik-front.core/init![0m
+
+  [36m 9[0m  [36m :websocket-url   "ws://localhost:3449/figwheel-ws"[0m
+  [36m10[0m  [36m :jsload-callback 'start-descjop!)[0m
+  [36m11[0m  [36m[0m
+  [36m12[0m  [36m(defn start-descjop! [][0m
+  [33m13[0m  [1m  (core/init! conf/setting))[0m
+  [0m  [0m  [33m   ^--- Use of undeclared Var skarbnik-front.core/init![0m
+  [36m14[0m  [36m[0m
+  [36m15[0m  [36m(start-descjop!)[0m
+
+[36m----  Compiler Warning : Please see src_front_profile/skarbnik_front/dev/init.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.379 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:21  column:4  ----[0m
+
+  [1mNo such namespace: reagent, could not locate reagent.cljs, reagent.cljc, or Closure namespace ""[0m
+
+  [36m18[0m  [36m;; Init[0m
+  [36m19[0m  [36m[0m
+  [36m20[0m  [36m(defn mount-root [setting][0m
+  [33m21[0m  [1m  (reagent/render [root-component][0m
+  [0m  [0m  [33m   ^--- No such namespace: reagent, could not locate reagent.cljs, reagent.cljc, or Closure namespace ""[0m
+  [36m22[0m  [36m                  (.getElementById js/document "app")))[0m
+  [36m23[0m  [36m[0m
+  [36m24[0m  [36m(defn init! [setting][0m
+  [36m25[0m  [36m  (mount-root setting))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:21  column:4  ----[0m
+
+  [1mUse of undeclared Var reagent/render[0m
+
+  [36m18[0m  [36m;; Init[0m
+  [36m19[0m  [36m[0m
+  [36m20[0m  [36m(defn mount-root [setting][0m
+  [33m21[0m  [1m  (reagent/render [root-component][0m
+  [0m  [0m  [33m   ^--- Use of undeclared Var reagent/render[0m
+  [36m22[0m  [36m                  (.getElementById js/document "app")))[0m
+  [36m23[0m  [36m[0m
+  [36m24[0m  [36m(defn init! [setting][0m
+  [36m25[0m  [36m  (mount-root setting))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.404 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[31mFailed to compile "app/dev/js/front.js" in 0.135 seconds.[0m
+[36m----  Could not Analyze  src_front/skarbnik_front/core.cljs   line:1  column:1  ----[0m
+
+  [1mOnly :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [reagent.core :as reagent :refer [atom] cljs.nodejs :as nodejs] at line 1 src_front/skarbnik_front/core.cljs[0m
+
+  [33m1[0m  [1m(ns skarbnik-front.core[0m
+  [0m [0m  [33m^--- Only :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [reagent.core :as reagent :refer [atom] cljs.nodejs :as nodejs] at line 1 src_front/skarbnik_front/core.cljs[0m
+  [36m2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom][0m
+  [36m3[0m  [36m              cljs.nodejs :as nodejs]))[0m
+
+[36m----  Analysis Error : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.423 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:6  column:14  ----[0m
+
+  [1mNo such namespace: el, could not locate el.cljs, el.cljc, or Closure namespace ""[0m
+
+  [36m 2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]][0m
+  [36m 3[0m  [36m             [cljs.nodejs :as nodejs]))[0m
+  [36m 4[0m  [36m[0m
+  [36m 5[0m  [36m(def el (nodejs/require "electron"))[0m
+  [33m 6[0m  [1m(def dialog (el/dialog))[0m
+  [0m  [0m  [33m             ^--- No such namespace: el, could not locate el.cljs, el.cljc, or Closure namespace ""[0m
+  [36m 7[0m  [36m[0m
+  [36m 8[0m  [36m;; Your code[0m
+  [36m 9[0m  [36m[0m
+  [36m10[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:6  column:14  ----[0m
+
+  [1mUse of undeclared Var el/dialog[0m
+
+  [36m 2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]][0m
+  [36m 3[0m  [36m             [cljs.nodejs :as nodejs]))[0m
+  [36m 4[0m  [36m[0m
+  [36m 5[0m  [36m(def el (nodejs/require "electron"))[0m
+  [33m 6[0m  [1m(def dialog (el/dialog))[0m
+  [0m  [0m  [33m             ^--- Use of undeclared Var el/dialog[0m
+  [36m 7[0m  [36m[0m
+  [36m 8[0m  [36m;; Your code[0m
+  [36m 9[0m  [36m[0m
+  [36m10[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.453 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.38 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.386 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.372 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.38 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.374 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.371 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.38 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.383 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.385 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.361 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.372 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.36 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.361 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.387 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.396 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:6  column:14  ----[0m
+
+  [1mNo such namespace: el, could not locate el.cljs, el.cljc, or Closure namespace ""[0m
+
+  [36m 2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]][0m
+  [36m 3[0m  [36m             [cljs.nodejs :as nodejs]))[0m
+  [36m 4[0m  [36m[0m
+  [36m 5[0m  [36m(def el (nodejs/require "electron"))[0m
+  [33m 6[0m  [1m(def dialog (el/dialog))[0m
+  [0m  [0m  [33m             ^--- No such namespace: el, could not locate el.cljs, el.cljc, or Closure namespace ""[0m
+  [36m 7[0m  [36m[0m
+  [36m 8[0m  [36m;; Your code[0m
+  [36m 9[0m  [36m[0m
+  [36m10[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[36m----  Compiler Warning on   src_front/skarbnik_front/core.cljs   line:6  column:14  ----[0m
+
+  [1mUse of undeclared Var el/dialog[0m
+
+  [36m 2[0m  [36m  (:require  [reagent.core :as reagent :refer [atom]][0m
+  [36m 3[0m  [36m             [cljs.nodejs :as nodejs]))[0m
+  [36m 4[0m  [36m[0m
+  [36m 5[0m  [36m(def el (nodejs/require "electron"))[0m
+  [33m 6[0m  [1m(def dialog (el/dialog))[0m
+  [0m  [0m  [33m             ^--- Use of undeclared Var el/dialog[0m
+  [36m 7[0m  [36m[0m
+  [36m 8[0m  [36m;; Your code[0m
+  [36m 9[0m  [36m[0m
+  [36m10[0m  [36m(defonce state (atom {:message "Hello there,"}))[0m
+
+[36m----  Compiler Warning : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.456 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.379 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.38 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.358 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.396 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.411 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.365 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.39 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.36 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.43 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.379 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.464 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.369 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.407 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.441 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/goog/deps.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.413 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.464 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.38 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.392 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.373 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 1.276 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/goog/deps.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.415 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.405 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.376 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[31mFailed to compile "app/dev/js/front.js" in 0.309 seconds.[0m
+[36m----  Could not Analyze  src_front/skarbnik_front/core.cljs   line:26  column:31  ----[0m
+
+  [1mUnsupported binding form: utf-8[0m
+
+  [36m24[0m  [36m(fn [fileNames][0m
+  [36m25[0m  [36m  (.readFile fs[0m
+  [33m26[0m  [1m             (fn [filepath "utf-8"][0m
+  [0m  [0m  [33m             ^--- Unsupported binding form: utf-8[0m
+  [36m27[0m  [36m               (fn [err data][0m
+  [36m28[0m  [36m                 (if err[0m
+  [36m29[0m  [36m                   (prn err)[0m
+
+[36m----  Analysis Error : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[31mFailed to compile "app/dev/js/front.js" in 0.394 seconds.[0m
+[36m----  Could not Analyze  src_front/skarbnik_front/core.cljs   line:18  column:3  ----[0m
+
+  [1mUnknown dot form of (. fs -readFile (filepath "utf-8" (fn [err data] (if err (prn err) (.log js/console data))))) with classification [:cljs.analyzer/expr :cljs.analyzer/property :cljs.analyzer/expr][0m
+
+  [36m17[0m  [36m(defn read-file [filepath][0m
+  [33m18[0m  [1m  (.-readFile fs filepath, "utf-8"[0m
+  [0m  [0m  [33m  ^--- Unknown dot form of (. fs -readFile (filepath "utf-8" (fn [err data] (if err (prn err) (.log js/console data))))) with classification [:cljs.analyzer/expr :cljs.analyzer/property :cljs.analyzer/expr][0m
+  [36m19[0m  [36m              (fn [err data][0m
+  [36m20[0m  [36m                (if err[0m
+  [36m21[0m  [36m                  (prn err)[0m
+
+[36m----  Analysis Error : Please see src_front/skarbnik_front/core.cljs  ----[0m
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.437 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.443 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.386 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.386 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.392 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.388 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.46 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.469 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.427 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.443 seconds.[0m
+notifying browser that file changed:  app/dev/js/front.js
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.433 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.468 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.514 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.472 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.465 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.495 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.442 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
+[0mCompiling "app/dev/js/front.js" from ["src_front" "src_front_profile/skarbnik_front/dev"]...[0m
+[32mSuccessfully compiled "app/dev/js/front.js" in 0.478 seconds.[0m
+notifying browser that file changed:  app/dev/js/out_front/skarbnik_front/core.js
