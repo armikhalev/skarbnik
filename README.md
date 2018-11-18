@@ -1,323 +1,147 @@
+
 # skarbnik
-
-This project build by descjop v0.7.0
-
-FIXME: description
 
 ## Requirements
 
-* leiningen 2.6.x +
-* node v0.12.x +
-* grunt v0.1.13 +
+* JDK 1.7+
+* Leiningen 2.5.3
+* node.js 5.1.1 [This is done to match the verion of node.js being used in Electron v0.37.2]
+* [NSIS](http://nsis.sourceforge.net/)
 
-### (if you don't install grunt yet.)
+On Mac/Linux, installing node.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
 
-```
-$ npm install -g grunt-cli
-```
+This project uses Electron v0.35.2. Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
+## Setup
 
-## Help
-
-You can display help how to use descjop.
+On Mac/Linux:
 
 ```
-$ lein new descjop help
+scripts/setup.sh
 ```
-
-and you can use alias in project directory.
-
-```
-$ lein descjop-help
-```
-
-## display latest version
-
-You can display latest version.
-
-```
-$ lein new descjop version
-```
-
-## New project from leiningen template
-
-### Minimum project
-
-```
-$ lein new descjop YOUR_APP_NAME
-$ cd YOUR_APP_NAME
-```
-
-### [Om](https://github.com/omcljs/om) based project
-
-```
-$ lein new descjop YOUR_APP_NAME +om
-$ cd YOUR_APP_NAME
-```
-
-### [reagent](https://github.com/reagent-project/reagent) based project
-
-```
-$ lein new descjop YOUR_APP_NAME +reagent
-$ cd YOUR_APP_NAME
-```
-
-## Project Directory
-
-  see your app dir. looks like
-
-```
-.
-+-- Gruntfile.js
-+-- README.md
-+-- app
-|   +-- dev // deveropment mode dir
-|   |   +-- index.html // entry html file
-|   |   +-- js
-|   |   |   +-- externs_front.js
-|   |   |   +-- externs.js
-|   |   |   +-- main.js
-|   |   +-- package.json // for Desktop app
-|   +-- prod // production mode dir
-|       +-- index.html // entry html file
-|       +-- js
-|       |   +-- externs_front.js
-|       |   +-- externs.js
-|       |   +-- main.js
-|       +-- package.json // for Desktop app
-+-- package.json // for Compile
-+-- project.clj // compile settings desktop app
-+-- resources
-+-- src
-|   +-- NAMESPACE
-|       +-- core.cljs // ClojureScript for Electron in here
-+-- src_front
-|   +--NAMESPACE_front
-|      +-- core.cljs // Frontend clojureScript in here
-+-- src_front_profile
-    +--NAMESPACE_front
-       +-- dev
-       |   +-- conf.cljs
-       |   +-- init.cljs
-       +-- prod
-           +-- conf.cljs
-           +-- init.cljs
-```
-
-## Usage
-
-### step 1
-
-run `descjop-init` (windows user should use `descjop-init-win`) alias below.
-
-#### OSX/Linux user
-
-```
-$ lein descjop-init
- ...
- 
-Running "download-electron" task
- 
-Done, without errors.
-```
-
-#### Windows user
-
-```
-$ lein descjop-init-win
- ...
- 
-Running "download-electron" task
- 
-Done, without errors.
-```
-
-### step 2
-
-you have to change `src/PROJECT_NAME/core.cljs` about `:companyName` and `submitURL`.
-
-```
-(defn -main []
-  (.start crash-reporter (clj->js {:companyName "Your Company Name"
-                                   :submitURL   "http://example.com/"}))
-  ...
-```
-
-### step 3
-
-and run extern alias `descjop-externs`,
-
-```
-$ lein descjop-externs
-```
-
-run cljsbuild `lein descjop-once`.
-
-```
-$ lein descjop-once
-
-Compiling ClojureScript.
-Compiling "app/js/cljsbuild-main.js" from ["src"]...
-Successfully compiled "app/js/cljsbuild-main.js" in 10.812 seconds.
-...
-Successfully compiled "app/dev/js/front.js" in 10.588 seconds.
-...
-Successfully compiled "app/prod/js/cljsbuild-main.js" in 19.333 seconds.
-...
-Successfully compiled "app/prod/js/front.js" in 29.94 seconds.
-```
-
-### step 4
-
-You can run Desctop application.
-
-#### development mode
-
-development mode use figwheel. run alias `descjop-figwheel`.  before run application.
-Open other terminal window.
-
-```
-$ lein descjop-figwheel
-```
-
-and you can run Electron(Atom-Shell) app.
 
 On Windows:
 
 ```
-$ .\electron\electron.exe app/dev
+scripts\setup.bat
 ```
 
-On Linux:
+This will install the node dependencies for the project, along with grunt and bower and will also run `grunt setup`.
+
+
+## Development mode
+
+Start the figwheel server:
 
 ```
-$ ./electron/electron app/dev
+lein figwheel
 ```
 
-On OS X:
+If you are on OSX/Linux and have `rlwrap` installed, you can start the figwheel server with:
 
 ```
-$ ./electron/Electron.app/Contents/MacOS/Electron app/dev
+rlwrap lein figwheel
 ```
 
-#### production mode
+This will give better readline support.
 
-you can run Electron(Atom-Shell) app.
+More about [figwheel](https://github.com/bhauman/lein-figwheel) here.
 
-On Windows:
 
-```
-$ .\electron\electron.exe app/prod
-```
-
-On Linux:
+In another terminal window, launch the electron app:
 
 ```
-$ ./electron/electron app/prod
+grunt launch
 ```
 
-On OS X:
+You can edit the `src/cljs/skarbnik/core.cljs` file and the changes should show up in the electron app without the need to re-launch.
+
+## Using nREPL with figwheel
+
+- Start the repl using `lein repl`.
 
 ```
-$ ./electron/Electron.app/Contents/MacOS/Electron app/prod
+user> (use 'figwheel-sidecar.repl-api)
+nil
+user> (def figwheel-config
+        {:figwheel-options {:css-dirs ["app/css"]}
+         :build-ids ["dev"]
+         :all-builds
+           [{:id "dev"
+             :figwheel {:on-jsload "skarbnik.core/mount-root"}
+             :source-paths ["src/cljs" "env/dev/cljs"]
+             :compiler {:main "skarbnik.dev"
+                        :asset-path "js/p/out"
+                        :output-to "app/js/p/app.js"
+                        :output-dir "app/js/p/out" }}]})
+#'user/figwheel-config
+user> (start-figwheel! figwheel-config)
+Figwheel: Starting server at http://localhost:3449
+Figwheel: Watching build - dev
+Compiling "resources/public/js/repler.js" from ["src/cljs" "env/dev/cljs"]...
+Successfully compiled "app/js/p/app.js" in 2.06 seconds.
+Figwheel: Starting CSS Watcher for paths  ["app/css"]
+#<SystemMap>
 ```
 
-## Package App
+See [Figwheel wiki](https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl) for more details.
 
-### (If not already installed Electron-packager.)
+## Dependencies
 
-```
-$ npm install -g electron-packager
-```
+Node dependencies are in `package.json` file. Bower dependencies are in `bower.json` file. Clojure/ClojureScript dependencies are in `project.clj`.
 
-### run command
+## Icons
 
-#### for OSX
+Please replace the icons provided with your application's icons. The development icons are from [node-appdmg](https://github.com/LinusU/node-appdmg) project.
 
-```
-$ lein descjop-uberapp-osx
-```
+Files to replace:
 
-#### for OSX app store
+* app/img/logo.icns
+* app/img/logo.ico
+* app/img/logo_96x96.png
+* scripts/dmg/TestBkg.png
+* scripts/dmg/TestBkg@2x.png
 
-```
-$ descjop-uberapp-app-store
-```
+## Creating a build for release
 
-#### for windows 32bit app
+To create a Windows build from a non-Windows platform, please install `wine`. On OS X, an easy option is using homebrew.
 
-```
-$ descjop-uberapp-win32
-```
+On Windows before doing a production build, please edit the `scripts/build-windows-exe.nsi` file. The file is the script for creating the NSIS based setup file.
 
-#### for windows 64bit app
+On Mac OSX, please edit the variables for the plist in `release-mac` task in `Gruntfile.js`.
 
-```
-$ descjop-uberapp-win64
-```
+Using [`electron-packager`](https://github.com/maxogden/electron-packager), we are able to create a directory which has OS executables (.app, .exe etc) running from any platform.
 
-#### for linux
+If NSIS is available on the path, a further setup executable will be created for Windows. Further, if the release command is run from a OS X machine, a DMG file will be created.
+
+To create the release directories:
 
 ```
-$ descjop-uberapp-linux
+grunt release
 ```
 
-## How to Upgrade to new Electron version
+This will create the directories in the `builds` folder.
 
-You can change Electron version in Gruntfile.js.
+Note: you will need to be on OSX to create a DMG file and on Windows to create the setup .exe file.
 
-```
-module.exports = function(grunt) {
 
-    grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
-        "download-electron": {
-            version: "1.3.2", // change Electron version 1.3.2 -> 1.3.3
-            outputDir: "./electron", 
-            rebuild: true
-        }
-    });
+## Grunt commands
 
-    grunt.loadNpmTasks('grunt-download-electron');
+To run a command, type `grunt <command>` in the terminal.
 
-};
-```
 
-and re-run
+| Command       | Description                                                                               |
+|---------------|-------------------------------------------------------------------------------------------|
+| setup         | Download electron project, installs bower dependencies and setups up the app config file. |
+| launch        | Launches the electron app                                                                 |
+| release       | Creates a Win/OSX/Linux executables                                                       |
+| outdated      | List all outdated clj/cljs/node/bower dependencies                                        |
 
-for linux / mac
+## Leiningen commands
 
-```
-$ lein descjop-init
-```
+To run a command, type `lein <command>` in the terminal.
 
-for windows
-
-```
-$ lein descjop-init-win
-```
-
-## Aliases
-
-you can use aliases in project directory.
-
-```
-$ lein descjop-version       # descjop version
-$ lein descjop-help          # descjop help
-$ lein descjop-init          # init project
-$ lein descjop-init-win      # init project for windows user
-$ lein descjop-externs       # output externs for develop and production
-$ lein descjop-externs-dev   # output externs for develop
-$ lein descjop-externs-prod  # output externs for production
-$ lein descjop-figwheel      # start figwheel
-$ lein descjop-once          # build JavaScript for develop and production
-$ lein descjop-once-dev      # build JavaScript for develop
-$ lein descjop-once-prod     # build JavaScript for production
-```
-
-## License
-
-Copyright ©  FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+| Command       | Description                                                                               |
+|---------------|-------------------------------------------------------------------------------------------|
+| cljfmt fix    | Auto-formats all clj/cljs code. See [cljfmt](https://github.com/weavejester/cljfmt)       |
+| kibit         | Statically analyse clj/cljs and give suggestions                                          |
