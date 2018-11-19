@@ -1,6 +1,6 @@
 (defproject skarbnik "0.1.0-alpha1"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Skarbnik - personal finance management application"
+  :url "http://skarbnik.com/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 

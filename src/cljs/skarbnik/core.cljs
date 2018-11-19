@@ -27,17 +27,16 @@
               (fn [err]
                 (if err
                   (prn "Error: " err)
-                  (do (swap! state update-in [:data] str content)
-                      (prn "Successfully wrote to file"))))))
+                  (prn "Successfully wrote to file")))))
 
 
 (defn read<-file
   [filepath]
   (.readFile fs filepath "utf-8"
-              (fn [err data]
+              (fn [err content]
                 (if err
                   (prn err)
-                  (write->file data-file-path data)))))
+                  (swap! state update-in [:data] str content)))))
 
 
 (defn split [sep s]
@@ -72,6 +71,18 @@
 (defn main-page []
   [:main
    [:h1 (:message @state)]
+   [:button
+    {:on-click #(open-file
+                 (fn [file-names]
+                   (if (= file-names nil)
+                     (prn "no file selected")
+                     (read<-file (first file-names)))))}
+    "Open file"]
+
+   [:button
+    {:on-click #(write->file data-file-path (:data @state))}
+    "Save"]
+
    [:table
     [:thead
      [:tr
@@ -89,20 +100,10 @@
         [:td (:Category entry)]
         ])]]
 
-   [:button
-    {:on-click #(open-file
-                 (fn [file-names]
-                   (if (= file-names nil)
-                     (prn "no file selected")
-                     (read<-file (first file-names)))))}
-    "Open file"]])
+   ])
 
 
 ;; Init
-
-;; (defn main-page
-;;   []
-;;   [:div "Hello World!"])
 
 (defn mount-root
   []
@@ -110,4 +111,5 @@
 
 (defn init!
   []
-  (mount-root))
+  (mount-root)
+  (read<-file data-file-path))
