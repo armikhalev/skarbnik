@@ -1,21 +1,26 @@
 (ns skarbnik.core
   (:require  [reagent.core :as reagent :refer [atom]]
              [cljs.nodejs :as nodejs]
-             [clojure.string :as string]))
+             [skarbnik.utils :as utils]))
 
 (nodejs/enable-util-print!)
+
+(defonce state (atom {:data ""}))
+
+;; nodejs
 
 (def fs (nodejs/require "fs"))
 (def electron (nodejs/require "electron"))
 (def dialog (.-dialog (.-remote electron)))
+;;
+
+;; file paths
 
 (def data-file-path "./data-file.txt")
-
-;; Your code
-(defonce state (atom {:message "Hello there,"
-                      :data    ""}))
+;;
 
 
+;; file management fns
 (defn open-file
   [path]
   (.showOpenDialog dialog path))
@@ -37,40 +42,14 @@
                 (if err
                   (prn err)
                   (swap! state update-in [:data] str content)))))
-
-
-(defn split [sep s]
-  (clojure.string/split s sep))
-
-
-(defn lines
-  [sep contents]
-  (->> contents
-       (split #"\n")
-       (map (partial split sep))))
-
-
-(defn str->keys
-  [s]
-  (keyword
-   (string/join
-    (string/split s #"\s"))))
-
-
-(defn maps
-  [sep contents]
-  (let [lines (lines sep contents)
-        cols- (first lines)
-        cols  (map str->keys cols-)
-        rows (rest lines)]
-    (map (partial zipmap cols) rows)))
+;; ENDs file management fns
 
 
 ;; Root
 
 (defn main-page []
   [:main
-   [:h1 (:message @state)]
+   [:h1 "Skarbnik"]
    [:button
     {:on-click #(open-file
                  (fn [file-names]
@@ -90,16 +69,34 @@
         ^{:key th}
         [:th th])]]
     [:tbody
-     (for [entry (maps #"," (:data @state))]
-       ^{:key (str (:Trans.Date entry) "-" (:Amount entry))}
-       [:tr
-        [:td (:Trans.Date entry)]
-        [:td (:PostDate entry)]
-        [:td (:Description entry)]
-        [:td (:Amount entry)]
-        [:td (:Category entry)]
-        ])]]
+     (map-indexed
+      (fn [idx entry]
+        (let [amount (:Amount entry)]
+          ^{:key idx}
+          [:tr
+           [:td (:Trans.Date entry)]
+           [:td (:PostDate entry)]
+           [:td (:Description entry)]
+           [:td
+            {:style (if (< amount 0)
+                      {:color "red"}
+                      {:color "green"})}
+            amount]
+           [:td (:Category entry)]]))
 
+      ;; feed `map-indexed`
+      (utils/scv->maps (:data @state)))]]
+
+   (let [debt (utils/get-total (utils/scv->maps (:data @state)) >)
+         paid (utils/get-total (utils/scv->maps (:data @state)) <)]
+     [:section
+
+      ;; sum `debt` and `paid`, since paid is always negative
+      [:h2 "Still owe: " (+ debt paid)]
+
+      [:h2 "Total historical debt: " debt]
+
+      [:h2 "Total historical paid: " paid]])
    ])
 
 
