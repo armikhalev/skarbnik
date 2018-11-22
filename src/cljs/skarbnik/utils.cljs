@@ -38,13 +38,26 @@
 ;; ENDs CSV->maps convertor fns
 
 
+(defn cents->dollars
+  "Converts cents integers to dollars float numbers.
+   Returns string."
+  [cents]
+  (.toFixed (/ cents 100) 2))
+
+
+(defn dollars->cents
+  [dollars]
+  (* dollars 100))
+
+
 (defn get-total
   "`data` list of maps with key `:Amount`"
   [data comparator-symbol]
-  (reduce
-   (fn [acc d]
-     (if (comparator-symbol (:Amount d) 0)
-       (+ acc (js/parseFloat (:Amount d)))
-       acc))
-   0
-   data))
+  (cents->dollars
+   (reduce
+    (fn [acc d]
+      (if (comparator-symbol (:Amount d) 0)
+        (+ acc (dollars->cents (js/parseFloat (:Amount d))))
+        acc))
+    0
+    data)))

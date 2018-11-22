@@ -78,9 +78,7 @@
            [:td (:PostDate entry)]
            [:td (:Description entry)]
            [:td
-            {:style (if (< amount 0)
-                      {:color "red"}
-                      {:color "green"})}
+            {:class (str "bold " (if (< amount 0) "color-red" "color-blue"))}
             amount]
            [:td (:Category entry)]]))
 
@@ -92,7 +90,9 @@
      [:section
 
       ;; sum `debt` and `paid`, since paid is always negative
-      [:h2 "Still owe: " (+ debt paid)]
+      [:h2 "Still owe: " (utils/cents->dollars
+                          (+ (utils/dollars->cents debt)
+                             (utils/dollars->cents paid)))]
 
       [:h2 "Total historical debt: " debt]
 
