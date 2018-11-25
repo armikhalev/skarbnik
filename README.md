@@ -1,7 +1,24 @@
+# Skarbnik
 
-# skarbnik
+## What this app should do?
+- Skarbnik is a finance management app
+- It takes csv file of financial data and gives UI for parsing that data
+- It saves data to csv file that can be copied or edited
+- It calculates sum of recurring payments
+- It shows quantity of big non-recurring credit payments being paid off
+- It calculates how much should be left from income after recurring payments paid
+- Also it shows how much big non-recurring credits negatively influence monthly income
 
-## Requirements
+## How to use this app?
+- Get financial data in csv format from your financial institution (Bank, Credit Card) or another financial app (Mint).
+- Upload that csv file to Skarbnik.
+- Now you can look at your recurring payments, non-recurring but big credits being included in monthly expenses, you can filter data by date and categories.
+
+## What Skarbnik is not?
+It is not a comprehensive financial app with automatic update of data. It is not connected to any internet, all data is on user's computer in csv files protected only by safety of user's personal computer (Secure read and write of csv might be a goal for the next version).
+
+## Requirements for project
+### Skarbnik uses [electron-template](https://github.com/ducky427/electron-template), so here is the default readme:
 
 * JDK 1.7+
 * Leiningen 2.5.3
