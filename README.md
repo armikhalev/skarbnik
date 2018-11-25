@@ -1,6 +1,6 @@
 # Skarbnik
 
-## What this app should do?
+## What should this app do?
 - Skarbnik is a finance management app
 - It takes csv file of financial data and gives UI for parsing that data
 - It saves data to csv file that can be copied or edited
@@ -15,7 +15,7 @@
 - Now you can look at your recurring payments, non-recurring but big credits being included in monthly expenses, you can filter data by date and categories.
 
 ## What Skarbnik is not?
-It is not a comprehensive financial app with automatic update of data. It is not connected to any internet, all data is on user's computer in csv files protected only by safety of user's personal computer (Secure read and write of csv might be a goal for the next version).
+It is not a comprehensive financial app with automatic update of data. It is not connected to internet, all data is on user's computer in csv files protected only by safety of user's personal computer (Secure read and write of csv might be a goal for the next version).
 
 ## Requirements for project
 ### Skarbnik uses [electron-template](https://github.com/ducky427/electron-template), so here is the default readme:

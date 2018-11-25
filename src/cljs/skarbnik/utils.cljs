@@ -1,6 +1,7 @@
 (ns skarbnik.utils
   (:require
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [goog.labs.format.csv :as csv]))
 
 
 ;; CSV->maps convertor fns
@@ -31,7 +32,17 @@
         rows (rest lines)]
     (map (partial zipmap cols) rows)))
 
+;; TODO: `csv/parse` returns vector of vectors.
+;; Should parse first row to get headers, however, assumption should be only for `date`, `amount` and `category`.
+;; All other headers must be displayed as they are in csv file.
+;; Then map all the headers to every entry in a vector.
 (defn scv->maps
+  [scv]
+  (-> scv
+      csv/parse
+      js->clj))
+
+#_(defn scv->maps
   [scv]
   (maps #"," scv))
 

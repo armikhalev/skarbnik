@@ -471,3 +471,31 @@ notifying browser that file changed:  out/skarbnik/core.js
 [0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
 notifying browser that file changed:  out/skarbnik/core.js
 [32mSuccessfully compiled "app/js/p/app.js" in 0.274 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  app/js/p/out/cljs_deps.js
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.91 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+[31mCompiling "app/js/p/app.js" failed.
+[0mANALYSIS ERROR: No such namespace: testdouble.cljs.csv, could not locate testdouble/cljs/csv.cljs, testdouble/cljs/csv.cljc, or Closure namespace "testdouble.cljs.csv" in file src/cljs/skarbnik/utils.cljs on file null, line null, column null
+[32mSuccessfully compiled "app/js/p/app.js" in 0.105 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  app/js/p/out/goog/deps.js
+notifying browser that file changed:  app/js/p/out/cljs_deps.js
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.53 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  app/js/p/out/cljs_deps.js
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.354 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.331 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  app/js/p/out/cljs_deps.js
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.383 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  app/js/p/out/cljs_deps.js
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.33 seconds.[0m
