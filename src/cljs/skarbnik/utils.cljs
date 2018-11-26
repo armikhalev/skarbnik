@@ -6,45 +6,36 @@
 
 ;; CSV->maps convertor fns
 
-(defn split [sep s]
-  (clojure.string/split s sep))
-
-
-(defn lines
-  [sep contents]
-  (->> contents
-       (split #"\n")
-       (map (partial split sep))))
-
-
 (defn str->keys
   [s]
   (keyword
    (string/join
     (string/split s #"\s"))))
 
+(defn get-categories
+  "Parses first row of vector of vectors of csv data to get headers.
+   Renames any name similar to `date`, `amount` and `category` to create api."
+  [csv]
+  (let [cats (map str->keys (first csv))]
+    ()))
 
-(defn maps
-  [sep contents]
-  (let [lines (lines sep contents)
-        cols- (first lines)
-        cols  (map str->keys cols-)
-        rows (rest lines)]
-    (map (partial zipmap cols) rows)))
+(defn csv->maps
+  "Takes array of arrays with csv data, returns maps with categories added as keys."
+  [csv]
+  (let [categories (get-categories csv)
+        entries    (rest csv)]
+    (map (partial zipmap categories) entries)))
 
 ;; TODO: `csv/parse` returns vector of vectors.
 ;; Should parse first row to get headers, however, assumption should be only for `date`, `amount` and `category`.
 ;; All other headers must be displayed as they are in csv file.
 ;; Then map all the headers to every entry in a vector.
-(defn scv->maps
-  [scv]
-  (-> scv
+(defn parse-csv
+  [csv]
+  (-> csv
       csv/parse
-      js->clj))
-
-#_(defn scv->maps
-  [scv]
-  (maps #"," scv))
+      js->clj
+      csv->maps))
 
 ;; ENDs CSV->maps convertor fns
 

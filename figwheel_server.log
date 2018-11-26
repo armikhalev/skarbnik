@@ -499,3 +499,28 @@ notifying browser that file changed:  out/skarbnik/utils.js
 notifying browser that file changed:  app/js/p/out/cljs_deps.js
 notifying browser that file changed:  out/skarbnik/utils.js
 [32mSuccessfully compiled "app/js/p/app.js" in 0.33 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.393 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.34 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.307 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+WARNING: Use of undeclared Var skarbnik.utils/scv->maps at line 46 src/cljs/skarbnik/core.cljs
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.365 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/core.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.324 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.323 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.31 seconds.[0m
+[0mCompiling "app/js/p/app.js" from ["src/cljs" "env/dev/cljs"]...
+notifying browser that file changed:  out/skarbnik/utils.js
+[32mSuccessfully compiled "app/js/p/app.js" in 0.308 seconds.[0m

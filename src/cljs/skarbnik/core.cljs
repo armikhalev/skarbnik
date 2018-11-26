@@ -43,7 +43,7 @@
               (fn [err content]
                 (if err
                   (prn err)
-                  (swap! state assoc :data (utils/scv->maps content))))))
+                  (swap! state assoc :data (utils/parse-csv content))))))
 
 ;; ENDs file management fns
 
