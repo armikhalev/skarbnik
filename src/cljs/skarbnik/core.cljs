@@ -101,7 +101,7 @@
     "Open file"]
 
    [:button
-    {:on-click #(write->file data-file-path (:data @state))}
+    {:on-click #(write->file data-file-path (utils/maps->js (:data @state)))}
     "Save"]
 
    [:table

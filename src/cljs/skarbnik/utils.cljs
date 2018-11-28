@@ -17,7 +17,7 @@
    Renames any name similar to `date`, `amount` and `category` to create api."
   [csv]
   (let [cats (map str->keys (first csv))]
-    ()))
+    cats)) ;; TODO: finish implementation acc.to doc string
 
 (defn csv->maps
   "Takes array of arrays with csv data, returns maps with categories added as keys."
@@ -26,11 +26,8 @@
         entries    (rest csv)]
     (map (partial zipmap categories) entries)))
 
-;; TODO: `csv/parse` returns vector of vectors.
-;; Should parse first row to get headers, however, assumption should be only for `date`, `amount` and `category`.
-;; All other headers must be displayed as they are in csv file.
-;; Then map all the headers to every entry in a vector.
 (defn parse-csv
+  "Takes csv data converts it to clojure vector. Returns maps"
   [csv]
   (-> csv
       csv/parse
@@ -38,6 +35,30 @@
       csv->maps))
 
 ;; ENDs CSV->maps convertor fns
+
+
+;; Maps->CSV convertor fns
+
+(defn unzip-maps
+  "Unzips maps into vector of vectors adding keys as the first vector"
+  [maps]
+  ;; Get keys that are categories to get all the values in `for` comprehension
+  (let [cats (keys (first maps))]
+    (->> maps
+         (map vals)
+         (map vec)
+         (cons (->> cats
+                    (map name)
+                    vec)))))
+
+(defn maps->js
+  "Converts clojure array of maps to js array of arrays"
+  [maps]
+  (->> maps
+       unzip-maps
+       (map (partial clojure.string/join ", "))
+       (clojure.string/join "\n")))
+;; ENDs Maps->CSV convertor fns
 
 
 (defn cents->dollars
