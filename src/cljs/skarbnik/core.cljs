@@ -84,81 +84,96 @@
        (and (compare-dates >= (date->ints (mdy->ymd date)) (date->ints from-date))
             (compare-dates <= (date->ints (mdy->ymd date)) (date->ints to-date)))))
    entries))
-;;
+;; ENDs Dates
+
+(defn get-maps-categories-str
+  [maps]
+  (-> maps
+      first
+      keys
+      (->> , (map name))
+      vec))
+
+
+(defn get-maps-categories
+  [maps]
+  (-> maps
+      first
+      keys))
 
 
 ;; Root
 
 (defn main-page []
-  [:main
-   [:h1 "Skarbnik"]
-   [:button
-    {:on-click #(open-file
-                 (fn [file-names]
-                   (if (= file-names nil)
-                     (prn "no file selected")
-                     (read<-file (first file-names)))))}
-    "Open file"]
+  (let [data (:data @state)] 
+    [:main
+     [:h1 "Skarbnik"]
+     [:button
+      {:on-click #(open-file
+                   (fn [file-names]
+                     (if (= file-names nil)
+                       (prn "no file selected")
+                       (read<-file (first file-names)))))}
+      "Open file"]
 
-   [:button
-    {:on-click #(write->file data-file-path (utils/maps->js (:data @state)))}
-    "Save"]
+     [:button
+      {:on-click #(write->file data-file-path (utils/maps->js data))}
+      "Save"]
 
-   [:table
-    [:thead
-     [:tr
-      (for [th ["Trans.Date" "Post.Date" "Description" "Amount" "Category"]]
-        ^{:key th}
-        [:th th])]]
-    [:tbody
-     (map-indexed
-      (fn [idx entry]
-        (let [amount (:Amount entry)]
+     [:table
+      [:thead
+       [:tr
+        (for [th (get-maps-categories-str data)]
+          ^{:key th}
+          [:th th])]]
+      [:tbody
+       (map-indexed
+        (fn [idx entry]
           ^{:key idx}
           [:tr
-           [:td (:Trans.Date entry)]
-           [:td (:PostDate entry)]
-           [:td (:Description entry)]
-           [:td
-            {:class (str "bold " (if (< amount 0) "color-red" "color-blue"))}
-            amount]
-           [:td (:Category entry)]]))
+           (for [category-key (get-maps-categories data)]
+             ^{:key (str category-key "-" idx)}
+             [:td (category-key entry)])
+           ;; TODO:  [:td
+           ;;  {:class (str "bold " (if (< amount 0) "color-red" "color-blue"))}
+           ;;  amount]
+           #_[:td (:Category entry)]])
 
-      ;; feed `map-indexed`
-      (:data @state))]]
+        ;; feed `map-indexed`
+        (:data @state))]]
 
-   [:section.date-picker
-    [:label "Select date range from: "]
-    [:input
-     {:type "date"
-      :on-change #(swap! state assoc :from-date (.-target.value %))
-      :name "from-date"}]
-    [:label " to: "]
-    [:input
-     {:type "date"
-      :on-change #(swap! state assoc :to-date (.-target.value %))
-      :name "to-date"}]]
+     [:section.date-picker
+      [:label "Select date range from: "]
+      [:input
+       {:type "date"
+        :on-change #(swap! state assoc :from-date (.-target.value %))
+        :name "from-date"}]
+      [:label " to: "]
+      [:input
+       {:type "date"
+        :on-change #(swap! state assoc :to-date (.-target.value %))
+        :name "to-date"}]]
 
-   [:button
-    {:on-click #(swap! state assoc :data (filter-by-date
-                                          (:data @state)
-                                          (:from-date @state)
-                                          (:to-date @state)))}
-    "Filter by date"]
+     [:button
+      {:on-click #(swap! state assoc :data (filter-by-date
+                                            data
+                                            (:from-date @state)
+                                            (:to-date @state)))}
+      "Filter by date"]
 
-   (let [debt (utils/get-total (:data @state) >)
-         paid (utils/get-total (:data @state) <)]
+     (let [debt (utils/get-total data >)
+           paid (utils/get-total data <)]
 
-     [:section.sums
+       [:section.sums
 
-      ;; sum `debt` and `paid`, since paid is always negative
-      [:h2 "Still owe: " (utils/cents->dollars
-                          (+ (utils/dollars->cents debt)
-                             (utils/dollars->cents paid)))]
+        ;; sum `debt` and `paid`, since paid is always negative
+        [:h2 "Still owe: " (utils/cents->dollars
+                            (+ (utils/dollars->cents debt)
+                               (utils/dollars->cents paid)))]
 
-      [:h2 "Total historical debt: " debt]
-      [:h2 "Total historical paid: " paid]])
-   ])
+        [:h2 "Total historical debt: " debt]
+        [:h2 "Total historical paid: " paid]])
+     ]))
 
 
 ;; Init
