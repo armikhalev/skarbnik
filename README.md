@@ -1,5 +1,14 @@
 # Skarbnik
 
+## How does this app work?
+- Algorithm looks for payments that are similar by amount and category, then labels them as `recurring`
+- Also it looks for payments that are equal or higher than user defined limit of non-recurring big payment, however, it **skips** `recurring` payments. This kind of payments are labeled `big`.
+- To label a payment user has to search for the transaction by `description` in the search tool of the app.
+- There are two types of accounts used in the app: `bank-account` and `credit-account`, each should be dealt differently through the following process:
+1. All the transactions that paying off the debt on `bank-account` should not be included in representation of `expenses`.
+2. Same for `credit-account`, where all the other transactions are included in the `expenses`, in this way we can see what was obtained by transaction, in contrast to the flow between accounts.
+3. After that we can sum all the transactions on `credit-account` and all the transactions that labeled as `paid-debt`(either account can provide this info), in this way we can see how much user still owes.
+
 ## What should this app do?
 - Skarbnik is a finance management app
 - It takes csv file of financial data and gives UI for parsing that data
