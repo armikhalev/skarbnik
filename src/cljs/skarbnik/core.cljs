@@ -6,6 +6,7 @@
 (nodejs/enable-util-print!)
 
 (defonce state (atom {:data      []
+                      :initial-balance 0
                       :from-date ""
                       :to-date   ""}))
 
@@ -105,7 +106,7 @@
 ;; Root
 
 (defn main-page []
-  (let [data (:data @state)] 
+  (let [data (:data @state)]
     [:main
      [:h1 "Skarbnik"]
      [:button
@@ -120,6 +121,17 @@
       {:on-click #(write->file data-file-path (utils/maps->js data))}
       "Save"]
 
+     [:p  "Press Enter to set Initial balance: "
+      [:input {:placeholder "0"
+               :type "number"
+               :on-key-press (fn [e]
+                               (if (= "Enter" (.-key e))
+                                 (swap! state
+                                        assoc :initial-balance
+                                        (js/parseFloat (.-value (.-target e)))))) }]]
+
+     [:h3 (str "Initial Balance: " (:initial-balance @state))]
+
      [:table
       [:thead
        [:tr
@@ -131,13 +143,14 @@
         (fn [idx entry]
           ^{:key idx}
           [:tr
-           (for [category-key (get-maps-categories data)]
+           (for [category-key (get-maps-categories data)
+                 :let [entry-val (category-key entry)]]
              ^{:key (str category-key "-" idx)}
-             [:td (category-key entry)])
-           ;; TODO:  [:td
-           ;;  {:class (str "bold " (if (< amount 0) "color-red" "color-blue"))}
-           ;;  amount]
-           #_[:td (:Category entry)]])
+             [:td
+              {:class (if (= (name category-key) "Amount")
+                        (str "bold " (if (< entry-val 0) "color-red" "color-blue")))}
+              entry-val])
+           ])
 
         ;; feed `map-indexed`
         (:data @state))]]
@@ -161,18 +174,23 @@
                                             (:to-date @state)))}
       "Filter by date"]
 
-     (let [debt (utils/get-total data >)
-           paid (utils/get-total data <)]
+     (let [plus           (utils/get-total data >)
+           minus          (utils/get-total data <)
+           difference     (utils/cents->dollars
+                           (+ (utils/dollars->cents plus)
+                              (utils/dollars->cents minus)))
+           ending-balance (utils/cents->dollars
+                           (+ (utils/dollars->cents (:initial-balance @state))
+                              (utils/dollars->cents difference)))]
 
        [:section.sums
 
-        ;; sum `debt` and `paid`, since paid is always negative
-        [:h2 "Still owe: " (utils/cents->dollars
-                            (+ (utils/dollars->cents debt)
-                               (utils/dollars->cents paid)))]
+        ;; sum `plus` and `minus` to get difference
+        [:h2 "Difference: " difference]
 
-        [:h2 "Total historical debt: " debt]
-        [:h2 "Total historical paid: " paid]])
+        [:h2 "Plus: " plus]
+        [:h2 "Minus: " minus]
+        [:h2 "Ending Balance: " ending-balance]])
      ]))
 
 

@@ -70,7 +70,7 @@
 
 (defn dollars->cents
   [dollars]
-  (* dollars 100))
+  (js/parseInt (* dollars 100)))
 
 
 (defn get-total
