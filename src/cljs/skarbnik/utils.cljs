@@ -1,6 +1,11 @@
 (ns skarbnik.utils
+  #:ghostwheel.core{:check     true
+                    :num-tests 10}
   (:require
    [clojure.string :as string]
+   [ghostwheel.tracer]
+   [ghostwheel.core :as g
+    :refer [>defn >defn- >fdef => | <- ?]]
    [goog.labs.format.csv :as csv]))
 
 
@@ -11,6 +16,7 @@
   (keyword
    (string/join
     (string/split s #"\s"))))
+
 
 (defn get-categories
   "Parses first row of vector of vectors of csv data to get headers.
@@ -73,9 +79,11 @@
   (js/parseInt (* dollars 100)))
 
 
-(defn get-total
+(>defn get-total
   "`data` list of maps with key `:Amount`"
   [data comparator-symbol]
+  [vector? symbol?
+   => string?]
   (cents->dollars
    (reduce
     (fn [acc d]
@@ -84,3 +92,10 @@
         acc))
     0
     data)))
+
+;; (>defn addition
+;;        [a b]
+;;        [pos-int? pos-int? => int? | #(> % a) #(> % b)]
+;;        (+ a b))
+;; (addition 2 3)
+;; (g/check)

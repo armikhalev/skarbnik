@@ -1,6 +1,11 @@
 (ns skarbnik.core
+  #:ghostwheel.core{:check     true
+                    :num-tests 10}
   (:require  [reagent.core :as reagent :refer [atom]]
              [cljs.nodejs :as nodejs]
+             [ghostwheel.tracer]
+             [ghostwheel.core :as g
+              :refer [>defn >defn- >fdef => | <- ?]]
              [skarbnik.utils :as utils]))
 
 (nodejs/enable-util-print!)
@@ -97,6 +102,7 @@
 
 
 (defn get-maps-categories
+  "Takes a vector of maps that is csv data, takes first row and gets the keys."
   [maps]
   (-> maps
       first
@@ -187,7 +193,6 @@
 
         ;; sum `plus` and `minus` to get difference
         [:h2 "Difference: " difference]
-
         [:h2 "Plus: " plus]
         [:h2 "Minus: " minus]
         [:h2 "Ending Balance: " ending-balance]])

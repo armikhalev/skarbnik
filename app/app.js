@@ -1,7 +1,7 @@
 var electron = require('electron'),
     fs = require('fs-extra'),
     path = require('path'),
-    shell = require('shell'),
+    shell = electron.shell,
     packageJson = require(__dirname + '/package.json');
 
 var ipc = electron.ipcMain;
@@ -11,7 +11,8 @@ var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 
 // Report crashes to atom-shell.
-require('crash-reporter').start();
+//const {crashReporter} = require('electron');
+//crashReporter.start();
 
 const devConfigFile = __dirname + '/config.json';
 var devConfig = {};
