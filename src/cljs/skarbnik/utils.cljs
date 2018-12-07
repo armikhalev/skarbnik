@@ -1,6 +1,4 @@
 (ns skarbnik.utils
-  #:ghostwheel.core{:check     true
-                    :num-tests 10}
   (:require
    [clojure.string :as string]
    [ghostwheel.tracer]
@@ -93,9 +91,58 @@
     0
     data)))
 
-;; (>defn addition
-;;        [a b]
-;;        [pos-int? pos-int? => int? | #(> % a) #(> % b)]
-;;        (+ a b))
-;; (addition 2 3)
+;; Dates
+(defn mdy->ymd
+  "Converts date format MM/DD/YYYY to YYYY-MM-DD."
+  [mdy]
+  (let [date (clojure.string/split mdy #"/"),
+        year (last date),
+        rest- (take 2 date)]
+    (clojure.string/join "-" (conj rest- year ))))
+
+
+(defn date->ints
+  "Converts date string of form YYYY-MM-DD to list of integers."
+  [date]
+  (vec (map js/parseInt (clojure.string/split date #"-"))))
+
+
+(defn compare-dates
+  "Compares two lists of dates integers of form YYYY-MM-DD using comparison operator.
+   Returns boolean."
+  [comparator-symbol first-date second-date]
+  (not (some false?
+            (map
+             (partial comparator-symbol)
+             first-date second-date))))
+
+
+(defn filter-by-date
+  "Filters out entries that are bigger than `from-date` and less than `to-date`.
+   Expects `entry` to have key `Trans.Date`."
+  [entries from-date to-date]
+  (filter
+   (fn [entry]
+     (let [date (:Trans.Date entry)]
+       (and (compare-dates >= (date->ints (mdy->ymd date)) (date->ints from-date))
+            (compare-dates <= (date->ints (mdy->ymd date)) (date->ints to-date)))))
+   entries))
+;; ENDs Dates
+
+(defn get-maps-categories-str
+  [maps]
+  (-> maps
+      first
+      keys
+      (->> , (map name))
+      vec))
+
+
+(defn get-maps-categories
+  "Takes a vector of maps that is csv data, takes first row and gets the keys."
+  [maps]
+  (-> maps
+      first
+      keys))
+
 ;; (g/check)

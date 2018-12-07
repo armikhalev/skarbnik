@@ -35,7 +35,9 @@
                                                          :main       "skarbnik.dev"
                                                          :verbose true
                                                          :preloads [devtools.preload]
-                                                         :external-config {:ghostwheel {}}}
+                                                         :external-config {:ghostwheel
+                                                                           {:check     true
+                                                                            :num-tests 10}}}
                                               :figwheel {:on-jsload "skarbnik.core/mount-root"}}}}
                    :source-paths ["env/dev/cljs"]
 

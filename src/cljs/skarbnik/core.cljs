@@ -1,11 +1,11 @@
 (ns skarbnik.core
-  #:ghostwheel.core{:check     true
-                    :num-tests 10}
   (:require  [reagent.core :as reagent :refer [atom]]
              [cljs.nodejs :as nodejs]
              [ghostwheel.tracer]
              [ghostwheel.core :as g
               :refer [>defn >defn- >fdef => | <- ?]]
+             [skarbnik.bank-account :as bank]
+             [skarbnik.credit-account :as credit]
              [skarbnik.utils :as utils]))
 
 (nodejs/enable-util-print!)
@@ -14,6 +14,8 @@
                       :initial-balance 0
                       :from-date ""
                       :to-date   ""}))
+
+(defonce current-page (atom :bank))
 
 ;; nodejs
 
@@ -54,149 +56,31 @@
 ;; ENDs file management fns
 
 
-;; Dates
-(defn mdy->ymd
-  "Converts date format MM/DD/YYYY to YYYY-MM-DD."
-  [mdy]
-  (let [date (clojure.string/split mdy #"/"),
-        year (last date),
-        rest- (take 2 date)]
-    (clojure.string/join "-" (conj rest- year ))))
-
-
-(defn date->ints
-  "Converts date string of form YYYY-MM-DD to list of integers."
-  [date]
-  (vec (map js/parseInt (clojure.string/split date #"-"))))
-
-
-(defn compare-dates
-  "Compares two lists of dates integers of form YYYY-MM-DD using comparison operator.
-   Returns boolean."
-  [comparator-symbol first-date second-date]
-  (not (some false?
-            (map
-             (partial comparator-symbol)
-             first-date second-date))))
-
-
-(defn filter-by-date
-  "Filters out entries that are bigger than `from-date` and less than `to-date`.
-   Expects `entry` to have key `Trans.Date`."
-  [entries from-date to-date]
-  (filter
-   (fn [entry]
-     (let [date (:Trans.Date entry)]
-       (and (compare-dates >= (date->ints (mdy->ymd date)) (date->ints from-date))
-            (compare-dates <= (date->ints (mdy->ymd date)) (date->ints to-date)))))
-   entries))
-;; ENDs Dates
-
-(defn get-maps-categories-str
-  [maps]
-  (-> maps
-      first
-      keys
-      (->> , (map name))
-      vec))
-
-
-(defn get-maps-categories
-  "Takes a vector of maps that is csv data, takes first row and gets the keys."
-  [maps]
-  (-> maps
-      first
-      keys))
-
-
 ;; Root
 
 (defn main-page []
-  (let [data (:data @state)]
-    [:main
-     [:h1 "Skarbnik"]
-     [:button
-      {:on-click #(open-file
-                   (fn [file-names]
-                     (if (= file-names nil)
-                       (prn "no file selected")
-                       (read<-file (first file-names)))))}
-      "Open file"]
+  [:main
+   [:h1 "Skarbnik"]
+   [:nav
+    [:button
+     {:on-click #(reset! current-page :credit)}
+     "Credit Account"]
 
-     [:button
-      {:on-click #(write->file data-file-path (utils/maps->js data))}
-      "Save"]
+    [:button
+     {:on-click #(reset! current-page :bank)}
+     "Bank Account"]]
+   (case @current-page
+     :bank (bank/page {:state          state
+                       :open-file      open-file
+                       :read<-file     read<-file
+                       :write->file    write->file
+                       :data-file-path data-file-path})
 
-     [:p  "Press Enter to set Initial balance: "
-      [:input {:placeholder "0"
-               :type "number"
-               :on-key-press (fn [e]
-                               (if (= "Enter" (.-key e))
-                                 (swap! state
-                                        assoc :initial-balance
-                                        (js/parseFloat (.-value (.-target e)))))) }]]
-
-     [:h3 (str "Initial Balance: " (:initial-balance @state))]
-
-     [:table
-      [:thead
-       [:tr
-        (for [th (get-maps-categories-str data)]
-          ^{:key th}
-          [:th th])]]
-      [:tbody
-       (map-indexed
-        (fn [idx entry]
-          ^{:key idx}
-          [:tr
-           (for [category-key (get-maps-categories data)
-                 :let [entry-val (category-key entry)]]
-             ^{:key (str category-key "-" idx)}
-             [:td
-              {:class (if (= (name category-key) "Amount")
-                        (str "bold " (if (< entry-val 0) "color-red" "color-blue")))}
-              entry-val])
-           ])
-
-        ;; feed `map-indexed`
-        (:data @state))]]
-
-     [:section.date-picker
-      [:label "Select date range from: "]
-      [:input
-       {:type "date"
-        :on-change #(swap! state assoc :from-date (.-target.value %))
-        :name "from-date"}]
-      [:label " to: "]
-      [:input
-       {:type "date"
-        :on-change #(swap! state assoc :to-date (.-target.value %))
-        :name "to-date"}]]
-
-     [:button
-      {:on-click #(swap! state assoc :data (filter-by-date
-                                            data
-                                            (:from-date @state)
-                                            (:to-date @state)))}
-      "Filter by date"]
-
-     (let [plus           (utils/get-total data >)
-           minus          (utils/get-total data <)
-           difference     (utils/cents->dollars
-                           (+ (utils/dollars->cents plus)
-                              (utils/dollars->cents minus)))
-           ending-balance (utils/cents->dollars
-                           (+ (utils/dollars->cents (:initial-balance @state))
-                              (utils/dollars->cents difference)))]
-
-       [:section.sums
-
-        ;; sum `plus` and `minus` to get difference
-        [:h2 "Difference: " difference]
-        [:h2 "Plus: " plus]
-        [:h2 "Minus: " minus]
-        [:h2 "Ending Balance: " ending-balance]])
-     ]))
+     :credit (credit/page {:state          state
+                           :open-file      open-file
+                           :read<-file     read<-file
+                           :write->file    write->file
+                           :data-file-path data-file-path}))])
 
 
 ;; Init
