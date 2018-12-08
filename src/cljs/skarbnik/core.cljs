@@ -10,10 +10,12 @@
 
 (nodejs/enable-util-print!)
 
-(defonce state (atom {:data      []
-                      :initial-balance 0
-                      :from-date ""
-                      :to-date   ""}))
+(defonce state (atom {:bank-data                []
+                      :credit-data              []
+                      :initial-bank-balance     0
+                      :initial-credit-balance   0
+                      :from-date                ""
+                      :to-date                  ""}))
 
 (defonce current-page (atom :bank))
 
@@ -26,7 +28,8 @@
 
 ;; file paths
 
-(def data-file-path "./data-file.txt")
+  (def bank-data-file-path "./bank-data-file.txt")
+  (def credit-data-file-path "./credit-data-file.txt")
 ;;
 
 
@@ -36,7 +39,7 @@
   (.showOpenDialog dialog path))
 
 
-(defn write->file
+(defn write-file!
   [filepath content]
   (.writeFile fs filepath content
               (fn [err]
@@ -45,13 +48,16 @@
                   (prn "Successfully wrote to file")))))
 
 
-(defn read<-file
-  [filepath]
+(defn read-file!
+  [filepath swap-state-fn]
+  ;; [string? fn?
+  ;;  => ?]
   (.readFile fs filepath "utf-8"
               (fn [err content]
-                (if err
-                  (prn err)
-                  (swap! state assoc :data (utils/parse-csv content))))))
+                (let [content-parsed (utils/parse-csv content)]
+                  (if err
+                    (prn err)
+                    (swap-state-fn content-parsed))))))
 
 ;; ENDs file management fns
 
@@ -72,15 +78,15 @@
    (case @current-page
      :bank (bank/page {:state          state
                        :open-file      open-file
-                       :read<-file     read<-file
-                       :write->file    write->file
-                       :data-file-path data-file-path})
+                       :read-file!     read-file!
+                       :write-file!    write-file!
+                       :data-file-path bank-data-file-path})
 
      :credit (credit/page {:state          state
                            :open-file      open-file
-                           :read<-file     read<-file
-                           :write->file    write->file
-                           :data-file-path data-file-path}))])
+                           :read-file!     read-file!
+                           :write-file!    write-file!
+                           :data-file-path credit-data-file-path}))])
 
 
 ;; Init
@@ -91,5 +97,7 @@
 
 (defn init!
   []
-  (mount-root)
-  (read<-file data-file-path))
+  (do
+    (mount-root)
+    (read-file! bank-data-file-path   (fn [data] (swap! state assoc :bank-data data)))
+    (read-file! credit-data-file-path (fn [data] (swap! state assoc :credit-data data)))))

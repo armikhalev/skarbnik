@@ -11,10 +11,10 @@
   [{:keys
     [state
      open-file
-     read<-file
-     write->file
+     read-file!
+     write-file!
      data-file-path ]}]
-  (let [data (:data @state)]
+  (let [data (:bank-data @state)]
     [:section
      [:h2 "Bank Account"]
      [:button
@@ -22,11 +22,11 @@
                    (fn [file-names]
                      (if (= file-names nil)
                        (prn "no file selected")
-                       (read<-file (first file-names)))))}
+                       (read-file! (first file-names) (fn [data] (swap! state assoc :bank-data data))))))}
       "Open file"]
 
      [:button
-      {:on-click #(write->file data-file-path (utils/maps->js data))}
+      {:on-click #(write-file! data-file-path (utils/maps->js data))}
       "Save"]
 
      [:p  "Press Enter to set Initial balance: "
@@ -35,10 +35,10 @@
                :on-key-press (fn [e]
                                (if (= "Enter" (.-key e))
                                  (swap! state
-                                        assoc :initial-balance
+                                        assoc :initial-bank-balance
                                         (js/parseFloat (.-value (.-target e)))))) }]]
 
-     [:h3 (str "Initial Balance: " (:initial-balance @state))]
+     [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
 
      [:table
       [:thead
@@ -61,7 +61,7 @@
            ])
 
         ;; feed `map-indexed`
-        (:data @state))]]
+        (:bank-data @state))]]
 
      [:section.date-picker
       [:label "Select date range from: "]
@@ -76,10 +76,10 @@
         :name "to-date"}]]
 
      [:button
-      {:on-click #(swap! state assoc :data (utils/filter-by-date
-                                            data
-                                            (:from-date @state)
-                                            (:to-date @state)))}
+      {:on-click #(swap! state assoc :bank-data (utils/filter-by-date
+                                                 data
+                                                 (:from-date @state)
+                                                 (:to-date @state)))}
       "Filter by date"]
 
      (let [plus           (utils/get-total data >)
@@ -88,7 +88,7 @@
                            (+ (utils/dollars->cents plus)
                               (utils/dollars->cents minus)))
            ending-balance (utils/cents->dollars
-                           (+ (utils/dollars->cents (:initial-balance @state))
+                           (+ (utils/dollars->cents (:initial-bank-balance @state))
                               (utils/dollars->cents difference)))]
 
        [:section.sums
