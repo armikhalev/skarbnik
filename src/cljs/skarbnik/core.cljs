@@ -28,8 +28,10 @@
 
 ;; file paths
 
-  (def bank-data-file-path "./bank-data-file.txt")
-  (def credit-data-file-path "./credit-data-file.txt")
+(def bank-data-file-path "./bank-data-file.txt")
+(def credit-data-file-path "./credit-data-file.txt")
+(def bank-initial-balance-file-path "./bank-initial-balance.txt")
+(def credit-initial-balance-file-path "./credit-initial-balance.txt")
 ;;
 
 
@@ -49,15 +51,22 @@
 
 
 (defn read-file!
-  [filepath swap-state-fn]
-  ;; [string? fn?
-  ;;  => ?]
-  (.readFile fs filepath "utf-8"
+  "Fn of arity 2 just reads file content, arity 3 expects data in csv format parsing it to vector of maps"
+  ;; arity 2
+  ([filepath swap-state-fn]
+   (.readFile fs filepath "utf-8"
+              (fn [err content]
+                (if err
+                  (prn err)
+                  (swap-state-fn content)))))
+  ;; arity 3
+  ([filepath swap-state-fn parse?]
+   (.readFile fs filepath "utf-8"
               (fn [err content]
                 (let [content-parsed (utils/parse-csv content)]
                   (if err
                     (prn err)
-                    (swap-state-fn content-parsed))))))
+                    (swap-state-fn content-parsed)))))))
 
 ;; ENDs file management fns
 
@@ -69,24 +78,27 @@
    [:h1 "Skarbnik"]
    [:nav
     [:button
-     {:on-click #(reset! current-page :credit)}
-     "Credit Account"]
+     {:on-click #(reset! current-page :bank)}
+     "Bank Account"]
 
     [:button
-     {:on-click #(reset! current-page :bank)}
-     "Bank Account"]]
-   (case @current-page
-     :bank (bank/page {:state          state
-                       :open-file      open-file
-                       :read-file!     read-file!
-                       :write-file!    write-file!
-                       :data-file-path bank-data-file-path})
+     {:on-click #(reset! current-page :credit)}
+     "Credit Account"]]
 
-     :credit (credit/page {:state          state
-                           :open-file      open-file
-                           :read-file!     read-file!
-                           :write-file!    write-file!
-                           :data-file-path credit-data-file-path}))])
+   (case @current-page
+     :bank (bank/page {:state                     state
+                       :open-file                 open-file
+                       :read-file!                read-file!
+                       :write-file!               write-file!
+                       :initial-balance-file-path bank-initial-balance-file-path
+                       :data-file-path            bank-data-file-path})
+
+     :credit (credit/page {:state                     state
+                           :open-file                 open-file
+                           :read-file!                read-file!
+                           :write-file!               write-file!
+                           :initial-balance-file-path credit-initial-balance-file-path
+                           :data-file-path            credit-data-file-path}))])
 
 
 ;; Init
@@ -99,5 +111,21 @@
   []
   (do
     (mount-root)
-    (read-file! bank-data-file-path   (fn [data] (swap! state assoc :bank-data data)))
-    (read-file! credit-data-file-path (fn [data] (swap! state assoc :credit-data data)))))
+    ;;
+    (read-file!
+     bank-initial-balance-file-path
+     (fn [data] (swap! state assoc :initial-bank-balance data)))
+
+    (read-file!
+     credit-initial-balance-file-path
+     (fn [data] (swap! state assoc :initial-credit-balance data)))
+    ;;
+    (read-file!
+     bank-data-file-path
+     (fn [data] (swap! state assoc :bank-data data))
+     :parse)
+
+    (read-file!
+     credit-data-file-path
+     (fn [data] (swap! state assoc :credit-data data))
+     :parse)))

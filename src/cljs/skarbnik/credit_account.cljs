@@ -6,6 +6,8 @@
               :refer [>defn >defn- >fdef => | <- ?]]
              [skarbnik.utils :as utils]))
 
+
+
 (defn page
   "Creates credit account page"
   [{:keys
@@ -13,6 +15,7 @@
      open-file
      read-file!
      write-file!
+     initial-balance-file-path
      data-file-path ]}]
   (let [data (:credit-data @state)]
     [:section
@@ -22,7 +25,10 @@
                    (fn [file-names]
                      (if (= file-names nil)
                        (prn "no file selected")
-                       (read-file! (first file-names) (fn [data] (swap! state assoc :credit-data data))))))}
+                       (read-file!
+                        (first file-names)
+                        (fn [data] (swap! state assoc :credit-data data))
+                        :parse))))}
       "Open file"]
 
      [:button
@@ -33,10 +39,11 @@
       [:input {:placeholder "0"
                :type "number"
                :on-key-press (fn [e]
-                               (if (= "Enter" (.-key e))
-                                 (swap! state
-                                        assoc :initial-credit-balance
-                                        (js/parseFloat (.-value (.-target e)))))) }]]
+                               (let [val (js/parseFloat (.-value (.-target e)))]
+                                 (if (= "Enter" (.-key e))
+                                   (do
+                                     (swap! state assoc :initial-credit-balance val)
+                                     (write-file! initial-balance-file-path val))))) }]]
 
      [:h3 (str "Initial Balance: " (:initial-credit-balance @state))]
 
