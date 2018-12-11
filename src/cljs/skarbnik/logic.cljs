@@ -1,6 +1,7 @@
-(ns skarbnik.utils
+(ns skarbnik.logic
   (:require
    [clojure.string :as string]
+   [clojure.spec.alpha :as s]
    [ghostwheel.tracer]
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
@@ -9,39 +10,58 @@
 
 ;; CSV->maps convertor fns
 
-(defn str->keys
+(>defn str->keys
+  "Takes a string of words separated by space, returns joined string as a keyword."
   [s]
+  [string?
+   => keyword?]
   (keyword
    (string/join
     (string/split s #"\s"))))
 
 
-(defn get-categories
+;; STARTS: get-categories
+(s/def ::csv-vectors? (s/coll-of (s/coll-of map? :kind vector?) ))
+
+(>defn get-categories
   "Parses first row of vector of vectors of csv data to get headers.
    Renames any name similar to `date`, `amount` and `category` to create api."
   [csv]
+  [::csv-vectors?
+   => seq?]
   (let [cats (map str->keys (first csv))]
     cats)) ;; TODO: finish implementation acc.to doc string
+;; ENDS: get-categories
 
-(defn csv->maps
+
+;; STARTS: csv->maps
+(>defn csv->maps
   "Takes array of arrays with csv data, returns maps with categories added as keys."
   [csv]
+  [::csv-vectors?
+   => seq?] ;; TODO: Should check for `date`, `amount` and `category` as keys
   (let [categories (get-categories csv)
         entries    (rest csv)]
     (map (partial zipmap categories) entries)))
+;; ENDS: csv->maps
 
-(defn parse-csv
+
+;; STARTS: CSV->maps convertor fns
+(>defn parse-csv
   "Takes csv data converts it to clojure vector. Returns maps"
   [csv]
+  [string?
+   => seq?] ;; TODO: should be more clear on what actually is returned
   (-> csv
       csv/parse
       js->clj
       csv->maps))
+;; ENDS: CSV->maps convertor fns
 
-;; ENDs CSV->maps convertor fns
 
-
-;; Maps->CSV convertor fns
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Maps->CSV convertor fns ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn unzip-maps
   "Unzips maps into vector of vectors adding keys as the first vector"
@@ -98,7 +118,7 @@
   (let [date (clojure.string/split mdy #"/"),
         year (last date),
         rest- (take 2 date)]
-    (clojure.string/join "-" (conj rest- year ))))
+    (clojure.string/join "-" (conj rest- year))))
 
 
 (defn date->ints
@@ -145,4 +165,4 @@
       first
       keys))
 
-;; (g/check)
+(g/check)

@@ -1,10 +1,10 @@
 (ns skarbnik.credit-account
-  (:require  [reagent.core :as reagent :refer [atom]]
-             [cljs.nodejs :as nodejs]
-             [ghostwheel.tracer]
-             [ghostwheel.core :as g
-              :refer [>defn >defn- >fdef => | <- ?]]
-             [skarbnik.utils :as utils]))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [cljs.nodejs :as nodejs]
+            [ghostwheel.tracer]
+            [ghostwheel.core :as g
+             :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.logic :as logic]))
 
 
 
@@ -16,7 +16,7 @@
      read-file!
      write-file!
      initial-balance-file-path
-     data-file-path ]}]
+     data-file-path]}]
   (let [data (:credit-data @state)]
     [:section
      [:h2 "Credit Account"]
@@ -32,7 +32,7 @@
       "Open file"]
 
      [:button
-      {:on-click #(write-file! data-file-path (utils/maps->js data))}
+      {:on-click #(write-file! data-file-path (logic/maps->js data))}
       "Save"]
 
      [:p  "Press Enter to set Initial balance: "
@@ -43,14 +43,14 @@
                                  (if (= "Enter" (.-key e))
                                    (do
                                      (swap! state assoc :initial-credit-balance val)
-                                     (write-file! initial-balance-file-path val))))) }]]
+                                     (write-file! initial-balance-file-path val)))))}]]
 
      [:h3 (str "Initial Balance: " (:initial-credit-balance @state))]
 
      [:table
       [:thead
        [:tr
-        (for [th (utils/get-maps-categories-str data)]
+        (for [th (logic/get-maps-categories-str data)]
           ^{:key th}
           [:th th])]]
       [:tbody
@@ -58,14 +58,14 @@
         (fn [idx entry]
           ^{:key idx}
           [:tr
-           (for [category-key (utils/get-maps-categories data)
+           (for [category-key (logic/get-maps-categories data)
                  :let [entry-val (category-key entry)]]
              ^{:key (str category-key "-" idx)}
              [:td
               {:class (if (= (name category-key) "Amount")
                         (str "bold " (if (< entry-val 0) "color-red" "color-blue")))}
-              entry-val])
-           ])
+              entry-val])])
+
 
         ;; feed `map-indexed`
         (:credit-data @state))]]
@@ -83,20 +83,20 @@
         :name "to-date"}]]
 
      [:button
-      {:on-click #(swap! state assoc :credit-data (utils/filter-by-date
+      {:on-click #(swap! state assoc :credit-data (logic/filter-by-date
                                                    data
                                                    (:from-date @state)
                                                    (:to-date @state)))}
       "Filter by date"]
 
-     (let [plus           (utils/get-total data >)
-           minus          (utils/get-total data <)
-           difference     (utils/cents->dollars
-                           (+ (utils/dollars->cents plus)
-                              (utils/dollars->cents minus)))
-           ending-balance (utils/cents->dollars
-                           (+ (utils/dollars->cents (:initial-credit-balance @state))
-                              (utils/dollars->cents difference)))]
+     (let [plus           (logic/get-total data >)
+           minus          (logic/get-total data <)
+           difference     (logic/cents->dollars
+                            (+ (logic/dollars->cents plus)
+                               (logic/dollars->cents minus)))
+           ending-balance (logic/cents->dollars
+                            (+ (logic/dollars->cents (:initial-credit-balance @state))
+                               (logic/dollars->cents difference)))]
 
        [:section.sums
 
@@ -104,5 +104,5 @@
         [:h2 "Difference: " difference]
         [:h2 "Plus: " plus]
         [:h2 "Minus: " minus]
-        [:h2 "Ending Balance: " ending-balance]])
-     ]))
+        [:h2 "Ending Balance: " ending-balance]])]))
+

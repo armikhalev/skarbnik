@@ -1,12 +1,12 @@
 (ns skarbnik.core
-  (:require  [reagent.core :as reagent :refer [atom]]
-             [cljs.nodejs :as nodejs]
-             [ghostwheel.tracer]
-             [ghostwheel.core :as g
-              :refer [>defn >defn- >fdef => | <- ?]]
-             [skarbnik.bank-account :as bank]
-             [skarbnik.credit-account :as credit]
-             [skarbnik.utils :as utils]))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [cljs.nodejs :as nodejs]
+            [ghostwheel.tracer]
+            [ghostwheel.core :as g
+             :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.bank-account :as bank]
+            [skarbnik.credit-account :as credit]
+            [skarbnik.logic :as logic]))
 
 (nodejs/enable-util-print!)
 
@@ -63,7 +63,7 @@
   ([filepath swap-state-fn parse?]
    (.readFile fs filepath "utf-8"
               (fn [err content]
-                (let [content-parsed (utils/parse-csv content)]
+                (let [content-parsed (logic/parse-csv content)]
                   (if err
                     (prn err)
                     (swap-state-fn content-parsed)))))))
