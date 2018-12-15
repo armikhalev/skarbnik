@@ -1,7 +1,6 @@
 (ns skarbnik.bank-account
   (:require [reagent.core :as reagent :refer [atom]]
             [cljs.nodejs :as nodejs]
-            [ghostwheel.tracer]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
             [skarbnik.logic :as logic]))

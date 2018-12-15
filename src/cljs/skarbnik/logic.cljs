@@ -2,7 +2,6 @@
   (:require
    [clojure.string :as string]
    [clojure.spec.alpha :as s]
-   [ghostwheel.tracer]
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
    [goog.labs.format.csv :as csv]))
@@ -11,35 +10,90 @@
 ;; CSV->maps convertor fns
 
 (>defn str->keys
-  "Takes a string of words separated by space, returns joined string as a keyword."
+  "Takes a string of words separated by space, returns joined string"
   [s]
   [string?
-   => keyword?]
-  (keyword
-   (string/join
-    (string/split s #"\s"))))
+   => string?]
+  (string/join
+   (string/split s #"\s")))
 
 
 ;; STARTS: get-categories
-(s/def ::csv-vectors? (s/coll-of (s/coll-of map? :kind vector?) ))
+(s/def ::csv-vectors?
+  (s/coll-of
+   (s/coll-of map? :kind vector?)))
+
+(s/def ::date string?)
+(s/def ::amount string?)
+(s/def ::description string?)
+
+(s/def ::description (s/keys :req-un [::date ::amount ::description]))
+(s/def ::categories?
+  (s/coll-of ::description))
+
+(defn find-cat
+  [s re]
+  (re-find re (clojure.string/lower-case s)))
+
+(def cats [#"date" #"amount" #"description"])
+
+(defn categorize
+  "Finds strings similar to `date`, `amount` and `description` to create api and creates keys out of them.
+   Returns seq of keys. If required string is not found returns warning."
+  [cats data]
+  ;; [(s/coll-of s/regex?) #{"date" "amount" "description"}
+  ;;  => ::categories?]
+  (map
+   (fn [s]
+     (let [found (filter
+                  (partial find-cat s)
+                  cats)]
+       (if (> (count found) 0)
+         (keyword (find-cat s (first found)))
+         (keyword s))))
+   data))
+
+
+;; Check if all the required categories are in the derived categories vector
+(def req-cats [:date :amount :description])
+
+(defn all-cats?
+  "Returns vector intersection of two vectors."
+  [req-cats cats]
+  (vec
+   (clojure.set/intersection
+    (set req-cats) (set cats))))
+
+(defn diff-cats
+  "Returns vector difference between two vectors."
+  [req-cats cats]
+  (vec (clojure.set/difference
+       (set req-cats) (set cats))))
 
 (>defn get-categories
   "Parses first row of vector of vectors of csv data to get headers.
-   Renames any name similar to `date`, `amount` and `category` to create api."
+   Returns vector of keys"
+  ;; {::g/trace 4}
   [csv]
   [::csv-vectors?
-   => seq?]
-  (let [cats (map str->keys (first csv))]
-    cats)) ;; TODO: finish implementation acc.to doc string
+   => (s/or :cats  ::categories?
+            :diffs vector?)]
+
+  (let [data-cats (map str->keys (first csv))
+        categories (categorize cats data-cats)]
+    (if (= 3 (count (all-cats? req-cats categories)))
+      categories
+      (diff-cats req-cats categories))))
 ;; ENDS: get-categories
 
 
 ;; STARTS: csv->maps
 (>defn csv->maps
   "Takes array of arrays with csv data, returns maps with categories added as keys."
+  ;; {::g/trace 4}
   [csv]
   [::csv-vectors?
-   => seq?] ;; TODO: Should check for `date`, `amount` and `category` as keys
+   => seq?] ;; TODO: Should check for `date`, `amount` and `description` as keys
   (let [categories (get-categories csv)
         entries    (rest csv)]
     (map (partial zipmap categories) entries)))
@@ -165,4 +219,4 @@
       first
       keys))
 
-(g/check)
+;; (g/check)
