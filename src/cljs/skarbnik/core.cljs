@@ -15,7 +15,8 @@
                       :initial-bank-balance     0
                       :initial-credit-balance   0
                       :from-date                ""
-                      :to-date                  ""}))
+                      :to-date                  ""
+                      :error-message            ""}))
 
 (defonce current-page (atom :bank))
 
@@ -49,6 +50,12 @@
                   (prn "Error: " err)
                   (prn "Successfully wrote to file")))))
 
+(defn check-categories
+  [m]
+  (let [cats (keys m)]
+    (if (<= 2 (count cats))
+      (swap! state assoc :error-message (str "Please, add columns missing columns: " cats))
+      m)))
 
 (defn read-file!
   "Fn of arity 2 just reads file content, arity 3 expects data in csv format parsing it to vector of maps"
@@ -66,7 +73,9 @@
                 (let [content-parsed (logic/parse-csv content)]
                   (if err
                     (prn err)
-                    (swap-state-fn content-parsed)))))))
+                    (do
+                      (check-categories (first content-parsed))
+                      (swap-state-fn content-parsed))))))))
 
 ;; ENDs file management fns
 
@@ -84,6 +93,9 @@
     [:button
      {:on-click #(reset! current-page :credit)}
      "Credit Account"]]
+
+   [:h2.error-message
+    (:error-message @state)]
 
    (case @current-page
      :bank (bank/page {:state                     state

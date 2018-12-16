@@ -7,10 +7,13 @@
    [goog.labs.format.csv :as csv]))
 
 
-;; CSV->maps convertor fns
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; CSV->maps convertor fns ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (>defn str->keys
-  "Takes a string of words separated by space, returns joined string"
+  "Takes a string of words separated by space, returns joined string.
+   NOTE: returns string not keyword."
   [s]
   [string?
    => string?]
@@ -21,7 +24,8 @@
 ;; STARTS: get-categories
 (s/def ::csv-vectors?
   (s/coll-of
-   (s/coll-of map? :kind vector?)))
+   (s/coll-of string? :kind vector?)
+   :kind vector?))
 
 (s/def ::date string?)
 (s/def ::amount string?)
@@ -38,11 +42,9 @@
 (def cats [#"date" #"amount" #"description"])
 
 (defn categorize
-  "Finds strings similar to `date`, `amount` and `description` to create api and creates keys out of them.
-   Returns seq of keys. If required string is not found returns warning."
+  "Finds strings similar to `date`, `amount` and `description` to create api, changes them to the named ones.
+   Returns seq of keys."
   [cats data]
-  ;; [(s/coll-of s/regex?) #{"date" "amount" "description"}
-  ;;  => ::categories?]
   (map
    (fn [s]
      (let [found (filter
@@ -71,13 +73,13 @@
        (set req-cats) (set cats))))
 
 (>defn get-categories
-  "Parses first row of vector of vectors of csv data to get headers.
-   Returns vector of keys"
+  "Parses first row of vector of vectors of strings to get headers.
+   Returns either vector of keys including `req-cats` or missing keys."
   ;; {::g/trace 4}
   [csv]
   [::csv-vectors?
-   => (s/or :cats  ::categories?
-            :diffs vector?)]
+   => (s/or :diffs vector?
+            :cats  ::categories?)]
 
   (let [data-cats (map str->keys (first csv))
         categories (categorize cats data-cats)]
@@ -93,7 +95,8 @@
   ;; {::g/trace 4}
   [csv]
   [::csv-vectors?
-   => seq?] ;; TODO: Should check for `date`, `amount` and `description` as keys
+   => (s/coll-of map?)]
+
   (let [categories (get-categories csv)
         entries    (rest csv)]
     (map (partial zipmap categories) entries)))
@@ -105,7 +108,8 @@
   "Takes csv data converts it to clojure vector. Returns maps"
   [csv]
   [string?
-   => seq?] ;; TODO: should be more clear on what actually is returned
+   => (s/coll-of map?)]
+
   (-> csv
       csv/parse
       js->clj

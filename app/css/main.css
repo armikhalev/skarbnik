@@ -13,3 +13,7 @@ html {
 .bold {
     font-weight: bold;
 }
+
+.error-message {
+    color: red;
+}
