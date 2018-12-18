@@ -66,7 +66,7 @@
                  :let [entry-val (category-key entry)]]
              ^{:key (str category-key "-" idx)}
              [:td
-              {:class (if (= (name category-key) "Amount")
+              {:class (if (= (name category-key) "amount")
                         (str "bold " (if (< entry-val 0) "color-red" "color-blue")))}
               entry-val])])
 

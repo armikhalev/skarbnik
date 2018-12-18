@@ -143,6 +143,10 @@
 ;; ENDs Maps->CSV convertor fns
 
 
+;;;;;;;;;;;;;;;;
+;; Amount fns ;;
+;;;;;;;;;;;;;;;;
+
 (defn cents->dollars
   "Converts cents integers to dollars float numbers.
    Returns string."
@@ -156,18 +160,20 @@
 
 
 (>defn get-total
-  "`data` list of maps with key `:Amount`"
+  "`data` list of maps with key `:amount`"
   [data comparator-symbol]
   [vector? symbol?
    => string?]
   (cents->dollars
    (reduce
     (fn [acc d]
-      (if (comparator-symbol (:Amount d) 0)
-        (+ acc (dollars->cents (js/parseFloat (:Amount d))))
+      (if (comparator-symbol (:amount d) 0)
+        (+ acc (dollars->cents (js/parseFloat (:amount d))))
         acc))
     0
     data)))
+;; ENDS: Amount fns
+
 
 ;; Dates
 (defn mdy->ymd
@@ -197,17 +203,18 @@
 
 (defn filter-by-date
   "Filters out entries that are bigger than `from-date` and less than `to-date`.
-   Expects `entry` to have key `Trans.Date`."
+   Expects `entry` to have key `:date`."
   [entries from-date to-date]
   (filter
    (fn [entry]
-     (let [date (:Trans.Date entry)]
+     (let [date (:date entry)]
        (and (compare-dates >= (date->ints (mdy->ymd date)) (date->ints from-date))
             (compare-dates <= (date->ints (mdy->ymd date)) (date->ints to-date)))))
    entries))
 ;; ENDs Dates
 
 (defn get-maps-categories-str
+  "[{}] -> [String]"
   [maps]
   (-> maps
       first
@@ -217,7 +224,7 @@
 
 
 (defn get-maps-categories
-  "Takes a vector of maps that is csv data, takes first row and gets the keys."
+  "[{}] -> [Keyword]"
   [maps]
   (-> maps
       first
