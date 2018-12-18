@@ -20,6 +20,10 @@
   (let [data (:bank-data @state)]
     [:section
      [:h2 "Bank Account"]
+
+     [:h2.error-message
+      (get-in @state [:bank :error])]
+
      [:button
       {:on-click #(open-file
                    (fn [file-names]

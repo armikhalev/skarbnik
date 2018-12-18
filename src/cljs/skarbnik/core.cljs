@@ -16,7 +16,9 @@
                       :initial-credit-balance   0
                       :from-date                ""
                       :to-date                  ""
-                      :error-message            ""}))
+                      :error-message            ""
+                      :bank                     {:error ""}
+                      :credit                   {:error ""}}))
 
 (defonce current-page (atom :bank))
 
@@ -50,12 +52,20 @@
                   (prn "Error: " err)
                   (prn "Successfully wrote to file")))))
 
-(defn check-categories
+(defn check-categories!
+  "Checks quantity of keys, if required column headers are missing (i.e. >= 2), changes `:error` of the current page, otherwise defaults it to empty and returns passed map."
   [m]
-  (let [cats (keys m)]
-    (if (<= 2 (count cats))
-      (swap! state assoc :error-message (str "Please, add columns missing columns: " cats))
-      m)))
+  (let [cats     (keys m)
+        cur-page @current-page]
+    (case @current-page
+      :bank   (if (<= (count cats) 2)
+                (swap! state assoc-in [:bank :error] (str "Please, add missing columns: " cats " at " (name cur-page)))
+                (swap! state assoc-in [:bank :error] ""))
+
+      :credit (if (<= (count cats) 2)
+                (swap! state assoc-in [:credit :error] (str "Please, add missing columns: " cats " at " (name cur-page)))
+                (swap! state assoc-in [:credit :error] "")))))
+
 
 (defn read-file!
   "Fn of arity 2 just reads file content, arity 3 expects data in csv format parsing it to vector of maps"
@@ -74,7 +84,7 @@
                   (if err
                     (prn err)
                     (do
-                      (check-categories (first content-parsed))
+                      (check-categories! (first content-parsed))
                       (swap-state-fn content-parsed))))))))
 
 ;; ENDs file management fns
@@ -94,8 +104,6 @@
      {:on-click #(reset! current-page :credit)}
      "Credit Account"]]
 
-   [:h2.error-message
-    (:error-message @state)]
 
    (case @current-page
      :bank (bank/page {:state                     state

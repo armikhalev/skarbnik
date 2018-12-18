@@ -16,9 +16,14 @@
      write-file!
      initial-balance-file-path
      data-file-path]}]
+
   (let [data (:credit-data @state)]
     [:section
      [:h2 "Credit Account"]
+
+     [:h2.error-message
+      (get-in @state [:credit :error])]
+
      [:button
       {:on-click #(open-file
                    (fn [file-names]
