@@ -104,7 +104,6 @@
      {:on-click #(reset! current-page :credit)}
      "Credit Account"]]
 
-
    (case @current-page
      :bank (bank/page {:state                     state
                        :open-file                 open-file

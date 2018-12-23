@@ -8,6 +8,7 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.339"]
+                 [devcards "0.2.6"]
                  [gnl/ghostwheel.tracer "0.3.5"]
                  [gnl/ghostwheel "0.3.5"]
                  [cljsjs/nodejs-externs "1.0.4-1"]
@@ -23,7 +24,16 @@
                                         :asset-path    "js/p/out"
                                         :optimizations :none
                                         :pretty-print  true
-                                        :cache-analysis true}}}}
+                                        :cache-analysis true}}
+
+                       :devcards-test {:source-paths ["env/dev/cljs" "test"]
+                                       :figwheel {:devcards true}
+                                       :compiler {:main runners.browser
+                                                  :optimizations :none
+                                                  :asset-path "cljs/tests/out"
+                                                  :output-dir "resources/public/cljs/tests/out"
+                                                  :output-to "resources/public/cljs/tests/all-tests.js"
+                                                  :source-map-timestamp true}}}}
 
   :clean-targets ^{:protect false} [:target-path "out" "app/js/p"]
 

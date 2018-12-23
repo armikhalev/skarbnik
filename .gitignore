@@ -4,7 +4,7 @@
 /checkouts
 pom.xml
 pom.xml.asc
-figwheel_server.log
+*.log
 *.jar
 *.class
 /.lein-*
@@ -25,3 +25,5 @@ figwheel_server.log
 /.idea
 *.iml
 *.txt
+.rebel_readline_history
+/resources/public/cljs

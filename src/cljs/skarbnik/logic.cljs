@@ -6,6 +6,7 @@
     :refer [>defn >defn- >fdef => | <- ?]]
    [goog.labs.format.csv :as csv]))
 
+(defn add [a b] (+ a b))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSV->maps convertor fns ;;
