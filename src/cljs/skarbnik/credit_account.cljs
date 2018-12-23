@@ -95,18 +95,18 @@
 
      (let [plus           (logic/get-total data >)
            minus          (logic/get-total data <)
-           difference     (logic/cents->dollars
-                            (+ (logic/dollars->cents plus)
-                               (logic/dollars->cents minus)))
-           ending-balance (logic/cents->dollars
-                            (+ (logic/dollars->cents (:initial-credit-balance @state))
-                               (logic/dollars->cents difference)))]
+           difference     (logic/get-sum-in-dollars plus minus)
+           ending-balance (logic/get-sum-in-dollars (:initial-credit-balance @state) difference)]
 
        [:section.sums
 
         ;; sum `plus` and `minus` to get difference
-        [:h2 "Difference: " difference]
-        [:h2 "Plus: " plus]
-        [:h2 "Minus: " minus]
-        [:h2 "Ending Balance: " ending-balance]])]))
+        [:section
+         [:h2 "This period:"]
+         [:h3 "Debt: " plus]
+         [:h3 "Paid: " minus]
+         [:h3 "Added debt: " difference]]
+        [:section
+         [:h2 "All time:"]
+         [:h3 "Total debt: " ending-balance]]])]))
 

@@ -6,8 +6,6 @@
     :refer [>defn >defn- >fdef => | <- ?]]
    [goog.labs.format.csv :as csv]))
 
-(defn add [a b] (+ a b))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSV->maps convertor fns ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -15,6 +13,7 @@
 (>defn str->keys
   "Takes a string of words separated by space, returns joined string.
    NOTE: returns string not keyword."
+  ;; {::g/trace true}
   [s]
   [string?
    => string?]
@@ -160,8 +159,17 @@
   (js/parseInt (* dollars 100)))
 
 
+(defn get-sum-in-dollars
+  "Returns sum of integers, that represent cents, in dollars."
+  [initial-bank-balance difference]
+  (cents->dollars
+   (+ (dollars->cents initial-bank-balance)
+      (dollars->cents difference))))
+
+
 (>defn get-total
   "`data` list of maps with key `:amount`"
+  ;; {::g/trace true}
   [data comparator-symbol]
   [vector? symbol?
    => string?]
