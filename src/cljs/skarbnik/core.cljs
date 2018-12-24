@@ -14,6 +14,8 @@
                       :credit-data              []
                       :initial-bank-balance     0
                       :initial-credit-balance   0
+                      :bank-total-difference    0
+                      :credit-total-difference  0
                       :from-date                ""
                       :to-date                  ""
                       :error-message            ""
@@ -117,7 +119,11 @@
                            :read-file!                read-file!
                            :write-file!               write-file!
                            :initial-balance-file-path credit-initial-balance-file-path
-                           :data-file-path            credit-data-file-path}))])
+                           :data-file-path            credit-data-file-path}))
+   [:h3 "Bank balance vs Credit account difference:"
+    (logic/get-sum-in-dollars
+     (- (:credit-total-difference @state))
+     (:bank-total-difference @state))]])
 
 
 ;; Init

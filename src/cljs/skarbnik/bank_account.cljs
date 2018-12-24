@@ -97,15 +97,20 @@
            difference     (logic/get-sum-in-dollars plus minus)
            ending-balance (logic/get-sum-in-dollars (:initial-bank-balance @state) difference)]
 
-       [:section.sums
+       (do
+         ;; Update state
+         (swap! state assoc :bank-total-difference ending-balance)
 
-        ;; sum `plus` and `minus` to get difference
-        [:section
-         [:h2 "This period:"]
-         [:h3 "Income: " plus]
-         [:h3 "Spending: " minus]
-         [:h3 "Net: " difference]]
-        [:section
-         [:h2 "All time:"]
-         [:h3 "Balance: " ending-balance]]])]))
+         ;; View
+         [:section.sums
+
+          ;; sum `plus` and `minus` to get difference
+          [:section
+           [:h2 "This period:"]
+           [:h3 "Income: " plus]
+           [:h3 "Spending: " minus]
+           [:h3 "Net: " difference]]
+          [:section
+           [:h2 "All time:"]
+           [:h3 "Balance: " ending-balance]]]))]))
 
