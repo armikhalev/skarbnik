@@ -24,7 +24,7 @@
      [:h2.error-message
       (get-in @state [:credit :error])]
 
-     [:button
+     [:button.open-file
       {:on-click #(open-file
                    (fn [file-names]
                      (if (= file-names nil)
@@ -35,7 +35,7 @@
                         :parse))))}
       "Open file"]
 
-     [:button
+     [:button.save-file
       {:on-click #(write-file! data-file-path (logic/maps->js data))}
       "Save"]
 
@@ -44,10 +44,11 @@
                :type "number"
                :on-key-press (fn [e]
                                (let [val (js/parseFloat (.-value (.-target e)))]
-                                 (if (= "Enter" (.-key e))
-                                   (do
-                                     (swap! state assoc :initial-credit-balance val)
-                                     (write-file! initial-balance-file-path val)))))}]]
+                                 (when (and (number? val) (not (js/Number.isNaN val)))
+                                   (if (= "Enter" (.-key e))
+                                     (do
+                                       (swap! state assoc :initial-credit-balance val)
+                                       (write-file! initial-balance-file-path val))))))}]]
 
      [:h3 (str "Initial Balance: " (:initial-credit-balance @state))]
 
