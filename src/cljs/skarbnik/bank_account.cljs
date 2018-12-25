@@ -68,7 +68,7 @@
              ^{:key (str category-key "-" idx)}
              [:td
               (if (= (name category-key) "amount")
-                       (helpers/colorize-numbers entry-val))
+                (helpers/colorize-numbers entry-val))
               entry-val])])
 
         ;; feed `map-indexed`

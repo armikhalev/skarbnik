@@ -11,6 +11,10 @@
 
 (nodejs/enable-util-print!)
 
+;; TODO:
+;; Recurring payments should be in state, define a map with keys being (str `description` `amount` `date`)
+;; value a map of the form {`description`:val `amount`:val `date`:val}
+;; then it will allow find recurring amounts if that amount and other data is in this map.
 (defonce state (atom {:bank-data                []
                       :credit-data              []
                       :initial-bank-balance     0

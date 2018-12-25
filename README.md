@@ -1,5 +1,4 @@
 # Skarbnik
-
 ## How does this app work?
 - Algorithm looks for payments that are similar by amount and category, then labels them as `recurring`
 - Also it looks for payments that are equal or higher than user defined limit of non-recurring big payment, however, it **skips** `recurring` payments. This kind of payments are labeled `big`.
@@ -10,7 +9,7 @@
 3. After that we can sum all the transactions on `credit-account` and all the transactions that labeled as `paid-debt`(either account can provide this info), in this way we can see how much user still owes.
 
 ## What should this app do?
-- Skarbnik is a finance management app
+- Skarbnik is a finance analyzing app
 - It takes csv file of financial data and gives UI for parsing that data
 - It saves data to csv file that can be copied or edited
 - It calculates sum of recurring payments
@@ -19,12 +18,14 @@
 - Also it shows how much big non-recurring credits negatively influence monthly income
 
 ## How to use this app?
+- Skarbnik should be used for analyzing financial data, so it is limited by periods in which user is interested. That means that user should have different CSV files for different periods of time, though there is search option by date, it doesn't mean user should upload all the data available.
 - Get financial data in csv format from your financial institution (Bank, Credit Card) or another financial app (Mint).
-- Upload that csv file to Skarbnik.
+- Upload that csv file to Skarbnik. 
+TODO: determine size of the file limit
 - Now you can look at your recurring payments, non-recurring but big credits being included in monthly expenses, you can filter data by date and categories.
 
 ## What Skarbnik is not?
-It is not a comprehensive financial app with automatic update of data. It is not connected to internet, all data is on user's computer in csv files protected only by safety of user's personal computer (Secure read and write of csv might be a goal for the next version).
+It is not a comprehensive financial app with automatic update of data. It is not connected to internet, all data is on user's computer in csv files protected only by safety of user's personal computer (Secure read and write of csv might be a goal for the next version). Supposedly, user uploads only the recent data, not the whole financial history.
 
 ## Requirements for project
 ### Skarbnik uses [electron-template](https://github.com/ducky427/electron-template), so here is the default readme:
