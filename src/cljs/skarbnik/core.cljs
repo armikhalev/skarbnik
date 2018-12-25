@@ -4,6 +4,7 @@
             [ghostwheel.tracer]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.helpers :as helpers]
             [skarbnik.bank-account :as bank]
             [skarbnik.credit-account :as credit]
             [skarbnik.logic :as logic]))
@@ -120,10 +121,15 @@
                            :write-file!               write-file!
                            :initial-balance-file-path credit-initial-balance-file-path
                            :data-file-path            credit-data-file-path}))
-   [:h3 "Bank balance vs Credit account difference:"
-    (logic/get-sum-in-dollars
-     (- (:credit-total-difference @state))
-     (:bank-total-difference @state))]])
+   (let [sum (logic/get-sum-in-dollars
+              (- (:credit-total-difference @state))
+              (:bank-total-difference @state))]
+     [:h3
+      {:class "inline-flex"}
+      [:span "Bank balance vs Credit account difference:"]
+      [:span
+       (helpers/colorize-numbers sum)
+       sum]])])
 
 
 ;; Init

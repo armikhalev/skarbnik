@@ -10,10 +10,23 @@ html {
     color: red;
 }
 
+.margin-left-5 {
+    margin-left: 5px;
+}
+
+.inline-flex {
+    display: inline-flex;
+}
+
 .bold {
     font-weight: bold;
 }
 
 .error-message {
     color: red;
+}
+
+.h3 {
+    font-size: 1.17em;
+    font-weight: bold;
 }

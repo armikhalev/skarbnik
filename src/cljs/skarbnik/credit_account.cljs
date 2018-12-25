@@ -3,6 +3,7 @@
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.helpers :as helpers]
             [skarbnik.logic :as logic]))
 
 
@@ -67,8 +68,8 @@
                  :let [entry-val (category-key entry)]]
              ^{:key (str category-key "-" idx)}
              [:td
-              {:class (if (= (name category-key) "amount")
-                        (str "bold " (if (< entry-val 0) "color-red" "color-blue")))}
+              (if (= (name category-key) "amount")
+                       (helpers/colorize-numbers entry-val))
               entry-val])])
 
 
@@ -114,5 +115,11 @@
            [:h3 "Added debt: " difference]]
           [:section
            [:h2 "All time:"]
-           [:h3 "Total debt: " ending-balance]]]))]))
+           [:span
+            {:class "inline-flex h3"}
+            [:span "Total debt: "]
+            [:span
+             (if (not= 0 ending-balance)
+               {:class "color-red margin-left-5"})
+             ending-balance]]]]))]))
 

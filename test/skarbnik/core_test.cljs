@@ -1,6 +1,7 @@
 (ns skarbnik.core-test
   (:require [cljs.test :refer-macros [is testing async]]
-            [devcards.core :refer-macros [deftest]]
+            [reagent.core :as reagent]
+            [devcards.core :refer-macros [deftest defcard-rg]]
             [skarbnik.logic :as logic]))
 
 (def test-data
@@ -15,3 +16,24 @@
 (deftest get-ending-balance-test
   (testing "Should return correct ending balance"
     (is (= "-40.00" (logic/get-sum-in-dollars 10 -50)))))
+
+
+(defn colorize-number
+  [number]
+  {:class (str "bold margin-left-5 " (if (< number 0) "color-red" "color-blue"))})
+
+(defcard-rg colorize-number
+  "Should colorize number"
+  [:span
+   {:class "inline-flex"}
+   [:h3
+    "Income: " ]
+   [:h3 (colorize-number -2) -2]])
+
+(defcard-rg color-red-if-not-null
+  "Should set color of the number to red if not 0"
+  (let [ending-balance 1]
+    [:span
+     (if (not= 0 ending-balance)
+       {:class "color-red margin-left-5"})
+     ending-balance]))
