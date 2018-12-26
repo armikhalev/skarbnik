@@ -1,6 +1,7 @@
 (ns skarbnik.core
   (:require [reagent.core :as reagent :refer [atom]]
             [cljs.nodejs :as nodejs]
+            [clojure.spec.alpha :as s]
             [ghostwheel.tracer]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
@@ -11,21 +12,36 @@
 
 (nodejs/enable-util-print!)
 
-;; TODO:
-;; Recurring payments should be in state, define a map with keys being (str `description` `amount` `date`)
+;; Specs
+;; TODO
+;; END: Specs
+
+
+;; `:bank-recur-data` and `:bank-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
 ;; value a map of the form {`description`:val `amount`:val `date`:val}
 ;; then it will allow find recurring amounts if that amount and other data is in this map.
+
+;; DB
 (defonce state (atom {:bank-data                []
                       :credit-data              []
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      :bank-recur-data          {}
+                      :credit-recur-data        {}
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :initial-bank-balance     0
                       :initial-credit-balance   0
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :bank-total-difference    0
                       :credit-total-difference  0
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :from-date                ""
                       :to-date                  ""
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :error-message            ""
                       :bank                     {:error ""}
                       :credit                   {:error ""}}))
+;; END: DB
+
 
 (defonce current-page (atom :bank))
 

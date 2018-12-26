@@ -7,7 +7,6 @@
             [skarbnik.logic :as logic]))
 
 
-
 (defn page
   "Creates bank account page"
   [{:keys
@@ -63,6 +62,11 @@
         (fn [idx entry]
           ^{:key idx}
           [:tr
+           {:on-click #(helpers/set-recur-data! state entry :bank-recur-data)
+            :style {:background-color (if (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry))
+                                        "grey"
+                                        "")}}
+
            (for [category-key (logic/get-maps-categories data)
                  :let [entry-val (category-key entry)]]
              ^{:key (str category-key "-" idx)}
