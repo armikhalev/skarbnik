@@ -1,11 +1,33 @@
 (ns skarbnik.bank-account
-  (:require [reagent.core :as reagent :refer [atom]]
+  (:require [reagent.core :as r :refer [atom]]
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
             [skarbnik.helpers :as helpers]
             [skarbnik.logic :as logic]))
 
+;; Components
+
+(defn- table-row
+  [{:keys [state idx entry selected? data]}]
+
+  ^{:key idx}
+  [:tr
+   {:on-click #(if @selected?
+                 (helpers/unset-recur-data! state entry :bank-recur-data)
+                ;; else
+                 (helpers/set-recur-data! state entry :bank-recur-data))
+    :style {:background-color (if @selected? "grey" "")}}
+
+   (for [category-key (logic/get-maps-categories data)
+         :let [entry-val (category-key entry)]]
+     ^{:key (str category-key "-" idx)}
+     [:td
+      (if (= (name category-key) "amount")
+        (helpers/colorize-numbers entry-val))
+      entry-val])])
+
+;; ENDS: Components
 
 (defn page
   "Creates bank account page"
@@ -60,20 +82,12 @@
       [:tbody
        (map-indexed
         (fn [idx entry]
-          ^{:key idx}
-          [:tr
-           {:on-click #(helpers/set-recur-data! state entry :bank-recur-data)
-            :style {:background-color (if (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry))
-                                        "grey"
-                                        "")}}
-
-           (for [category-key (logic/get-maps-categories data)
-                 :let [entry-val (category-key entry)]]
-             ^{:key (str category-key "-" idx)}
-             [:td
-              (if (= (name category-key) "amount")
-                (helpers/colorize-numbers entry-val))
-              entry-val])])
+          (let [selected? (r/atom (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry)))]
+            (table-row {:state state
+                        :idx idx
+                        :entry entry
+                        :selected? selected?
+                        :data data} )))
 
         ;; feed `map-indexed`
         (:bank-data @state))]]

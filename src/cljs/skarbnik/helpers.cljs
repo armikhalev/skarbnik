@@ -24,8 +24,7 @@
 (defn unset-recur-data!
   "Removes selected key from state."
   [state entry recur-data-key]
-  (let [data-key    (make-recur-keyword entry)
-        parsed-entry (select-keys entry [:description :amount :date])]
-
-    (swap! state assoc-in [recur-data-key data-key]
-           parsed-entry)))
+  (let [data-key    (make-recur-keyword entry)]
+    (swap! state update-in [recur-data-key]
+           dissoc
+           data-key)))
