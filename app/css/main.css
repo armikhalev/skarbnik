@@ -2,6 +2,14 @@ html {
     background: peru;
 }
 
+.color-burnt-orange {
+    color: #cc5500;
+}
+
+.color-danger {
+    color: #b70707;
+}
+
 .color-blue {
     color: blue;
 }

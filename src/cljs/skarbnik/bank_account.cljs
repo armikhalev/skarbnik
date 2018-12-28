@@ -129,7 +129,8 @@
           [:section
            [:h2 "This period:"]
            [:h3 "Income: " plus]
-           [:h3 "Spending: " minus]
+           [:h3 "Spendings: " minus]
+           [:h3 {:class "color-danger"} "Non-recurring spendings: " (- minus recur-sum)]
            [:h3 "Net: " difference]]
           [:section
            [:h2 "All time:"]
