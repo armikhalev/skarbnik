@@ -1,5 +1,5 @@
 (defproject skarbnik "0.1.0-alpha1"
-  :description "Skarbnik - personal finance management application"
+  :description "Skarbnik - personal finance analyzing tool"
   :url "http://skarbnik.com/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

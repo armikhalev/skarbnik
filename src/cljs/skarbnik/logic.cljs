@@ -168,7 +168,7 @@
 
 
 (>defn get-total
-  "`data` list of maps with key `:amount`"
+  "`data`: [{`:amount` val}]"
   ;; {::g/trace true}
   [data comparator-symbol]
   [vector? symbol?
@@ -181,6 +181,19 @@
         acc))
     0
     data)))
+
+(defn sum-recur-amounts
+  "{string? {`:amount` string?}} -> (string? :kind number?)"
+  [recur-data]
+
+  (cents->dollars
+   (reduce
+    (fn [sum [k v]]
+      (+ sum (dollars->cents (js/parseFloat (:amount v)))))
+    0
+    recur-data)))
+
+
 ;; ENDS: Amount fns
 
 

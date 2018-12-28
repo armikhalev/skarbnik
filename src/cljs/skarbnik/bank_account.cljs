@@ -80,17 +80,18 @@
           ^{:key th}
           [:th th])]]
       [:tbody
-       (map-indexed
-        (fn [idx entry]
-          (let [selected? (r/atom (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry)))]
-            (table-row {:state state
-                        :idx idx
-                        :entry entry
-                        :selected? selected?
-                        :data data} )))
+       (doall
+        (map-indexed
+         (fn [idx entry]
+           (let [selected? (r/atom (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry)))]
+             (table-row {:state state
+                         :idx idx
+                         :entry entry
+                         :selected? selected?
+                         :data data} )))
 
-        ;; feed `map-indexed`
-        (:bank-data @state))]]
+         ;; feed `map-indexed`
+         (:bank-data @state)))]]
 
      [:section.date-picker
       [:label "Select date range from: "]
@@ -114,7 +115,8 @@
      (let [plus           (logic/get-total data >)
            minus          (logic/get-total data <)
            difference     (logic/get-sum-in-dollars plus minus)
-           ending-balance (logic/get-sum-in-dollars (:initial-bank-balance @state) difference)]
+           ending-balance (logic/get-sum-in-dollars (:initial-bank-balance @state) difference)
+           recur-sum      (logic/sum-recur-amounts (:bank-recur-data @state))]
 
        (do
          ;; Update state
@@ -131,6 +133,8 @@
            [:h3 "Net: " difference]]
           [:section
            [:h2 "All time:"]
+           [:h3
+            [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
            [:span
             {:class "inline-flex h3"}
             [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance) ending-balance]]]]))]))
