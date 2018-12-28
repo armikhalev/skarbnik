@@ -1,5 +1,5 @@
 (ns skarbnik.credit-account
-  (:require [reagent.core :as reagent :refer [atom]]
+  (:require [reagent.core :as r :refer [atom]]
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
@@ -7,6 +7,28 @@
             [skarbnik.logic :as logic]))
 
 
+;; Components
+
+(defn- table-row
+  [{:keys [state idx entry selected? data]}]
+
+  ^{:key idx}
+  [:tr
+   {:on-click #(if @selected?
+                 (helpers/unset-recur-data! state entry :credit-recur-data)
+                 ;; else
+                 (helpers/set-recur-data! state entry :credit-recur-data))
+    :style {:background-color (if @selected? "grey" "")}}
+
+   (for [category-key (logic/get-maps-categories data)
+         :let [entry-val (category-key entry)]]
+     ^{:key (str category-key "-" idx)}
+     [:td
+      (if (= (name category-key) "amount")
+        (helpers/colorize-numbers entry-val))
+      entry-val])])
+
+;; ENDS: Components
 
 (defn page
   "Creates credit account page"
@@ -60,21 +82,17 @@
           ^{:key th}
           [:th th])]]
       [:tbody
-       (map-indexed
-        (fn [idx entry]
-          ^{:key idx}
-          [:tr
-           (for [category-key (logic/get-maps-categories data)
-                 :let [entry-val (category-key entry)]]
-             ^{:key (str category-key "-" idx)}
-             [:td
-              (if (= (name category-key) "amount")
-                       (helpers/colorize-numbers entry-val))
-              entry-val])])
-
-
-        ;; feed `map-indexed`
-        (:credit-data @state))]]
+       (doall
+        (map-indexed
+         (fn [idx entry]
+             (let [selected? (r/atom (contains? (:credit-recur-data @state) (helpers/make-recur-keyword entry)))]
+               (table-row {:state state
+                           :idx idx
+                           :entry entry
+                           :selected? selected?
+                           :data data} )))
+         ;; feed `map-indexed`
+         (:credit-data @state)))]]
 
      [:section.date-picker
       [:label "Select date range from: "]
@@ -98,7 +116,8 @@
      (let [plus           (logic/get-total data >)
            minus          (logic/get-total data <)
            difference     (logic/get-sum-in-dollars plus minus)
-           ending-balance (logic/get-sum-in-dollars (:initial-credit-balance @state) difference)]
+           ending-balance (logic/get-sum-in-dollars (:initial-credit-balance @state) difference)
+           recur-sum      (logic/sum-recur-amounts (:credit-recur-data @state))]
 
        (do
          ;; Update state
@@ -112,9 +131,12 @@
            [:h2 "This period:"]
            [:h3 "Debt: " plus]
            [:h3 "Paid: " minus]
+           [:h3 {:class "color-danger"} "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
            [:h3 "Added debt: " difference]]
           [:section
            [:h2 "All time:"]
+           [:h3
+            [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
            [:span
             {:class "inline-flex h3"}
             [:span "Total debt: "]

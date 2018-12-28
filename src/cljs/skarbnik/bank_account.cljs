@@ -130,7 +130,7 @@
            [:h2 "This period:"]
            [:h3 "Income: " plus]
            [:h3 "Spendings: " minus]
-           [:h3 {:class "color-danger"} "Non-recurring spendings: " (- minus recur-sum)]
+           [:h3 {:class "color-danger"} "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
            [:h3 "Net: " difference]]
           [:section
            [:h2 "All time:"]

@@ -161,10 +161,10 @@
 
 (defn get-sum-in-dollars
   "Returns sum of integers, that represent cents, in dollars."
-  [initial-bank-balance difference]
+  [v1 v2]
   (cents->dollars
-   (+ (dollars->cents initial-bank-balance)
-      (dollars->cents difference))))
+   (+ (dollars->cents v1)
+      (dollars->cents v2))))
 
 
 (>defn get-total
