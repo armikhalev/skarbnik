@@ -3,32 +3,10 @@
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.components :as components]
             [skarbnik.helpers :as helpers]
             [skarbnik.logic :as logic]))
 
-
-;; Components
-
-(defn- table-row
-  [{:keys [state idx entry selected? data]}]
-
-  ^{:key idx}
-  [:tr
-   {:on-click #(if @selected?
-                 (helpers/unset-recur-data! state entry :credit-recur-data)
-                 ;; else
-                 (helpers/set-recur-data! state entry :credit-recur-data))
-    :style {:background-color (if @selected? "grey" "")}}
-
-   (for [category-key (logic/get-maps-categories data)
-         :let [entry-val (category-key entry)]]
-     ^{:key (str category-key "-" idx)}
-     [:td
-      (if (= (name category-key) "amount")
-        (helpers/colorize-numbers entry-val))
-      entry-val])])
-
-;; ENDS: Components
 
 (defn page
   "Creates credit account page"
@@ -38,7 +16,8 @@
      read-file!
      write-file!
      initial-balance-file-path
-     data-file-path]}]
+     data-file-path
+     credit-recur-transactions]}]
 
   (let [data (:credit-data @state)]
     [:section
@@ -75,6 +54,7 @@
 
      [:h3 (str "Initial Balance: " (:initial-credit-balance @state))]
 
+     [:hr]
      [:table
       [:thead
        [:tr
@@ -86,14 +66,17 @@
         (map-indexed
          (fn [idx entry]
              (let [selected? (r/atom (contains? (:credit-recur-data @state) (helpers/make-recur-keyword entry)))]
-               (table-row {:state state
-                           :idx idx
-                           :entry entry
-                           :selected? selected?
-                           :data data} )))
+               (components/table-row
+                {:type-recur-data :credit-recur-data
+                 :state state
+                 :idx idx
+                 :entry entry
+                 :selected? selected?
+                 :data data} )))
          ;; feed `map-indexed`
          (:credit-data @state)))]]
 
+     [:hr]
      [:section.date-picker
       [:label "Select date range from: "]
       [:input
@@ -104,14 +87,21 @@
       [:input
        {:type "date"
         :on-change #(swap! state assoc :to-date (.-target.value %))
-        :name "to-date"}]]
+        :name "to-date"}]
 
-     [:button
-      {:on-click #(swap! state assoc :credit-data (logic/filter-by-date
-                                                   data
-                                                   (:from-date @state)
-                                                   (:to-date @state)))}
-      "Filter by date"]
+      [:button.margin-left-5
+       {:on-click #(swap! state assoc :credit-data (logic/filter-by-date
+                                                    data
+                                                    (:from-date @state)
+                                                    (:to-date @state)))}
+       "Filter by date"]]
+
+     [:section
+      [:hr]
+      [:p "Click on any row to mark it as a recurring transaction."]
+      [:button
+       {:on-click #(write-file! credit-recur-transactions (:credit-recur-data @state))}
+       "Save Recurring Transactions"]]
 
      (let [plus           (logic/get-total data >)
            minus          (logic/get-total data <)
@@ -131,14 +121,14 @@
            [:h2 "This period:"]
            [:h3 "Debt: " plus]
            [:h3 "Paid: " minus]
-           [:h3 {:class "color-danger"} "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
+           [:h3.color-danger
+            "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
            [:h3 "Added debt: " difference]]
           [:section
            [:h2 "All time:"]
            [:h3
             [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
-           [:span
-            {:class "inline-flex h3"}
+           [:span.inline-flex.h3
             [:span "Total debt: "]
             [:span
              (if (not= 0 ending-balance)

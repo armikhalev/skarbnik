@@ -1,6 +1,7 @@
 (ns skarbnik.core
   (:require [reagent.core :as reagent :refer [atom]]
             [cljs.nodejs :as nodejs]
+            [cljs.reader :as reader]
             [clojure.spec.alpha :as s]
             [ghostwheel.tracer]
             [ghostwheel.core :as g
@@ -58,6 +59,8 @@
 (def credit-data-file-path "./credit-data-file.txt")
 (def bank-initial-balance-file-path "./bank-initial-balance.txt")
 (def credit-initial-balance-file-path "./credit-initial-balance.txt")
+  (def bank-recur-transactions "./bank-recurring-transactions.edn")
+  (def credit-recur-transactions "./credit-recurring-transactions.edn")
 ;;
 
 
@@ -133,14 +136,16 @@
                        :read-file!                read-file!
                        :write-file!               write-file!
                        :initial-balance-file-path bank-initial-balance-file-path
-                       :data-file-path            bank-data-file-path})
+                       :data-file-path            bank-data-file-path
+                       :bank-recur-transactions   bank-recur-transactions})
 
      :credit (credit/page {:state                     state
                            :open-file                 open-file
                            :read-file!                read-file!
                            :write-file!               write-file!
                            :initial-balance-file-path credit-initial-balance-file-path
-                           :data-file-path            credit-data-file-path}))
+                           :data-file-path            credit-data-file-path
+                           :credit-recur-transactions   credit-recur-transactions}))
    (let [sum (logic/get-sum-in-dollars
               (- (:credit-total-difference @state))
               (:bank-total-difference @state))]
@@ -179,4 +184,14 @@
     (read-file!
      credit-data-file-path
      (fn [data] (swap! state assoc :credit-data data))
-     :parse)))
+     :parse)
+    ;;
+    (read-file!
+     bank-recur-transactions
+     ;; Read EDN and put it into state
+     (fn [data] (swap! state assoc :bank-recur-data (reader/read-string data))))
+
+    (read-file!
+     credit-recur-transactions
+     ;; Read EDN and put it into state
+     (fn [data] (swap! state assoc :credit-recur-data (reader/read-string data))))))

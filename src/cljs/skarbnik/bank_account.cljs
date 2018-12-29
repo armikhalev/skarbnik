@@ -4,30 +4,9 @@
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
             [skarbnik.helpers :as helpers]
-            [skarbnik.logic :as logic]))
+            [skarbnik.logic :as logic]
+            [skarbnik.components :as components]))
 
-;; Components
-
-(defn- table-row
-  [{:keys [state idx entry selected? data]}]
-
-  ^{:key idx}
-  [:tr
-   {:on-click #(if @selected?
-                 (helpers/unset-recur-data! state entry :bank-recur-data)
-                ;; else
-                 (helpers/set-recur-data! state entry :bank-recur-data))
-    :style {:background-color (if @selected? "grey" "")}}
-
-   (for [category-key (logic/get-maps-categories data)
-         :let [entry-val (category-key entry)]]
-     ^{:key (str category-key "-" idx)}
-     [:td
-      (if (= (name category-key) "amount")
-        (helpers/colorize-numbers entry-val))
-      entry-val])])
-
-;; ENDS: Components
 
 (defn page
   "Creates bank account page"
@@ -37,7 +16,8 @@
      read-file!
      write-file!
      initial-balance-file-path
-     data-file-path]}]
+     data-file-path
+     bank-recur-transactions]}]
 
   (let [data (:bank-data @state)]
     [:section
@@ -73,6 +53,7 @@
 
      [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
 
+     [:hr]
      [:table
       [:thead
        [:tr
@@ -84,15 +65,18 @@
         (map-indexed
          (fn [idx entry]
            (let [selected? (r/atom (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry)))]
-             (table-row {:state state
-                         :idx idx
-                         :entry entry
-                         :selected? selected?
-                         :data data} )))
+             (components/table-row
+              {:type-recur-data :bank-recur-data
+               :state state
+               :idx idx
+               :entry entry
+               :selected? selected?
+               :data data} )))
 
          ;; feed `map-indexed`
          (:bank-data @state)))]]
 
+     [:hr]
      [:section.date-picker
       [:label "Select date range from: "]
       [:input
@@ -103,20 +87,32 @@
       [:input
        {:type "date"
         :on-change #(swap! state assoc :to-date (.-target.value %))
-        :name "to-date"}]]
+        :name "to-date"}]
 
-     [:button
-      {:on-click #(swap! state assoc :bank-data (logic/filter-by-date
-                                                 data
-                                                 (:from-date @state)
-                                                 (:to-date @state)))}
-      "Filter by date"]
+      [:button.margin-left-5
+       {:on-click #(swap! state assoc :bank-data (logic/filter-by-date
+                                                  data
+                                                  (:from-date @state)
+                                                  (:to-date @state)))}
+       "Filter by date"]]
+
+     [:section
+      [:hr]
+      [:p "Click on any row to mark it as a recurring transaction."]
+      [:button
+       {:on-click #(write-file! bank-recur-transactions (:bank-recur-data @state))}
+       "Save Recurring Transactions"]]
 
      (let [plus           (logic/get-total data >)
            minus          (logic/get-total data <)
            difference     (logic/get-sum-in-dollars plus minus)
            ending-balance (logic/get-sum-in-dollars (:initial-bank-balance @state) difference)
-           recur-sum      (logic/sum-recur-amounts (:bank-recur-data @state))]
+           recur-sum*     (logic/sum-recur-amounts (:bank-recur-data @state))
+           recur-sum      (if (and
+                               (not (number? recur-sum*))
+                               (js/Number.isNaN recur-sum*))
+                            0
+                            recur-sum*)]
 
        (do
          ;; Update state
@@ -130,13 +126,14 @@
            [:h2 "This period:"]
            [:h3 "Income: " plus]
            [:h3 "Spendings: " minus]
-           [:h3 {:class "color-danger"} "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
+           [:h3.color-danger
+            "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
            [:h3 "Net: " difference]]
           [:section
+           [:hr]
            [:h2 "All time:"]
            [:h3
             [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
-           [:span
-            {:class "inline-flex h3"}
+           [:span.inline-flex.h3
             [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance) ending-balance]]]]))]))
 
