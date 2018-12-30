@@ -27,4 +27,5 @@ pom.xml.asc
 *.iml
 *.txt
 .rebel_readline_history
+figwheel_server.log
 /resources/public/cljs

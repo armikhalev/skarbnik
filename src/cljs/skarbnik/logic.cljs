@@ -214,14 +214,42 @@
 
 
 (defn compare-dates
-  "Compares two lists of dates integers of form YYYY-MM-DD using comparison operator.
+  "Compares two lists of dates, integers of form [YYYY MM DD] using comparison operator.
    Returns boolean."
   [comparator-symbol first-date second-date]
-  (not (some false?
-            (map
-             (partial comparator-symbol)
-             first-date second-date))))
+  (or
+   (some false?
+         (map
+          comparator-symbol
+          first-date second-date))
+   (every? true?
+           (map = first-date second-date))))
 
+(comment
+  ;;; f >= s
+  [2018 12 9]
+  [2018 11 12]
+  ;; lessEq
+  '(true false true)
+  [2018 12 9]
+  [2018 12 12]
+  '(true true true)
+  [2018 12 10]
+  [2018 12 05]
+  '(true true false)
+
+  ;;; f <= s
+  [2018 11 10]
+  [2018 12 05]
+  '(true false true)
+  ;; MoreEq
+  [2018 12 9]
+  [2018 12 1]
+  '(true true true)
+  [2018 12 05]
+  [2018 12 10]
+  '(true true false)
+  )
 
 (defn filter-by-date
   "Filters out entries that are bigger than `from-date` and less than `to-date`.
@@ -230,8 +258,8 @@
   (filter
    (fn [entry]
      (let [date (:date entry)]
-       (and (compare-dates >= (date->ints (mdy->ymd date)) (date->ints from-date))
-            (compare-dates <= (date->ints (mdy->ymd date)) (date->ints to-date)))))
+       (and (compare-dates <= (date->ints (mdy->ymd date)) (date->ints from-date))
+            (compare-dates >= (date->ints (mdy->ymd date)) (date->ints to-date)))))
    entries))
 ;; ENDs Dates
 
