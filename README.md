@@ -21,7 +21,9 @@
 - Skarbnik should be used for analyzing financial data, so it is limited by periods in which user is interested. That means that user should have different CSV files for different periods of time, though there is search option by date, it doesn't mean user should upload all the data available.
 - Get financial data in csv format from your financial institution (Bank, Credit Card) or another financial app (Mint).
 - Upload that csv file to Skarbnik. 
+
 TODO: determine size of the file limit
+
 - Now you can look at your recurring payments, non-recurring but big credits being included in monthly expenses, you can filter data by date and categories.
 
 ## What Skarbnik is not?
@@ -172,3 +174,12 @@ To run a command, type `lein <command>` in the terminal.
 |---------------|-------------------------------------------------------------------------------------------|
 | cljfmt fix    | Auto-formats all clj/cljs code. See [cljfmt](https://github.com/weavejester/cljfmt)       |
 | kibit         | Statically analyse clj/cljs and give suggestions                                          |
+
+
+## TODO:
+- On Open File: If recur payments selected, then notify user that all selections will be lost
+- OR: Crete separate folder for every statement where selected payments saved along with statement. BUT needs UI to delete statements with all data.
+- Fix all the error messages, they should notify user about solution of the problem that caused error
+- Create search bar
+- Add reset for Dates range
+- Figure out how to show `big` payments
