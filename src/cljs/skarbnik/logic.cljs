@@ -218,10 +218,12 @@
    Returns boolean."
   [comparator-symbol first-date second-date]
   (or
+   ;; If dates are different, filter out
    (some false?
          (map
           comparator-symbol
           first-date second-date))
+   ;; If dates are the same should include them
    (every? true?
            (map = first-date second-date))))
 

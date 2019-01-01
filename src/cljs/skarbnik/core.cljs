@@ -116,19 +116,29 @@
 ;; ENDs file management fns
 
 
+;; Aux
+
+(defn nav []
+  [:nav
+   [:button.button
+    {:on-click #(reset! current-page :bank)
+     :style (if (= @current-page :bank) {:color "blue"})}
+    "Bank Account"]
+
+   [:button.button
+    {:on-click #(reset! current-page :credit)
+     :style (if (= @current-page :credit) {:color "blue"})}
+    "Credit Account"]])
+
+;; ENDs: Aux
+
 ;; Root
 
 (defn main-page []
   [:main
    [:h1 "Skarbnik"]
-   [:nav
-    [:button
-     {:on-click #(reset! current-page :bank)}
-     "Bank Account"]
 
-    [:button
-     {:on-click #(reset! current-page :credit)}
-     "Credit Account"]]
+   (nav)
 
    (case @current-page
      :bank (bank/page {:state                     state
@@ -154,7 +164,9 @@
       [:span "Bank balance vs Credit account difference:"]
       [:span
        (helpers/colorize-numbers sum)
-       sum]])])
+       sum]])
+   (nav)
+   ])
 
 
 ;; Init

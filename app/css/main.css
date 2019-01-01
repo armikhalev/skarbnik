@@ -38,3 +38,12 @@ html {
     font-size: 1.17em;
     font-weight: bold;
 }
+
+.button {
+    padding: 8px;
+    border-radius: 14px;
+    margin: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    color: peru;
+}

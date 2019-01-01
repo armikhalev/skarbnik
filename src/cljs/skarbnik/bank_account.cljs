@@ -21,8 +21,6 @@
 
   (let [data (:bank-data @state)]
     [:section
-     [:h2 "Bank Account"]
-
      [:h2.error-message
       (get-in @state [:bank :error])]
 
@@ -103,37 +101,5 @@
        {:on-click #(write-file! bank-recur-transactions (:bank-recur-data @state))}
        "Save Recurring Transactions"]]
 
-     (let [plus           (logic/get-total data >)
-           minus          (logic/get-total data <)
-           difference     (logic/get-sum-in-dollars plus minus)
-           ending-balance (logic/get-sum-in-dollars (:initial-bank-balance @state) difference)
-           recur-sum*     (logic/sum-recur-amounts (:bank-recur-data @state))
-           recur-sum      (if (and
-                               (not (number? recur-sum*))
-                               (js/Number.isNaN recur-sum*))
-                            0
-                            recur-sum*)]
-
-       (do
-         ;; Update state
-         (swap! state assoc :bank-total-difference ending-balance)
-
-         ;; View
-         [:section.sums
-
-          ;; sum `plus` and `minus` to get difference
-          [:section
-           [:h2 "This period:"]
-           [:h3 "Income: " plus]
-           [:h3 "Spendings: " minus]
-           [:h3.color-danger
-            "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
-           [:h3 "Net: " difference]]
-          [:section
-           [:hr]
-           [:h2 "All time:"]
-           [:h3
-            [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
-           [:span.inline-flex.h3
-            [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance) ending-balance]]]]))]))
+     (components/bank-analyze-comp data state)]))
 
