@@ -2,10 +2,37 @@
   (:require [cljs.test :refer-macros [is testing async]]
             [reagent.core :as reagent]
             [devcards.core :refer-macros [deftest defcard-rg]]
-            [skarbnik.logic :as logic]))
+            [skarbnik.logic :as logic]
+            [skarbnik.components :as components]))
 
 (def test-data
   '({:date "11/26/2018", :description " MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE", :BAICode " ", :amount " -25.00", :SerialNum " 2018112600000001"} {:date "11/13/2018", :description " ZINAIDA LEVIN M CANTON /MA US CARD PURCHASE", :BAICode " ", :amount " -25.00", :SerialNum " 2018111300000001"} {:date "11/13/2018", :description " CASH WITHDRAWAL SANTANDER D199 Holbrook /MA US", :BAICode " ", :amount " -50.00", :SerialNum " 2018111300000002"} {:date "11/13/2018", :description " INTERNET TRANSFER FROM ACCT *2394 - SANTANDER SAVINGS", :BAICode " ", :amount " +50.00", :SerialNum " 2018111300000003"}))
+
+(def state (atom {:bank-data                []
+                  :credit-data              []
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                  :bank-recur-data          {"Loan" {:description "QUICKEN LOANS MTG PYMTS 120518",
+                                                     :amount " -20.00",
+                                                     :date " 12/06/2018"},
+                                             "Discover" {:description "DISCOVER E-PAYMENT 181008",
+                                                         :amount " -30.00",
+                                                         :date " 10/10/2018"},}
+                  :credit-recur-data        {"Bank" {:description "DISCOVER E-PAYMENT 181008",
+                                                         :amount " 30.00",
+                                                         :date " 10/10/2018"},}
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                  :initial-bank-balance     0
+                  :initial-credit-balance   0
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                  :bank-total-difference    0
+                  :credit-total-difference  0
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                  :from-date                ""
+                  :to-date                  ""
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                  :error-message            ""
+                  :bank                     {:error ""}
+                  :credit                   {:error ""}}))
 
 
 (deftest get-total-test
@@ -37,3 +64,38 @@
      (if (not= 0 ending-balance)
        {:class "color-red margin-left-5"})
      ending-balance]))
+
+;; Bank
+
+(defcard-rg bank-analyze-comp
+  "Should show correct calculation numbers:
+  This period:
+    Income: 50.00
+    Spendings: -100.00
+    Non-recurring spendings: -50.00
+    Net: -50.00
+    All time:
+    Recurring spendings sum: -50.00
+    Balance:
+    -50.00"
+  (components/bank-analyze-comp test-data state))
+
+;; ENDs: Bank
+
+;; Credit
+
+
+(defcard-rg credit-analyze-comp
+  "Should show correct calculation numbers:
+  This period:
+    Debt: 50.00
+    Paid: -100.00
+    Non-recurring spendings: 20.00
+    Added debt: -50.00
+    All time:
+    Recurring spendings sum: 30.00
+    Total debt:
+    -50.00"
+  (components/credit-analyze-comp test-data state))
+
+;; ENDs: Credit
