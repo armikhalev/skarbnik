@@ -15,6 +15,7 @@
      open-file
      read-file!
      write-file!
+     make-dir!
      initial-balance-file-path
      data-file-path
      bank-recur-transactions]}]
@@ -24,7 +25,7 @@
      [:h2.error-message
       (get-in @state [:bank :error])]
 
-     [:button.open-file
+     [:button.button.button-smaller.open-file
       {:on-click #(open-file
                    (fn [file-names]
                      (if (= file-names nil)
@@ -34,9 +35,25 @@
                                    :parse))))}
       "Open file"]
 
-     [:button.save-file
-      {:on-click #(write-file! data-file-path (logic/maps->js data))}
-      "Save"]
+     [:p  "Press Enter to save bank account data: "
+      [:input
+       {:placeholder "Bank account name"
+        :type "string"
+        :on-key-press (fn [e]
+                        (let [dir-path (.-value (.-target e))]
+                          (when (> (count dir-path) 0)
+                            (if (= "Enter" (.-key e))
+                              (do
+                                (swap! state update :bank-accounts conj dir-path)
+                                ;; Create directory with entered name
+                                (make-dir! dir-path)
+                                ;; Write files
+                                (write-file! (str "./"dir-path"/"bank-recur-transactions)
+                                             (:bank-recur-data @state))
+                                (write-file! (str "./"dir-path"/"initial-balance-file-path)
+                                             (:initial-bank-balance @state))
+                                (write-file! (str "./"dir-path"/"data-file-path)
+                                             (logic/maps->js data)))))))}]]
 
      [:p  "Press Enter to set Initial balance: "
       [:input {:placeholder "0"
@@ -46,8 +63,7 @@
                                  (when (and (number? val) (not (js/Number.isNaN val)))
                                    (if (= "Enter" (.-key e))
                                      (do
-                                       (swap! state assoc :initial-bank-balance val)
-                                       (write-file! initial-balance-file-path val))))))}]]
+                                       (swap! state assoc :initial-bank-balance val))))))}]]
 
      [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
 
@@ -69,7 +85,7 @@
                :idx idx
                :entry entry
                :selected? selected?
-               :data data} )))
+               :data data})))
 
          ;; feed `map-indexed`
          (:bank-data @state)))]]
@@ -94,7 +110,7 @@
                                                   (:to-date @state)))}
        "Filter by date"]]
 
-     [:section
+     #_[:section
       [:hr]
       [:p "Click on any row to mark it as a recurring transaction."]
       [:button

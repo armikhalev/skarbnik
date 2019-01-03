@@ -24,7 +24,7 @@
      [:h2.error-message
       (get-in @state [:credit :error])]
 
-     [:button.open-file
+     [:button.button-smaller.open-file
       {:on-click #(open-file
                    (fn [file-names]
                      (if (= file-names nil)
@@ -35,9 +35,9 @@
                         :parse))))}
       "Open file"]
 
-     [:button.save-file
+     [:button.button-smaller.save-file
       {:on-click #(write-file! data-file-path (logic/maps->js data))}
-      "Save"]
+      "Save as account"]
 
      [:p  "Press Enter to set Initial balance: "
       [:input {:placeholder "0"

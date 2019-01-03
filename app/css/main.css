@@ -47,3 +47,13 @@ html {
     font-weight: bold;
     color: peru;
 }
+
+.button-smaller {
+    padding: 5px;
+    border-radius: 10px;
+    margin: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #b3a6a6;
+    color: #cc5500;
+}

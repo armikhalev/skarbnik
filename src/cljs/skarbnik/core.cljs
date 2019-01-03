@@ -9,6 +9,7 @@
             [skarbnik.helpers :as helpers]
             [skarbnik.bank-account :as bank]
             [skarbnik.credit-account :as credit]
+            [skarbnik.home :as home]
             [skarbnik.logic :as logic]))
 
 (nodejs/enable-util-print!)
@@ -23,7 +24,9 @@
 ;; then it will allow find recurring amounts if that amount and other data is in this map.
 
 ;; DB
-(defonce state (atom {:bank-data                []
+(defonce state (atom {:bank-accounts            []
+                      :credit-accounts          []
+                      :bank-data                []
                       :credit-data              []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :bank-recur-data          {}
@@ -39,8 +42,8 @@
                       :to-date                  ""
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :error-message            ""
-                      :bank                     {:error ""}
-                      :credit                   {:error ""}}))
+                      :bank                     {:error "" :message ""}
+                      :credit                   {:error "" :message ""}}))
 ;; END: DB
 
 
@@ -55,16 +58,26 @@
 
 ;; file paths
 
-(def bank-data-file-path "./bank-data-file.txt")
-(def credit-data-file-path "./credit-data-file.txt")
-(def bank-initial-balance-file-path "./bank-initial-balance.txt")
-(def credit-initial-balance-file-path "./credit-initial-balance.txt")
-  (def bank-recur-transactions "./bank-recurring-transactions.edn")
-  (def credit-recur-transactions "./credit-recurring-transactions.edn")
+(def bank-data-file-path "bank-data-file.txt")
+(def credit-data-file-path "credit-data-file.txt")
+(def bank-initial-balance-file-path "bank-initial-balance.txt")
+(def credit-initial-balance-file-path "credit-initial-balance.txt")
+(def bank-recur-transactions "bank-recurring-transactions.edn")
+(def credit-recur-transactions "credit-recurring-transactions.edn")
 ;;
 
 
-;; file management fns
+;; FILE MANAGEMENT FNs
+
+(defn make-dir!
+  [dir-path]
+  (.mkdir fs dir-path
+          (fn [err]
+            (if err
+              (prn "Make dir error: " err)
+              (prn "Successfully creted directory at: " dir-path)))))
+
+
 (defn open-file
   [path]
   (.showOpenDialog dialog path))
@@ -77,6 +90,7 @@
                 (if err
                   (prn "Error: " err)
                   (prn "Successfully wrote to file")))))
+
 
 (defn check-categories!
   "Checks quantity of keys, if required column headers are missing (i.e. >= 2), changes `:error` of the current page, otherwise defaults it to empty and returns passed map."
@@ -121,6 +135,11 @@
 (defn nav []
   [:nav
    [:button.button
+    {:on-click #(reset! current-page :home)
+     :style (if (= @current-page :home) {:color "blue"})}
+    "Home"]
+
+   [:button.button
     {:on-click #(reset! current-page :bank)
      :style (if (= @current-page :bank) {:color "blue"})}
     "Bank Account"]
@@ -132,19 +151,29 @@
 
 ;; ENDs: Aux
 
+
 ;; Root
 
 (defn main-page []
   [:main
    [:h1 "Skarbnik"]
 
+   [:hr]
    (nav)
+   [:hr]
 
    (case @current-page
+     :home (home/page {:state      state
+                       :read-file! read-file!
+                       :bank-initial-balance-file-path bank-initial-balance-file-path
+                       :bank-data-file-path bank-data-file-path
+                       :bank-recur-transactions bank-recur-transactions})
+
      :bank (bank/page {:state                     state
                        :open-file                 open-file
                        :read-file!                read-file!
                        :write-file!               write-file!
+                       :make-dir!                 make-dir!
                        :initial-balance-file-path bank-initial-balance-file-path
                        :data-file-path            bank-data-file-path
                        :bank-recur-transactions   bank-recur-transactions})
@@ -155,7 +184,7 @@
                            :write-file!               write-file!
                            :initial-balance-file-path credit-initial-balance-file-path
                            :data-file-path            credit-data-file-path
-                           :credit-recur-transactions   credit-recur-transactions}))
+                           :credit-recur-transactions credit-recur-transactions}))
    (let [sum (logic/get-sum-in-dollars
               (- (:credit-total-difference @state))
               (:bank-total-difference @state))]
@@ -165,8 +194,9 @@
       [:span
        (helpers/colorize-numbers sum)
        sum]])
-   (nav)
-   ])
+   (nav)])
+
+;; ENDs: Root
 
 
 ;; Init
@@ -180,7 +210,7 @@
   (do
     (mount-root)
     ;;
-    (read-file!
+    #_(read-file!
      bank-initial-balance-file-path
      (fn [data] (swap! state assoc :initial-bank-balance data)))
 
@@ -188,7 +218,7 @@
      credit-initial-balance-file-path
      (fn [data] (swap! state assoc :initial-credit-balance data)))
     ;;
-    (read-file!
+    #_(read-file!
      bank-data-file-path
      (fn [data] (swap! state assoc :bank-data data))
      :parse)
@@ -198,7 +228,7 @@
      (fn [data] (swap! state assoc :credit-data data))
      :parse)
     ;;
-    (read-file!
+    #_(read-file!
      bank-recur-transactions
      ;; Read EDN and put it into state
      (fn [data] (swap! state assoc :bank-recur-data (reader/read-string data))))
