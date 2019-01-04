@@ -17,36 +17,36 @@
            bank-recur-transactions]}]
   ;;
   [:section
-
+   [:h2 "Bank accounts"]
    [:ul.banks
     (for [bank (:bank-accounts @state)]
       ^{:key bank}
-      [:li.inline-flex
-       [:button.margin-left-5
+      [:li.inline-flex.border.margin-left-5
+       [:button.button-smaller.select-bank
         {:on-click #(do
                       ;;
                       (read-file!
-                       (str "./"bank"/"bank-initial-balance-file-path)
+                       (str "./" bank "/" bank-initial-balance-file-path)
                        (fn [data] (swap! state assoc :initial-bank-balance data)))
                       ;;
                       (read-file!
-                       (str "./"bank"/"bank-data-file-path)
+                       (str "./" bank "/" bank-data-file-path)
                        (fn [data] (swap! state assoc :bank-data data))
                        :parse)
                       ;;
                       (read-file!
-                       (str "./"bank"/"bank-recur-transactions)
+                       (str "./" bank "/" bank-recur-transactions)
                        ;; Read EDN and put it into state
                        (fn [data] (swap! state assoc :bank-recur-data (reader/read-string data))))
                       )}
-        "V"]
-       [:p.margin-left-5 bank]
-       [:button.margin-left-5
+        bank]
+       [:button.button.margin-left-5.delete-bank
         {:on-click #(swap! state update-in [:bank-accounts]
                            (fn [s] (remove #{bank} s)))}
         "X"]])]
 
    [:div.credits
+    [:h2 "Credit accounts"]
     (for [credit (:credit-accounts @state)]
       ^{:key credit}
       [:p credit])]])

@@ -12,6 +12,7 @@
   "Creates bank account page"
   [{:keys
     [state
+     bank-accounts-path
      open-file
      read-file!
      write-file!
@@ -28,11 +29,15 @@
      [:button.button.button-smaller.open-file
       {:on-click #(open-file
                    (fn [file-names]
-                     (if (= file-names nil)
-                       (prn "no file selected")
-                       (read-file! (first file-names)
-                                   (fn [data] (swap! state assoc :bank-data data))
-                                   :parse))))}
+                     (do
+                       ;; Nullify recurring transactions data
+                       (swap! state assoc :bank-recur-data {})
+                       ;; Then read file and update state
+                       (if (= file-names nil)
+                         (prn "no file selected")
+                         (read-file! (first file-names)
+                                     (fn [data] (swap! state assoc :bank-data data))
+                                     :parse)))))}
       "Open file"]
 
      [:p  "Press Enter to save bank account data: "
@@ -44,7 +49,10 @@
                           (when (> (count dir-path) 0)
                             (if (= "Enter" (.-key e))
                               (do
+                                ;; Update state and save it to file
                                 (swap! state update :bank-accounts conj dir-path)
+                                (write-file! bank-accounts-path
+                                             (:bank-accounts @state))
                                 ;; Create directory with entered name
                                 (make-dir! dir-path)
                                 ;; Write files
@@ -81,11 +89,11 @@
            (let [selected? (r/atom (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry)))]
              (components/table-row
               {:type-recur-data :bank-recur-data
-               :state state
-               :idx idx
-               :entry entry
-               :selected? selected?
-               :data data})))
+               :state           state
+               :idx             idx
+               :entry           entry
+               :selected?       selected?
+               :data            data})))
 
          ;; feed `map-indexed`
          (:bank-data @state)))]]
@@ -109,13 +117,6 @@
                                                   (:from-date @state)
                                                   (:to-date @state)))}
        "Filter by date"]]
-
-     #_[:section
-      [:hr]
-      [:p "Click on any row to mark it as a recurring transaction."]
-      [:button
-       {:on-click #(write-file! bank-recur-transactions (:bank-recur-data @state))}
-       "Save Recurring Transactions"]]
 
      (components/bank-analyze-comp data state)]))
 

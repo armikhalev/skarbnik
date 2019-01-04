@@ -2,6 +2,10 @@ html {
     background: peru;
 }
 
+.border {
+    border: 1px solid black;
+}
+
 .color-burnt-orange {
     color: #cc5500;
 }

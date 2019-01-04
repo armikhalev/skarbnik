@@ -64,6 +64,7 @@
 (def credit-initial-balance-file-path "credit-initial-balance.txt")
 (def bank-recur-transactions "bank-recurring-transactions.edn")
 (def credit-recur-transactions "credit-recurring-transactions.edn")
+(def bank-accounts-path "./bank-accounts.edn")
 ;;
 
 
@@ -104,7 +105,9 @@
 
       :credit (if (<= (count cats) 2)
                 (swap! state assoc-in [:credit :error] (str "Please, add missing columns: " cats " at " (name cur-page)))
-                (swap! state assoc-in [:credit :error] "")))))
+                (swap! state assoc-in [:credit :error] ""))
+      ;; If home page, then there is no need to check cats, since they should have been checked the first time file was uploaded in either `:bank` or `:credit` pages
+      :default))) 
 
 
 (defn read-file!
@@ -170,6 +173,7 @@
                        :bank-recur-transactions bank-recur-transactions})
 
      :bank (bank/page {:state                     state
+                       :bank-accounts-path        bank-accounts-path
                        :open-file                 open-file
                        :read-file!                read-file!
                        :write-file!               write-file!
@@ -210,9 +214,9 @@
   (do
     (mount-root)
     ;;
-    #_(read-file!
-     bank-initial-balance-file-path
-     (fn [data] (swap! state assoc :initial-bank-balance data)))
+    (read-file!
+     bank-accounts-path
+     (fn [data] (swap! state assoc :bank-accounts (reader/read-string data))))
 
     (read-file!
      credit-initial-balance-file-path
