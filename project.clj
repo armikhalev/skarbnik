@@ -6,9 +6,9 @@
 
   :source-paths ["src/cljs"]
 
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/clojurescript "1.10.339"]
-                 [devcards "0.2.6"]
+                 [devcards "0.2.6" :exclusions [org.clojure/clojure]]
                  [gnl/ghostwheel.tracer "0.3.5"]
                  [gnl/ghostwheel "0.3.5"]
                  [cljsjs/nodejs-externs "1.0.4-1"]

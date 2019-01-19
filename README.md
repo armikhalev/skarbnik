@@ -39,6 +39,11 @@ It is not a comprehensive financial app with automatic update of data. It is not
 
 On Mac/Linux, installing node.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
 
+## Testing with Devcards
+Run `lein figwheel app devcards-test` in terminal then in your browser go to http://0.0.0.0:3449/tests.html
+
+---
+
 This project uses Electron v0.35.2. Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
 ## Setup
