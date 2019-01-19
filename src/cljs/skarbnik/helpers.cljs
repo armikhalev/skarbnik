@@ -7,7 +7,7 @@
 
 (defn make-recur-keyword
   [entry]
-  (str (:description entry) "-" (:amount entry) "-" (:date entry)))
+  (str (.trim (:description entry)) "-" (.trim (:amount entry)) "-" (.trim (:date entry))))
 
 
 (defn set-recur-data!

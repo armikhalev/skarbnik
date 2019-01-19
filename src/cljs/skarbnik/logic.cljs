@@ -20,7 +20,6 @@
   (string/join
    (string/split s #"\s")))
 
-
 ;; STARTS: get-categories
 (s/def ::csv-vectors?
   (s/coll-of
