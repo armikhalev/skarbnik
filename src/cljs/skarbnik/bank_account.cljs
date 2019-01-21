@@ -26,20 +26,14 @@
      [:h2.error-message
       (get-in @state [:bank :error])]
 
-     [:button.button.button-smaller.open-file
-      {:on-click #(open-file
-                   (fn [file-names]
-                     (do
-                       ;; Nullify recurring transactions data
-                       (swap! state assoc :bank-recur-data {})
-                       ;; Then read file and update state
-                       (if (= file-names nil)
-                         (prn "no file selected")
-                         (read-file! (first file-names)
-                                     (fn [data] (swap! state assoc :bank-data data))
-                                     :parse)))))}
-      "Open file"]
+     ;;
+     (components/button-open-file-comp! {:open-file       open-file
+                                         :state           state
+                                         :recur-data-key  :bank-recur-data
+                                         :read-file!      read-file!
+                                         :data-key        :bank-data})
 
+     ;;
      [:p  "Press Enter to save bank account data: "
       [:input
        {:placeholder "Bank account name"

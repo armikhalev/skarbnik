@@ -6,8 +6,14 @@
 
 
 (defn make-recur-keyword
+  ;; TODO: Spec it!
   [entry]
-  (str (.trim (:description entry)) "-" (.trim (:amount entry)) "-" (.trim (:date entry))))
+  (let [desc   (:description entry)
+        amount (:amount entry)
+        date   (:date entry)]
+    ;; null-check
+    (when (not-any? nil? [desc amount date] )
+      (str (.trim desc) "-" (.trim amount) "-" (.trim date)))))
 
 
 (defn set-recur-data!

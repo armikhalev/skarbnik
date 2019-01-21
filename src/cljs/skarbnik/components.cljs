@@ -97,3 +97,27 @@
              (if (not= 0 ending-balance)
                {:class "color-red margin-left-5"})
              ending-balance]]]])))
+
+
+(defn button-open-file-comp!
+  [{:keys [open-file
+           state
+           recur-data-key
+           read-file!
+           data-key]}]
+
+  [:button.button.button-smaller.open-file
+   {:on-click #(open-file
+                (fn [file-names]
+                  (do
+                    ;; Nullify recurring transactions data
+                    (swap! state assoc
+                           recur-data-key {})
+                    ;; Then read file and update state
+                    (if (= file-names nil)
+                      (prn "no file selected")
+                      (read-file! (first file-names)
+                                  (fn [data] (swap! state assoc
+                                                   data-key data))
+                                  :parse)))))}
+   "Open file"])
