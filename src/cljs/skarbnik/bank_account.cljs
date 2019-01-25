@@ -27,35 +27,27 @@
       (get-in @state [:bank :error])]
 
      ;;
-     (components/button-open-file-comp! {:open-file       open-file
-                                         :state           state
-                                         :recur-data-key  :bank-recur-data
-                                         :read-file!      read-file!
-                                         :data-key        :bank-data})
+     (components/button-open-file-comp!
+      {:open-file       open-file
+       :state           state
+       :recur-data-key  :bank-recur-data
+       :read-file!      read-file!
+       :data-key        :bank-data})
 
      ;;
-     [:p  "Press Enter to save bank account data: "
-      [:input
-       {:placeholder "Bank account name"
-        :type "string"
-        :on-key-press (fn [e]
-                        (let [dir-path (.-value (.-target e))]
-                          (when (> (count dir-path) 0)
-                            (if (= "Enter" (.-key e))
-                              (do
-                                ;; Update state and save it to file
-                                (swap! state update :bank-accounts conj dir-path)
-                                (write-file! bank-accounts-path
-                                             (:bank-accounts @state))
-                                ;; Create directory with entered name
-                                (make-dir! dir-path)
-                                ;; Write files
-                                (write-file! (str "./"dir-path"/"bank-recur-transactions)
-                                             (:bank-recur-data @state))
-                                (write-file! (str "./"dir-path"/"initial-balance-file-path)
-                                             (:initial-bank-balance @state))
-                                (write-file! (str "./"dir-path"/"data-file-path)
-                                             (logic/maps->js data)))))))}]]
+     (components/input-save-account!
+      {:state                      state
+       :account-kind-$key          :bank-accounts
+       :account-path               bank-accounts-path
+       :recur-transactions         bank-recur-transactions
+       :recur-data-$key            :bank-recur-data
+       :initial-balance-$key       :initial-bank-balance
+       :initial-balance-file-path  initial-balance-file-path
+       :data-file-path             data-file-path
+       :write-file!                write-file!
+       :make-dir!                  make-dir!
+       :data                       data})
+
 
      [:p  "Press Enter to set Initial balance: "
       [:input {:placeholder "0"

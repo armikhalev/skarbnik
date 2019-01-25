@@ -121,3 +121,40 @@
                                                    data-key data))
                                   :parse)))))}
    "Open file"])
+
+
+(defn input-save-account!
+  [{:keys [state
+           account-kind-$key
+           account-path
+           recur-transactions
+           recur-data-$key
+           initial-balance-$key
+           initial-balance-file-path
+           data-file-path
+           write-file!
+           make-dir!
+           data]}]
+  [:p  "Press Enter to save account data: "
+      [:input
+       {:placeholder "Account name"
+        :type "string"
+        :on-key-press (fn [e]
+                        (let [dir-path (.-value (.-target e))]
+                          (when (> (count dir-path) 0)
+                            (if (= "Enter" (.-key e))
+                              (do
+                                ;; Update state and save it to file
+                                (swap! state update account-kind-$key conj dir-path)
+                                (write-file! account-path
+                                             (account-kind-$key @state))
+                                ;; Create directory with entered name
+                                (make-dir! dir-path)
+                                ;; Write files
+                                (write-file! (str "./"dir-path"/"recur-transactions)
+                                             (recur-data-$key @state))
+                                (write-file! (str "./"dir-path"/"initial-balance-file-path)
+                                             (initial-balance-$key @state))
+                                (write-file! (str "./"dir-path"/"data-file-path)
+                                             (logic/maps->js data)))))))}]])
+
