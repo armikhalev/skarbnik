@@ -158,3 +158,17 @@
                                 (write-file! (str "./"dir-path"/"data-file-path)
                                              (logic/maps->js data)))))))}]])
 
+(defn input-initial-balance!
+  [{:keys [state
+           initial-balance-$key]}]
+  [:p  "Press Enter to set Initial balance: "
+   [:input {:placeholder "0"
+            :type "number"
+            :on-key-press (fn [e]
+                            (let [val (js/parseFloat (.-value (.-target e)))]
+                              (when (and (number? val) (not (js/Number.isNaN val)))
+                                (if (= "Enter" (.-key e))
+                                  (do
+                                    (swap! state assoc initial-balance-$key val))))))}]])
+
+

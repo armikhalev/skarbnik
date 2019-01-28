@@ -182,10 +182,11 @@ To run a command, type `lein <command>` in the terminal.
 
 
 ## TODO:
-- On Open File: If recur payments selected, then notify user that all selections will be lost
-- OR: Crete separate folder for every statement where selected payments saved along with statement. BUT needs UI to delete statements with all data.
+- On Open File: If recur payments selected, then notify user that all selections will be lost if not saved
 - Fix all the error messages, they should notify user about solution of the problem that caused error
 - Create search bar
 - Add reset for Dates range
 - Figure out how to show `big` payments
 - Fix: when saving updated data to the same location, it produces error, because it tries to create new folder instead of using the existing one.Also, that same name is added to `bank-accounts.edn`, which should never happen, because it breaks react's list rendering.
+- The above means also that there should be a way to update account
+- Fix: shouldn't allow saving account if there is no data

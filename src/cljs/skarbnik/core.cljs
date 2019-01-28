@@ -25,7 +25,9 @@
 
 ;; DB
 (defonce state (atom {:bank-accounts            []
+                      :current-bank-account     ""
                       :credit-accounts          []
+                      :current-credit-account   ""
                       :bank-data                []
                       :credit-data              []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -107,7 +109,7 @@
                 (swap! state assoc-in [:credit :error] (str "Please, add missing columns: " cats " at " (name cur-page)))
                 (swap! state assoc-in [:credit :error] ""))
       ;; If home page, then there is no need to check cats, since they should have been checked the first time file was uploaded in either `:bank` or `:credit` pages
-      :default))) 
+      :default)))
 
 
 (defn read-file!
@@ -164,7 +166,6 @@
    [:hr]
    (nav)
    [:hr]
-
    (case @current-page
      :home (home/page {:state      state
                        :read-file! read-file!

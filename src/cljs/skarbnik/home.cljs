@@ -38,6 +38,7 @@
                        (str "./" bank "/" bank-recur-transactions)
                        ;; Read EDN and put it into state
                        (fn [data] (swap! state assoc :bank-recur-data (reader/read-string data))))
+                      (swap! state assoc :current-bank-account bank)
                       )}
         bank]
        [:button.button.margin-left-5.delete-bank

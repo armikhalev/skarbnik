@@ -23,6 +23,7 @@
 
   (let [data (:bank-data @state)]
     [:section
+     [:h2 (str "Bank account: " (:current-bank-account @state))]
      [:h2.error-message
       (get-in @state [:bank :error])]
 
@@ -48,16 +49,10 @@
        :make-dir!                  make-dir!
        :data                       data})
 
+     (components/input-initial-balance!
+      {:state state
+       :initial-balance-$key :initial-bank-balance})
 
-     [:p  "Press Enter to set Initial balance: "
-      [:input {:placeholder "0"
-               :type "number"
-               :on-key-press (fn [e]
-                               (let [val (js/parseFloat (.-value (.-target e)))]
-                                 (when (and (number? val) (not (js/Number.isNaN val)))
-                                   (if (= "Enter" (.-key e))
-                                     (do
-                                       (swap! state assoc :initial-bank-balance val))))))}]]
 
      [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
 
