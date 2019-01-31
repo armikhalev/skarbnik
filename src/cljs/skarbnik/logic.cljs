@@ -110,7 +110,7 @@
   [string?
    => (s/coll-of map?)]
 
-  (when csv
+  (when csv ;; null-check
     (-> csv
         csv/parse
         js->clj
