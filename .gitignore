@@ -1,4 +1,5 @@
 .DS_Store
+figwheel_server.log
 /target
 /classes
 /checkouts
@@ -16,6 +17,10 @@ pom.xml.asc
 /node_modules
 /electron
 /app/config.json
+/app/skarbnik-darwin-x64/*
+/app/js
+/app/node_modules
+/app/package-lock.json
 /app/*.log
 /builds
 /app/components
@@ -27,5 +32,4 @@ pom.xml.asc
 *.iml
 *.txt
 .rebel_readline_history
-figwheel_server.log
 /resources/public/cljs
