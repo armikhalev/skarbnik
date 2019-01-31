@@ -105,14 +105,16 @@
 ;; STARTS: CSV->maps convertor fns
 (>defn parse-csv
   "Takes csv data converts it to clojure vector. Returns maps"
+  {::g/trace 4}
   [csv]
   [string?
    => (s/coll-of map?)]
 
-  (-> csv
-      csv/parse
-      js->clj
-      csv->maps))
+  (when csv
+    (-> csv
+        csv/parse
+        js->clj
+        csv->maps)))
 ;; ENDS: CSV->maps convertor fns
 
 

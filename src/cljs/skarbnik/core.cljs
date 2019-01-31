@@ -119,7 +119,7 @@
    (.readFile fs filepath "utf-8"
               (fn [err content]
                 (if err
-                  (prn err)
+                  (prn "Error reading file -> "err)
                   (swap-state-fn content)))))
   ;; arity 3
   ([filepath swap-state-fn parse?]
@@ -127,7 +127,7 @@
               (fn [err content]
                 (let [content-parsed (logic/parse-csv content)]
                   (if err
-                    (prn err)
+                    (prn "Error reading csv file -> " err)
                     (do
                       (check-categories! (first content-parsed))
                       (swap-state-fn content-parsed))))))))

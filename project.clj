@@ -26,7 +26,9 @@
                                         :pretty-print  true
                                         :cache-analysis true}}
 
-                       :devcards-test {:source-paths ["env/dev/cljs" "test"]
+                       ;;; NOTE: For PROD the below devcards dev built config must be commented out
+                       :devcards-test
+                       {:source-paths ["env/dev/cljs" "test"]
                                        :figwheel {:devcards true}
                                        :compiler {:main runners.browser
                                                   :optimizations :none

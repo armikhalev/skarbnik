@@ -30,12 +30,13 @@ TODO: determine size of the file limit
 It is not a comprehensive financial app with automatic update of data. It is not connected to internet, all data is on user's computer in csv files protected only by safety of user's personal computer (Secure read and write of csv might be a goal for the next version). Supposedly, user uploads only the recent data, not the whole financial history.
 
 ## Requirements for project
+
 ### Skarbnik uses [electron-template](https://github.com/ducky427/electron-template), so here is the default readme:
 
 * JDK 1.7+
 * Leiningen 2.5.3
-* node.js 5.1.1 [This is done to match the verion of node.js being used in Electron v0.37.2]
-* [NSIS](http://nsis.sourceforge.net/)
+* node.js 5.1.1 or >
+* [NSIS](http://nsis.sourceforge.net/) - for Windows
 
 On Mac/Linux, installing node.js using [Node Version Manager](https://github.com/creationix/nvm) is recommended.
 
@@ -44,7 +45,7 @@ Run `lein figwheel app devcards-test` in terminal then in your browser go to htt
 
 ---
 
-This project uses Electron v0.35.2. Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
+This project uses Electron v3.0.10 Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
 ## Setup
 
@@ -126,7 +127,7 @@ Node dependencies are in `package.json` file. Bower dependencies are in `bower.j
 
 ## Icons
 
-Please replace the icons provided with your application's icons. The development icons are from [node-appdmg](https://github.com/LinusU/node-appdmg) project.
+Please replace the icons provided with your application's icons. The development icons are from [node-appdmg](https://github.com/LinusU/node-appdmg** project.
 
 Files to replace:
 
@@ -138,15 +139,25 @@ Files to replace:
 
 ## Creating a build for release
 
+### Windows
 To create a Windows build from a non-Windows platform, please install `wine`. On OS X, an easy option is using homebrew.
 
-On Windows before doing a production build, please edit the `scripts/build-windows-exe.nsi` file. The file is the script for creating the NSIS based setup file.
-
-On Mac OSX, please edit the variables for the plist in `release-mac` task in `Gruntfile.js`.
-
-Using [`electron-packager`](https://github.com/maxogden/electron-packager), we are able to create a directory which has OS executables (.app, .exe etc) running from any platform.
+On Windows before doing a production build, please edit the `scripts/build-windows-exe.nsi** file. The file is the script for creating the NSIS based setup file.
 
 If NSIS is available on the path, a further setup executable will be created for Windows. Further, if the release command is run from a OS X machine, a DMG file will be created.
+
+### MacOS
+
+Using [`electron-packager`](https://github.com/maxogden/electron-packager), we are able to create a directory which has OS executables (.app, .exe etc) running from any platform.
+- ignore all the errors, no time to fix the npm dependency hell
+<!-- - add empty files: `bank-accounts.edn`, `credit-accounts.edn`  -->
+- comment out `dev-cards` build in `project.clj`
+- if freshly cloned from github: run `scripts/setup.sh`
+- run `grunt release` to create production js files in `app`, if that didn't work try `lein do clean, with-profile production cljsbuild once`
+- copy `package.example.json` from main foder to `app` or add electron to devDependencies and `productName` to existing `package.json`
+- run `npm install` in `app` directory
+- if not installed get `electron-packager`, then run `electron-packager . skarbnik --icon=img/logo.icns` inside `app` directory, that should do it!
+- launch `Skarbnik.app` that will be inside newly created directory `Skarbnik-darwin-x64` 
 
 To create the release directories:
 
