@@ -16,18 +16,22 @@
 
 ;; Specs
 ;; TODO
-;; END: Specs
 
-
-;; `:bank-recur-data` and `:bank-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
+;; `:bank-recur-data` and `:credit-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
 ;; value a map of the form {`description`:val `amount`:val `date`:val}
 ;; then it will allow find recurring amounts if that amount and other data is in this map.
 
+;; END: Specs
+
+
+
 ;; DB
 (defonce state (atom {:bank-accounts            []
-                      :current-bank-account     ""
                       :credit-accounts          []
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      :current-bank-account     ""
                       :current-credit-account   ""
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :bank-data                []
                       :credit-data              []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -48,6 +52,7 @@
                       :credit                   {:error "" :message ""}}))
 ;; END: DB
 
+; (cljs.pprint/pprint (:bank @state))
 
 (defonce current-page (atom :bank))
 
@@ -101,24 +106,31 @@
 
 
 (defn check-categories!
-  "Checks quantity of keys, if required column headers are missing (i.e. >= 2), changes `:error` of the current page, otherwise defaults it to empty and returns passed map."
+  "Checks quantity of keys, if required column headers are missing (i.e. <= cats 2),
+  changes `:error` of the current page, otherwise defaults it to empty and returns passed map.
+  The actual check happens in `logic/get-categories`
+  that returns either missing keys (< cats 2) or all categories."
   [m]
   (let [cats     (keys m)
         cur-page @current-page]
-    (case @current-page
+    (case cur-page
       :bank   (if (<= (count cats) 2)
-                (swap! state assoc-in [:bank :error] (str "Please, add missing columns: " cats " at " (name cur-page)))
+                (swap! state assoc-in [:bank :error]
+                       (str "Please, add missing columns: " cats " at " (name cur-page)))
                 (swap! state assoc-in [:bank :error] ""))
 
       :credit (if (<= (count cats) 2)
-                (swap! state assoc-in [:credit :error] (str "Please, add missing columns: " cats " at " (name cur-page)))
+                (swap! state assoc-in [:credit :error]
+                       (str "Please, add missing columns: " cats " at " (name cur-page)))
                 (swap! state assoc-in [:credit :error] ""))
       ;; If home page, then there is no need to check cats, since they should have been checked the first time file was uploaded in either `:bank` or `:credit` pages
       :default)))
 
+
 (defn file-exists?
   [$filepath]
   (fs.existsSync $filepath))
+
 
 (defn read-file!
   "Fn of arity 2 just reads file content, arity 3 expects data in csv format parsing it to vector of maps"
@@ -129,6 +141,7 @@
                                  (fn [err content]
                                    (if err
                                      (prn "Error reading file -> "err)
+                                     ;; else
                                      (swap-state-fn content)))))]
      (if (file-exists? $filepath)
        (fs-read-file-fn)
@@ -145,6 +158,7 @@
                                    (let [content-parsed (logic/parse-csv content)]
                                      (if err
                                        (prn "Error reading csv file -> " err)
+                                       ;; else
                                        (do
                                          (check-categories! (first content-parsed))
                                          (swap-state-fn content-parsed)))))))]
@@ -192,12 +206,13 @@
    (nav)
    [:hr]
    (case @current-page
-     :home (home/page {:state      state
-                       :root-path  root-path
-                       :read-file! read-file!
-                       :bank-initial-balance-file-path bank-initial-balance-file-path
-                       :bank-data-file-path bank-data-file-path
-                       :bank-recur-transactions bank-recur-transactions})
+     :home (home/page {:state                           state
+                       :root-path                       root-path
+                       :current-page                    current-page
+                       :read-file!                      read-file!
+                       :bank-initial-balance-file-path  bank-initial-balance-file-path
+                       :bank-data-file-path             bank-data-file-path
+                       :bank-recur-transactions         bank-recur-transactions})
 
      :bank (bank/page {:state                     state
                        :bank-accounts-path        bank-accounts-path
@@ -241,8 +256,6 @@
   []
   (do
     (mount-root)
-
-    ;; If files exist, read them
 
     (read-file!
      bank-accounts-path

@@ -13,6 +13,7 @@
   [{:keys [state
            read-file!
            root-path
+           current-page
            bank-initial-balance-file-path
            bank-data-file-path
            bank-recur-transactions]}]
@@ -25,6 +26,7 @@
       [:li.inline-flex.border.margin-left-5
        [:button.button-smaller.select-bank
         {:on-click #(do
+                      (reset! current-page :bank)
                       ;;
                       (read-file!
                        (str root-path"/"bank"/"bank-initial-balance-file-path)
