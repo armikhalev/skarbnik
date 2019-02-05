@@ -56,7 +56,14 @@
 (def fs (nodejs/require "fs"))
 (def electron (nodejs/require "electron"))
 (def dialog (.-dialog (.-remote electron)))
-;;
+(def path (nodejs/require "path"))
+(def app (.-app (.-remote electron)))
+
+
+;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
+;; Windows is not supported
+(def user-data-path (app.getPath "userData"))
+(def root-path (.join path user-data-path))
 
 ;; file paths
 
@@ -66,7 +73,7 @@
 (def credit-initial-balance-file-path "credit-initial-balance.txt")
 (def bank-recur-transactions "bank-recurring-transactions.edn")
 (def credit-recur-transactions "credit-recurring-transactions.edn")
-(def bank-accounts-path "./bank-accounts.edn")
+(def bank-accounts-path (str root-path "/bank-accounts.edn"))
 ;;
 
 
@@ -175,6 +182,7 @@
 
      :bank (bank/page {:state                     state
                        :bank-accounts-path        bank-accounts-path
+                       :root-path                 root-path
                        :open-file                 open-file
                        :read-file!                read-file!
                        :write-file!               write-file!
@@ -214,6 +222,7 @@
   []
   (do
     (mount-root)
+
     ;;
     (read-file!
      bank-accounts-path
@@ -242,3 +251,4 @@
      credit-recur-transactions
      ;; Read EDN and put it into state
      (fn [data] (swap! state assoc :credit-recur-data (reader/read-string data))))))
+

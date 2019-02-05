@@ -13,6 +13,7 @@
   [{:keys
     [state
      bank-accounts-path
+     root-path
      open-file
      read-file!
      write-file!
@@ -40,6 +41,7 @@
       {:state                      state
        :account-kind-$key          :bank-accounts
        :account-path               bank-accounts-path
+       :root-path                  root-path
        :recur-transactions         bank-recur-transactions
        :recur-data-$key            :bank-recur-data
        :initial-balance-$key       :initial-bank-balance

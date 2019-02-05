@@ -150,11 +150,10 @@ If NSIS is available on the path, a further setup executable will be created for
 
 Using [`electron-packager`](https://github.com/maxogden/electron-packager), we are able to create a directory which has OS executables (.app, .exe etc) running from any platform.
 - ignore all the errors, no time to fix the npm dependency hell
-<!-- - add empty files: `bank-accounts.edn`, `credit-accounts.edn`  -->
 - comment out `dev-cards` build in `project.clj`
 - if freshly cloned from github: run `scripts/setup.sh`
 - run `grunt release` to create production js files in `app`, if that didn't work try `lein do clean, with-profile production cljsbuild once`
-- copy `package.example.json` from main foder to `app` or add electron to devDependencies and `productName` to existing `package.json`
+- copy 'package.example.json' from main folder to `app` or add electron to devDependencies and `productName` to existing `package.json`
 - run `npm install` in `app` directory
 - if not installed get `electron-packager`, then run `electron-packager . skarbnik --icon=img/logo.icns` inside `app` directory, that should do it!
 - launch `Skarbnik.app` that will be inside newly created directory `Skarbnik-darwin-x64` 

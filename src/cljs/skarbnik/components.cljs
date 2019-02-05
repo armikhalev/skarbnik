@@ -132,6 +132,7 @@
            initial-balance-$key
            initial-balance-file-path
            data-file-path
+           root-path
            write-file!
            make-dir!
            data]}]
@@ -149,13 +150,13 @@
                                 (write-file! account-path
                                              (account-kind-$key @state))
                                 ;; Create directory with entered name
-                                (make-dir! dir-path)
+                                (make-dir! (str root-path"/"dir-path))
                                 ;; Write files
-                                (write-file! (str "./"dir-path"/"recur-transactions)
+                                (write-file! (str root-path "/"dir-path"/"recur-transactions)
                                              (recur-data-$key @state))
-                                (write-file! (str "./"dir-path"/"initial-balance-file-path)
+                                (write-file! (str root-path "/"dir-path"/"initial-balance-file-path)
                                              (initial-balance-$key @state))
-                                (write-file! (str "./"dir-path"/"data-file-path)
+                                (write-file! (str root-path "/"dir-path"/"data-file-path)
                                              (logic/maps->js data)))))))}]])
 
 (defn input-initial-balance!
