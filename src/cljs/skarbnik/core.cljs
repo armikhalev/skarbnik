@@ -56,7 +56,12 @@
 (def fs (nodejs/require "fs"))
 (def electron (nodejs/require "electron"))
 (def dialog (.-dialog (.-remote electron)))
-;;
+(def path (nodejs/require "path"))
+(def app (.-app (.-remote electron)))
+
+;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
+;; Windows is not supported
+(def root-path (.join path (app.getPath "userData")))
 
 ;; file paths
 
@@ -66,7 +71,7 @@
 (def credit-initial-balance-file-path "credit-initial-balance.txt")
 (def bank-recur-transactions "bank-recurring-transactions.edn")
 (def credit-recur-transactions "credit-recurring-transactions.edn")
-(def bank-accounts-path "./bank-accounts.edn")
+(def bank-accounts-path (str root-path "/bank-accounts.edn"))
 ;;
 
 
@@ -111,26 +116,46 @@
       ;; If home page, then there is no need to check cats, since they should have been checked the first time file was uploaded in either `:bank` or `:credit` pages
       :default)))
 
+(defn file-exists?
+  [$filepath]
+  (fs.existsSync $filepath))
 
 (defn read-file!
   "Fn of arity 2 just reads file content, arity 3 expects data in csv format parsing it to vector of maps"
   ;; arity 2
-  ([filepath swap-state-fn]
-   (.readFile fs filepath "utf-8"
-              (fn [err content]
-                (if err
-                  (prn "Error reading file -> "err)
-                  (swap-state-fn content)))))
+  ([$filepath swap-state-fn]
+   (let [fs-read-file-fn (fn [] (fs.readFile
+                                 $filepath "utf-8"
+                                 (fn [err content]
+                                   (if err
+                                     (prn "Error reading file -> "err)
+                                     (swap-state-fn content)))))]
+     (if (file-exists? $filepath)
+       (fs-read-file-fn)
+       ;; else
+       (do
+         (fs.appendFileSync $filepath "" "utf-8")
+         (fs-read-file-fn)))))
+
   ;; arity 3
-  ([filepath swap-state-fn parse?]
-   (.readFile fs filepath "utf-8"
-              (fn [err content]
-                (let [content-parsed (logic/parse-csv content)]
-                  (if err
-                    (prn "Error reading csv file -> " err)
-                    (do
-                      (check-categories! (first content-parsed))
-                      (swap-state-fn content-parsed))))))))
+  ([$filepath swap-state-fn parse?]
+   (let [fs-read-file-fn (fn [] (fs.readFile
+                                 $filepath "utf-8"
+                                 (fn [err content]
+                                   (let [content-parsed (logic/parse-csv content)]
+                                     (if err
+                                       (prn "Error reading csv file -> " err)
+                                       (do
+                                         (check-categories! (first content-parsed))
+                                         (swap-state-fn content-parsed)))))))]
+     (if (file-exists? $filepath)
+       (fs-read-file-fn)
+       ;; else
+       (do
+         (fs.appendFileSync $filepath "" "utf-8")
+         (fs-read-file-fn))))
+
+   ))
 
 ;; ENDs file management fns
 
@@ -168,6 +193,7 @@
    [:hr]
    (case @current-page
      :home (home/page {:state      state
+                       :root-path  root-path
                        :read-file! read-file!
                        :bank-initial-balance-file-path bank-initial-balance-file-path
                        :bank-data-file-path bank-data-file-path
@@ -175,6 +201,7 @@
 
      :bank (bank/page {:state                     state
                        :bank-accounts-path        bank-accounts-path
+                       :root-path                 root-path
                        :open-file                 open-file
                        :read-file!                read-file!
                        :write-file!               write-file!
@@ -214,31 +241,24 @@
   []
   (do
     (mount-root)
-    ;;
+
+    ;; If files exist, read them
+
     (read-file!
      bank-accounts-path
      (fn [data] (swap! state assoc :bank-accounts (reader/read-string data))))
-
+    ;;
     (read-file!
      credit-initial-balance-file-path
      (fn [data] (swap! state assoc :initial-credit-balance data)))
     ;;
-    #_(read-file!
-     bank-data-file-path
-     (fn [data] (swap! state assoc :bank-data data))
-     :parse)
-
     (read-file!
      credit-data-file-path
      (fn [data] (swap! state assoc :credit-data data))
      :parse)
     ;;
-    #_(read-file!
-     bank-recur-transactions
-     ;; Read EDN and put it into state
-     (fn [data] (swap! state assoc :bank-recur-data (reader/read-string data))))
-
     (read-file!
      credit-recur-transactions
      ;; Read EDN and put it into state
      (fn [data] (swap! state assoc :credit-recur-data (reader/read-string data))))))
+

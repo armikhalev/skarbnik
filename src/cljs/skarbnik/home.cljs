@@ -12,6 +12,7 @@
   "Create home page with all the accounts in two columns: `banks` and `credits`"
   [{:keys [state
            read-file!
+           root-path
            bank-initial-balance-file-path
            bank-data-file-path
            bank-recur-transactions]}]
@@ -26,16 +27,16 @@
         {:on-click #(do
                       ;;
                       (read-file!
-                       (str "./" bank "/" bank-initial-balance-file-path)
+                       (str root-path"/"bank"/"bank-initial-balance-file-path)
                        (fn [data] (swap! state assoc :initial-bank-balance data)))
                       ;;
                       (read-file!
-                       (str "./" bank "/" bank-data-file-path)
+                       (str root-path"/"bank"/"bank-data-file-path)
                        (fn [data] (swap! state assoc :bank-data data))
                        :parse)
                       ;;
                       (read-file!
-                       (str "./" bank "/" bank-recur-transactions)
+                       (str root-path"/"bank"/"bank-recur-transactions)
                        ;; Read EDN and put it into state
                        (fn [data] (swap! state assoc :bank-recur-data (reader/read-string data))))
                       (swap! state assoc :current-bank-account bank)
