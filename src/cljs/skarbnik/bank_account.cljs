@@ -40,7 +40,7 @@
      (components/input-save-account!
       {:state                      state
        :account-kind-$key          :bank-accounts
-       :account-path               bank-accounts-path
+       :accounts-path              bank-accounts-path
        :root-path                  root-path
        :recur-transactions         bank-recur-transactions
        :recur-data-$key            :bank-recur-data

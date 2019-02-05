@@ -111,7 +111,7 @@ const browserWindowOptions = {
 app.on('ready', function() {
   // Create the browser window.
   mainWindow = new BrowserWindow(browserWindowOptions);
-
+    mainWindow.maximize();
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 

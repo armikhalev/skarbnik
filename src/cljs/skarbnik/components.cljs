@@ -126,7 +126,7 @@
 (defn input-save-account!
   [{:keys [state
            account-kind-$key
-           account-path
+           accounts-path
            recur-transactions
            recur-data-$key
            initial-balance-$key
@@ -147,7 +147,7 @@
                               (do
                                 ;; Update state and save it to file
                                 (swap! state update account-kind-$key conj dir-path)
-                                (write-file! account-path
+                                (write-file! accounts-path
                                              (account-kind-$key @state))
                                 ;; Create directory with entered name
                                 (make-dir! (str root-path"/"dir-path))
