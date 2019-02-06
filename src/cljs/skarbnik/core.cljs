@@ -1,5 +1,6 @@
 (ns skarbnik.core
   (:require [reagent.core :as reagent :refer [atom]]
+            [clojure.core.async :as async]
             [cljs.nodejs :as nodejs]
             [cljs.reader :as reader]
             [clojure.spec.alpha :as s]
@@ -82,13 +83,19 @@
 
 ;; FILE MANAGEMENT FNs
 
+(defn file-exists?
+  [$filepath]
+  (fs.existsSync $filepath))
+
+
 (defn make-dir!
   [dir-path]
-  (.mkdir fs dir-path
-          (fn [err]
-            (if err
-              (prn "Make dir error: " err)
-              (prn "Successfully creted directory at: " dir-path)))))
+  (when-not (file-exists? dir-path)
+    (.mkdir fs dir-path
+            (fn [err]
+              (if err
+                (prn "Make dir error: " err)
+                (prn "Successfully creted directory at: " dir-path))))))
 
 
 (defn open-file
@@ -127,22 +134,22 @@
       :default)))
 
 
-(defn file-exists?
-  [$filepath]
-  (fs.existsSync $filepath))
-
-
 (defn read-file!
   "Fn of arity 2 just reads file content, arity 3 expects data in csv format parsing it to vector of maps"
   ;; arity 2
   ([$filepath swap-state-fn]
-   (let [fs-read-file-fn (fn [] (fs.readFile
-                                 $filepath "utf-8"
-                                 (fn [err content]
-                                   (if err
-                                     (prn "Error reading file -> "err)
-                                     ;; else
-                                     (swap-state-fn content)))))]
+   (let [fs-read-file-fn (fn []
+                           "NOTE: There is no need for async but it was nice exercise."
+                           (let [c (async/chan)]
+                             (fs.readFile
+                              $filepath "utf-8"
+                              (fn [err content]
+                                (if err
+                                  (prn "Error reading file -> "err)
+                                  ;; else
+                                  (async/go
+                                    (async/>! c content)
+                                    (swap-state-fn (async/<! c))))))))]
      (if (file-exists? $filepath)
        (fs-read-file-fn)
        ;; else

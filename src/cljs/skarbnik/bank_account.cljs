@@ -48,6 +48,7 @@
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :write-file!                write-file!
+       :read-file!                 read-file!
        :make-dir!                  make-dir!
        :data                       data})
 

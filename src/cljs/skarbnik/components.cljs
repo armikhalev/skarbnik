@@ -1,5 +1,6 @@
 (ns skarbnik.components
   (:require
+   [cljs.reader :as reader]
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
    [skarbnik.helpers :as helpers]
@@ -123,6 +124,18 @@
    "Open file"])
 
 
+(defn account-NOT-in-accounts?
+  "Filters names in `*-accounts.edn` to find dir-path name in there,
+  if DOESN'T find one returns true."
+  [read-file!
+   accounts
+   dir-path]
+  (= (count
+      (filter #(= % dir-path)
+              accounts))
+     0))
+
+
 (defn input-save-account!
   [{:keys [state
            account-kind-$key
@@ -134,6 +147,7 @@
            data-file-path
            root-path
            write-file!
+           read-file!
            make-dir!
            data]}]
   [:p  "Press Enter to save account data: "
@@ -146,18 +160,35 @@
                             (if (= "Enter" (.-key e))
                               (do
                                 ;; Update state and save it to file
-                                (swap! state update account-kind-$key conj dir-path)
-                                (write-file! accounts-path
-                                             (account-kind-$key @state))
+                                (when
+                                    (account-NOT-in-accounts?
+                                     read-file!
+                                     (account-kind-$key @state)
+                                     dir-path)
+
+                                  ;; add path to accounts in state
+                                  (swap! state update account-kind-$key conj dir-path)
+
+                                  ;; write path to *-accounts.edn for persistance
+                                  (write-file!
+                                   accounts-path
+                                   (account-kind-$key @state)))
+
                                 ;; Create directory with entered name
                                 (make-dir! (str root-path"/"dir-path))
+
                                 ;; Write files
-                                (write-file! (str root-path "/"dir-path"/"recur-transactions)
-                                             (recur-data-$key @state))
-                                (write-file! (str root-path "/"dir-path"/"initial-balance-file-path)
-                                             (initial-balance-$key @state))
-                                (write-file! (str root-path "/"dir-path"/"data-file-path)
-                                             (logic/maps->js data)))))))}]])
+                                (write-file!
+                                 (str root-path "/"dir-path"/"recur-transactions)
+                                 (recur-data-$key @state))
+                                ;;
+                                (write-file!
+                                 (str root-path "/"dir-path"/"initial-balance-file-path)
+                                 (initial-balance-$key @state))
+                                ;;
+                                (write-file!
+                                 (str root-path "/"dir-path"/"data-file-path)
+                                 (logic/maps->js data)))))))}]])
 
 (defn input-initial-balance!
   [{:keys [state
