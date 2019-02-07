@@ -219,6 +219,9 @@
      :home (home/page {:state                           state
                        :root-path                       root-path
                        :current-page                    current-page
+                       :write-file!                     write-file!
+                       :bank-accounts-path              bank-accounts-path
+                       ;; :credit-accounts-path            credit-accounts-path
                        :read-file!                      read-file!
                        :bank-initial-balance-file-path  bank-initial-balance-file-path
                        :bank-data-file-path             bank-data-file-path

@@ -161,7 +161,9 @@
                       (swap! state update account-kind-$key conj dir-path)
 
                       ;; write path to *-accounts.edn for persistance
-                      (write-file! accounts-path dir-path))
+                      (write-file!
+                       accounts-path
+                       (account-kind-$key @state)))
 
                     ;; create dir (if doesn't exist fn will handle it)
                     (make-dir! dir-path)

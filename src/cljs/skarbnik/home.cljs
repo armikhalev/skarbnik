@@ -14,6 +14,9 @@
   "Create home page with all the accounts in two columns: `banks` and `credits`"
   [{:keys [state
            read-file!
+           write-file!
+           bank-accounts-path
+           credit-accounts-path
            root-path
            current-page
            bank-initial-balance-file-path
@@ -27,6 +30,8 @@
           :let [bank-name (-> bank-dir-path (split #"/") last)]]
       ^{:key bank-name}
       [:li.inline-flex.border.margin-left-5
+
+       ;; SELECT acconut button
        [:button.button-smaller.select-bank
         {:on-click #(do
                       (reset! current-page :bank)
@@ -46,12 +51,21 @@
                        (fn [data]
                          (swap! state assoc
                                 :bank-recur-data (reader/read-string data))))
-                      (swap! state assoc :current-bank-account bank-name)
-                      )}
+                      (swap! state assoc :current-bank-account bank-name))}
         bank-name]
+
+       ;; DELETE account button
        [:button.button.margin-left-5.delete-bank
-        {:on-click #(swap! state update-in [:bank-accounts]
-                           (fn [s] (remove #{bank-dir-path} s)))}
+        {:on-click #(do
+                      ;; remove bank-dir from state
+                      (swap! state update-in [:bank-accounts]
+                             (fn [s] (remove #{bank-dir-path} s)))
+
+                      ;; then remove it from file
+                      (write-file!
+                       bank-accounts-path
+                       (vec
+                        (:bank-accounts @state))))}
         "X"]])]
 
    [:div.credits
