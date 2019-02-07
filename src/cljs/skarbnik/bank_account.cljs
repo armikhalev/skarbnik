@@ -1,5 +1,5 @@
 (ns skarbnik.bank-account
-  (:require [reagent.core :as r :refer [atom]]
+  (:require [reagent.core :as r]
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
@@ -9,7 +9,7 @@
 
 
 (defn page
-  "Creates bank account page"
+  "Creates BANK account page"
   [{:keys
     [state
      bank-accounts-path
@@ -62,47 +62,10 @@
      [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
 
      [:hr]
-     [:table
-      [:thead
-       [:tr
-        (for [th (logic/get-maps-categories-str data)]
-          ^{:key th}
-          [:th th])]]
-      [:tbody
-       (doall
-        (map-indexed
-         (fn [idx entry]
-           (let [selected? (r/atom (contains? (:bank-recur-data @state) (helpers/make-recur-keyword entry)))]
-             (components/table-row
-              {:type-recur-data :bank-recur-data
-               :state           state
-               :idx             idx
-               :entry           entry
-               :selected?       selected?
-               :data            data})))
-
-         ;; feed `map-indexed`
-         (:bank-data @state)))]]
+     (components/transactions-table state data)
 
      [:hr]
-     [:section.date-picker
-      [:label "Select date range from: "]
-      [:input
-       {:type "date"
-        :on-change #(swap! state assoc :from-date (.-target.value %))
-        :name "from-date"}]
-      [:label " to: "]
-      [:input
-       {:type "date"
-        :on-change #(swap! state assoc :to-date (.-target.value %))
-        :name "to-date"}]
-
-      [:button.margin-left-5
-       {:on-click #(swap! state assoc :bank-data (logic/filter-by-date
-                                                  data
-                                                  (:from-date @state)
-                                                  (:to-date @state)))}
-       "Filter by date"]]
+     (components/date-picker state data)
 
      (components/bank-analyze-comp data state)]))
 
