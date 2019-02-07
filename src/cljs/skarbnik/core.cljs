@@ -82,6 +82,7 @@
 (def bank-recur-transactions "bank-recurring-transactions.edn")
 (def credit-recur-transactions "credit-recurring-transactions.edn")
 (def bank-accounts-path (str root-path "/bank-accounts.edn"))
+(def credit-accounts-path (str root-path "/credit-accounts.edn"))
 ;;
 
 
@@ -217,12 +218,16 @@
    [:hr]
    (case @current-page
      :home (home/page {:state                           state
-                       :root-path                       root-path
                        :current-page                    current-page
                        :write-file!                     write-file!
                        :bank-accounts-path              bank-accounts-path
-                       ;; :credit-accounts-path            credit-accounts-path
+                       :credit-accounts-path            credit-accounts-path
                        :read-file!                      read-file!
+
+                       :credit-initial-balance-file-path  credit-initial-balance-file-path
+                       :credit-data-file-path             credit-data-file-path
+                       :credit-recur-transactions         credit-recur-transactions
+
                        :bank-initial-balance-file-path  bank-initial-balance-file-path
                        :bank-data-file-path             bank-data-file-path
                        :bank-recur-transactions         bank-recur-transactions})
@@ -240,12 +245,16 @@
                        :bank-recur-transactions   bank-recur-transactions})
 
      :credit (credit/page {:state                     state
+                           :credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
+                           :show-save-file-dialog!    show-save-file-dialog!
                            :read-file!                read-file!
                            :write-file!               write-file!
+                           :make-dir!                 make-dir!
                            :initial-balance-file-path credit-initial-balance-file-path
                            :data-file-path            credit-data-file-path
                            :credit-recur-transactions credit-recur-transactions}))
+
    (let [sum (logic/get-sum-in-dollars
               (- (:credit-total-difference @state))
               (:bank-total-difference @state))]
@@ -271,21 +280,17 @@
   (do
     (mount-root)
 
+    ;; BANK
+
     (read-file!
      bank-accounts-path
      (fn [data] (swap! state assoc :bank-accounts (reader/read-string data))))
-    ;;
+
+    ;; CREDIT
+
     (read-file!
-     credit-initial-balance-file-path
-     (fn [data] (swap! state assoc :initial-credit-balance data)))
-    ;;
-    (read-file!
-     credit-data-file-path
-     (fn [data] (swap! state assoc :credit-data data))
-     :parse)
-    ;;
-    (read-file!
-     credit-recur-transactions
-     ;; Read EDN and put it into state
-     (fn [data] (swap! state assoc :credit-recur-data (reader/read-string data))))))
+     credit-accounts-path
+     (fn [data] (swap! state assoc :credit-accounts (reader/read-string data))))
+
+    ))
 

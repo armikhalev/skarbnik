@@ -30,7 +30,7 @@
       entry-val])])
 
 
-(defn bank-analyze-comp
+(defn bank-analyze
   [data state]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
@@ -67,7 +67,7 @@
          [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance) ending-balance]]]])))
 
 
-(defn credit-analyze-comp
+(defn credit-analyze
   [data state]
   (let [plus           (logic/get-total data >)
            minus          (logic/get-total data <)
@@ -103,7 +103,7 @@
              ending-balance]]]])))
 
 
-(defn button-open-file-comp!
+(defn button-open-file!
   [{:keys [open-file!
            state
            recur-data-key
@@ -199,8 +199,10 @@
 
 
 (defn transactions-table
-  [state
-   data]
+  [{:keys [state
+           data
+           account-data-$key
+           account-recur-data-$key]}]
   [:table
    [:thead
     [:tr
@@ -211,10 +213,10 @@
     (doall
      (map-indexed
       (fn [idx entry]
-        (let [selected? (r/atom (contains? (:bank-recur-data @state)
+        (let [selected? (r/atom (contains? (account-recur-data-$key @state)
                                            (helpers/make-recur-keyword entry)))]
           (table-row
-           {:type-recur-data :bank-recur-data
+           {:type-recur-data account-recur-data-$key
             :state           state
             :idx             idx
             :entry           entry
@@ -222,11 +224,11 @@
             :data            data})))
 
       ;; feed `map-indexed`
-      (:bank-data @state)))]])
+      (account-data-$key @state)))]])
 
 
 (defn date-picker
-  [state data]
+  [state data account-kind-$key]
   [:section.date-picker
    [:label "Select date range from: "]
    [:input
@@ -240,8 +242,10 @@
      :name "to-date"}]
 
    [:button.margin-left-5
-    {:on-click #(swap! state assoc :bank-data (logic/filter-by-date
-                                               data
-                                               (:from-date @state)
-                                               (:to-date @state)))}
+    {:on-click #(swap! state assoc
+                       account-kind-$key
+                       (logic/filter-by-date
+                        data
+                        (:from-date @state)
+                        (:to-date @state)))}
     "Filter by date"]])

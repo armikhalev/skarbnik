@@ -13,7 +13,6 @@
   [{:keys
     [state
      bank-accounts-path
-     root-path
      open-file!
      show-save-file-dialog!
      read-file!
@@ -28,21 +27,18 @@
      [:h2 (str "Bank account: " (:current-bank-account @state))]
      [:h2.error-message
       (get-in @state [:bank :error])]
-
      ;;
-     (components/button-open-file-comp!
+     (components/button-open-file!
       {:open-file!      open-file!
        :state           state
        :recur-data-key  :bank-recur-data
        :read-file!      read-file!
        :data-key        :bank-data})
-
      ;;
      (components/input-save-account!
       {:state                      state
        :account-kind-$key          :bank-accounts
        :accounts-path              bank-accounts-path
-       :root-path                  root-path
        :recur-transactions         bank-recur-transactions
        :recur-data-$key            :bank-recur-data
        :initial-balance-$key       :initial-bank-balance
@@ -53,19 +49,22 @@
        :read-file!                 read-file!
        :make-dir!                  make-dir!
        :data                       data})
-
+     ;;
      (components/input-initial-balance!
       {:state state
        :initial-balance-$key :initial-bank-balance})
-
-
+     ;;
      [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
 
      [:hr]
-     (components/transactions-table state data)
+     (components/transactions-table
+      {:state                   state
+       :data                    data
+       :account-data-$key       :bank-data
+       :account-recur-data-$key :bank-recur-data})
 
      [:hr]
-     (components/date-picker state data)
-
-     (components/bank-analyze-comp data state)]))
+     (components/date-picker state data :bank-data)
+     ;;
+     (components/bank-analyze data state)]))
 
