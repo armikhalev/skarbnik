@@ -14,7 +14,8 @@
     [state
      bank-accounts-path
      root-path
-     open-file
+     open-file!
+     show-save-file-dialog!
      read-file!
      write-file!
      make-dir!
@@ -30,7 +31,7 @@
 
      ;;
      (components/button-open-file-comp!
-      {:open-file       open-file
+      {:open-file!      open-file!
        :state           state
        :recur-data-key  :bank-recur-data
        :read-file!      read-file!
@@ -47,6 +48,7 @@
        :initial-balance-$key       :initial-bank-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
+       :show-save-file-dialog!     show-save-file-dialog!
        :write-file!                write-file!
        :read-file!                 read-file!
        :make-dir!                  make-dir!

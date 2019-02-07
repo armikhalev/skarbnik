@@ -1,6 +1,8 @@
 (ns skarbnik.home
   (:require [reagent.core :as r :refer [atom]]
             [cljs.reader :as reader]
+            [clojure.string :as string
+             :refer [split join]]
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
@@ -21,34 +23,35 @@
   [:section
    [:h2 "Bank accounts"]
    [:ul.banks
-    (for [bank (:bank-accounts @state)]
-      ^{:key bank}
+    (for [bank-dir-path (:bank-accounts @state)
+          :let [bank-name (-> bank-dir-path (split #"/") last)]]
+      ^{:key bank-name}
       [:li.inline-flex.border.margin-left-5
        [:button.button-smaller.select-bank
         {:on-click #(do
                       (reset! current-page :bank)
                       ;;
                       (read-file!
-                       (str root-path"/"bank"/"bank-initial-balance-file-path)
+                       (str bank-dir-path"/"bank-initial-balance-file-path)
                        (fn [data] (swap! state assoc :initial-bank-balance data)))
                       ;;
                       (read-file!
-                       (str root-path"/"bank"/"bank-data-file-path)
+                       (str bank-dir-path"/"bank-data-file-path)
                        (fn [data] (swap! state assoc :bank-data data))
                        :parse)
                       ;;
                       (read-file!
-                       (str root-path"/"bank"/"bank-recur-transactions)
+                       (str bank-dir-path"/"bank-recur-transactions)
                        ;; Read EDN and put it into state
                        (fn [data]
                          (swap! state assoc
                                 :bank-recur-data (reader/read-string data))))
-                      (swap! state assoc :current-bank-account bank)
+                      (swap! state assoc :current-bank-account bank-name)
                       )}
-        bank]
+        bank-name]
        [:button.button.margin-left-5.delete-bank
         {:on-click #(swap! state update-in [:bank-accounts]
-                           (fn [s] (remove #{bank} s)))}
+                           (fn [s] (remove #{bank-dir-path} s)))}
         "X"]])]
 
    [:div.credits

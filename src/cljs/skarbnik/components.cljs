@@ -1,6 +1,8 @@
 (ns skarbnik.components
   (:require
    [cljs.reader :as reader]
+   [clojure.string :as string
+    :refer [split join]]
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
    [skarbnik.helpers :as helpers]
@@ -101,14 +103,14 @@
 
 
 (defn button-open-file-comp!
-  [{:keys [open-file
+  [{:keys [open-file!
            state
            recur-data-key
            read-file!
            data-key]}]
 
   [:button.button.button-smaller.open-file
-   {:on-click #(open-file
+   {:on-click #(open-file!
                 (fn [file-names]
                   (do
                     ;; Nullify recurring transactions data
@@ -127,14 +129,12 @@
 (defn account-NOT-in-accounts?
   "Filters names in `*-accounts.edn` to find dir-path name in there,
   if DOESN'T find one returns true."
-  [read-file!
-   accounts
+  [accounts
    dir-path]
   (= (count
       (filter #(= % dir-path)
               accounts))
      0))
-
 
 (defn input-save-account!
   [{:keys [state
@@ -145,50 +145,41 @@
            initial-balance-$key
            initial-balance-file-path
            data-file-path
-           root-path
+           show-save-file-dialog!
+           make-dir!
            write-file!
            read-file!
-           make-dir!
            data]}]
-  [:p  "Press Enter to save account data: "
-      [:input
-       {:placeholder "Account name"
-        :type "string"
-        :on-key-press (fn [e]
-                        (let [dir-path (.-value (.-target e))]
-                          (when (> (count dir-path) 0)
-                            (if (= "Enter" (.-key e))
-                              (do
-                                ;; Update state and save it to file
-                                (when
-                                    (account-NOT-in-accounts?
-                                     read-file!
-                                     (account-kind-$key @state)
-                                     dir-path)
+  [:button.button.button-smaller.open-file
+   {:on-click #(let [dir-path (-> (show-save-file-dialog!) str)]
+                (when dir-path
+                  (do
+                    ;; Update state and save it to file
+                    (when (account-NOT-in-accounts? (account-kind-$key @state) dir-path)
 
-                                  ;; add path to accounts in state
-                                  (swap! state update account-kind-$key conj dir-path)
+                      ;; add directory name to accounts in state
+                      (swap! state update account-kind-$key conj dir-path)
 
-                                  ;; write path to *-accounts.edn for persistance
-                                  (write-file!
-                                   accounts-path
-                                   (account-kind-$key @state)))
+                      ;; write path to *-accounts.edn for persistance
+                      (write-file! accounts-path dir-path))
 
-                                ;; Create directory with entered name
-                                (make-dir! (str root-path"/"dir-path))
+                    ;; create dir (if doesn't exist fn will handle it)
+                    (make-dir! dir-path)
 
-                                ;; Write files
-                                (write-file!
-                                 (str root-path "/"dir-path"/"recur-transactions)
-                                 (recur-data-$key @state))
-                                ;;
-                                (write-file!
-                                 (str root-path "/"dir-path"/"initial-balance-file-path)
-                                 (initial-balance-$key @state))
-                                ;;
-                                (write-file!
-                                 (str root-path "/"dir-path"/"data-file-path)
-                                 (logic/maps->js data)))))))}]])
+                    ;; Write files
+                    (write-file!
+                     (str dir-path"/"recur-transactions)
+                     (recur-data-$key @state))
+                    ;;
+                    (write-file!
+                     (str dir-path"/"initial-balance-file-path)
+                     (initial-balance-$key @state))
+                    ;;
+                    (write-file!
+                     (str dir-path"/"data-file-path)
+                     (logic/maps->js data)))))}
+   "Save account"])
+
 
 (defn input-initial-balance!
   [{:keys [state

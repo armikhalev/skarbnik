@@ -12,7 +12,7 @@
   "Creates credit account page"
   [{:keys
     [state
-     open-file
+     open-file!
      read-file!
      write-file!
      initial-balance-file-path
@@ -25,7 +25,7 @@
       (get-in @state [:credit :error])]
 
      [:button.button-smaller.open-file
-      {:on-click #(open-file
+      {:on-click #(open-file!
                    (fn [file-names]
                      (if (= file-names nil)
                        (prn "no file selected")

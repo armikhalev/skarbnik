@@ -33,6 +33,9 @@
                       :current-bank-account     ""
                       :current-credit-account   ""
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      :current-bank-dir-path    ""
+                      :current-credit-dir-path  ""
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :bank-data                []
                       :credit-data              []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -53,9 +56,9 @@
                       :credit                   {:error "" :message ""}}))
 ;; END: DB
 
-; (cljs.pprint/pprint (:bank @state))
+;; (cljs.pprint/pprint (:bank-accounts @state))
 
-(defonce current-page (atom :bank))
+(defonce current-page (atom :home))
 
 ;; nodejs
 
@@ -64,6 +67,7 @@
 (def dialog (.-dialog (.-remote electron)))
 (def path (nodejs/require "path"))
 (def app (.-app (.-remote electron)))
+(def win (.getCurrentWindow (.-remote electron)))
 
 ;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
 ;; Windows is not supported
@@ -98,10 +102,13 @@
                 (prn "Successfully creted directory at: " dir-path))))))
 
 
-(defn open-file
+(defn open-file!
   [path]
   (.showOpenDialog dialog path))
 
+(defn show-save-file-dialog!
+  []
+  (.showOpenDialog dialog win #js {:properties #js ["openDirectory"]}))
 
 (defn write-file!
   [filepath content]
@@ -139,17 +146,13 @@
   ;; arity 2
   ([$filepath swap-state-fn]
    (let [fs-read-file-fn (fn []
-                           "NOTE: There is no need for async but it was nice exercise."
-                           (let [c (async/chan)]
-                             (fs.readFile
-                              $filepath "utf-8"
-                              (fn [err content]
-                                (if err
-                                  (prn "Error reading file -> "err)
-                                  ;; else
-                                  (async/go
-                                    (async/>! c content)
-                                    (swap-state-fn (async/<! c))))))))]
+                           (fs.readFile
+                            $filepath "utf-8"
+                            (fn [err content]
+                              (if err
+                                (prn "Error reading file -> "err)
+                                ;; else
+                                (swap-state-fn content)))))]
      (if (file-exists? $filepath)
        (fs-read-file-fn)
        ;; else
@@ -224,7 +227,8 @@
      :bank (bank/page {:state                     state
                        :bank-accounts-path        bank-accounts-path
                        :root-path                 root-path
-                       :open-file                 open-file
+                       :show-save-file-dialog!    show-save-file-dialog!
+                       :open-file!                open-file!
                        :read-file!                read-file!
                        :write-file!               write-file!
                        :make-dir!                 make-dir!
@@ -233,7 +237,7 @@
                        :bank-recur-transactions   bank-recur-transactions})
 
      :credit (credit/page {:state                     state
-                           :open-file                 open-file
+                           :open-file!                open-file!
                            :read-file!                read-file!
                            :write-file!               write-file!
                            :initial-balance-file-path credit-initial-balance-file-path
