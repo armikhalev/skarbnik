@@ -61,3 +61,18 @@ html {
     background-color: #b3a6a6;
     color: #cc5500;
 }
+
+label.recur-sign {
+    display: block;
+    width: 50px;
+    text-align: center;
+}
+
+label.recur-sign:before {
+    content: "R?"
+}
+
+label.recur-sign.recur:before {
+    /* Unicode for open circle arrow */
+    content: "\021BA"
+}

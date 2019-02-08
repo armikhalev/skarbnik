@@ -9,25 +9,7 @@
    [skarbnik.helpers :as helpers]
    [skarbnik.logic :as logic]))
 
-(defn table-row
-  "`type-recur-data` (or `:bank-recur-data`  `:credit-recur-data`)"
-  [{:keys [type-recur-data state idx entry selected? data]}]
 
-  ^{:key idx}
-  [:tr
-   {:on-click #(if @selected?
-                 (helpers/unset-recur-data! state entry type-recur-data)
-                 ;; else
-                 (helpers/set-recur-data! state entry type-recur-data))
-    :style {:background-color (if @selected? "grey" "")}}
-
-   (for [category-key (logic/get-maps-categories data)
-         :let [entry-val (category-key entry)]]
-     ^{:key (str category-key "-" idx)}
-     [:td
-      (if (= (name category-key) "amount")
-        (helpers/colorize-numbers entry-val))
-      entry-val])])
 
 
 (defn bank-analyze
@@ -127,6 +109,8 @@
    "Open file"])
 
 
+;; SAVE button
+
 (defn account-NOT-in-accounts?
   "Filters names in `*-accounts.edn` to find dir-path name in there,
   if DOESN'T find one returns true."
@@ -137,12 +121,14 @@
               accounts))
      0))
 
-(defn input-save-account!
+(defn button-save-account!
   [{:keys [state
            account-kind-$key
            accounts-path
            recur-transactions
+           big-transactions
            recur-data-$key
+           big-data-$key
            initial-balance-$key
            initial-balance-file-path
            data-file-path
@@ -175,6 +161,10 @@
                      (recur-data-$key @state))
                     ;;
                     (write-file!
+                     (str dir-path"/"big-transactions)
+                     (big-data-$key @state))
+                    ;;
+                    (write-file!
                      (str dir-path"/"initial-balance-file-path)
                      (initial-balance-$key @state))
                     ;;
@@ -182,6 +172,8 @@
                      (str dir-path"/"data-file-path)
                      (logic/maps->js data)))))}
    "Save account"])
+
+;; ENDs: SAVE button
 
 
 (defn input-initial-balance!
@@ -197,12 +189,59 @@
                                   (do
                                     (swap! state assoc initial-balance-$key val))))))}]])
 
+;; ROW
+
+(defn table-row
+  "`type-recur-data` (or `:bank-recur-data`  `:credit-recur-data`)"
+  [{:keys [type-recur-data
+           type-big-data
+           state
+           idx
+           entry
+           selected?
+           big?
+           data
+           credit?]}]
+
+  ^{:key idx}
+  [:tr
+   {:style {:background-color (if @selected? "grey" "")}}
+   (for [category-key (logic/get-maps-categories data)
+         :let [entry-val (category-key entry)]]
+     ^{:key (str category-key "-" idx)}
+     [:td
+      (if (= (name category-key) "amount")
+        (helpers/colorize-numbers entry-val))
+      entry-val])
+
+   [:td
+    [:label.recur-sign
+     {:on-click #(if @selected?
+                   (helpers/unset-distinct-data! state entry type-recur-data)
+                   ;; else
+                   (helpers/set-distinct-data! state entry type-recur-data))
+      :class (when @selected? "recur")}]]
+
+   (when credit?
+     [:td
+      {:class (when @big? "color-danger")
+       :on-click #(if @big?
+                    (helpers/unset-distinct-data! state entry type-big-data)
+                    ;; else
+                    (helpers/set-distinct-data! state entry type-big-data))}
+      (if @big? "BIG" "B?")])])
+
+;; ENDs: ROW
+
 
 (defn transactions-table
   [{:keys [state
            data
+           credit?
+           big?
            account-data-$key
-           account-recur-data-$key]}]
+           account-recur-data-$key
+           account-big-data-$key]}]
   [:table
    [:thead
     [:tr
@@ -214,13 +253,18 @@
      (map-indexed
       (fn [idx entry]
         (let [selected? (r/atom (contains? (account-recur-data-$key @state)
-                                           (helpers/make-recur-keyword entry)))]
+                                           (helpers/three-fold-key entry)))
+              big? (r/atom (contains? (account-big-data-$key @state)
+                                      (helpers/three-fold-key entry)))]
           (table-row
            {:type-recur-data account-recur-data-$key
+            :type-big-data   account-big-data-$key
             :state           state
             :idx             idx
             :entry           entry
             :selected?       selected?
+            :credit?         credit?
+            :big?            big?
             :data            data})))
 
       ;; feed `map-indexed`

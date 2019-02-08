@@ -1,8 +1,15 @@
 # Skarbnik
 ## How does this app work?
+- User finds payments using search tool and marks them either `recurring` or `big`.
+- `big` transactions defined by user, calculation to detect date when amount is paid-off or how much is still owed would be determined by equality to the credit balance at the time of transaction.
+- E.g.: I bought a chain saw for $500 using Discover credit card on March 10. At the moment of purchase I had $100 of debt on credit card. I marked my chain saw purchase as `big` transaction. You bought other things for $200 before paying-off your debt. So, you have to pay $800 ($100+$500+$200) to pay-off your credit card balance. On March 20 I paid $300 to Discover, I still owe $500, so Skarbnik would say that I started to pay-off for the chain saw, and already paid $100! If it is still not clear why: `$800(bal) - $300(paid-off) - $500(ch.saw) + $100(initial)`.
+
+### MAYBE?
 - Algorithm looks for payments that are similar by amount and category, then labels them as `recurring`
-- Also it looks for payments that are equal or higher than user defined limit of non-recurring big payment, however, it **skips** `recurring` payments. This kind of payments are labeled `big`.
+- Also it looks for payments that are equal or higher than user defined limit of non-recurring big payment, however, it **skips*** `recurring` payments. This kind of payments are labeled `big`.
+
 - To label a payment user has to search for the transaction by `description` in the search tool of the app.
+### Should reconsider this:
 - There are two types of accounts used in the app: `bank-account` and `credit-account`, each should be dealt differently through the following process:
 1. All the transactions that paying off the debt on `bank-account` should not be included in representation of `expenses`.
 2. Same for `credit-account`, where all the other transactions are included in the `expenses`, in this way we can see what was obtained by transaction, in contrast to the flow between accounts.
@@ -20,7 +27,8 @@
 ## How to use this app?
 - Skarbnik should be used for analyzing financial data, so it is limited by periods in which user is interested. That means that user should have different CSV files for different periods of time, though there is search option by date, it doesn't mean user should upload all the data available.
 - Get financial data in csv format from your financial institution (Bank, Credit Card) or another financial app (Mint).
-- Upload that csv file to Skarbnik. 
+- Upload that csv file to Skarbnik.
+- Set the initial balance, which is the amount account had at the begining of the period.
 
 TODO: determine size of the file limit
 

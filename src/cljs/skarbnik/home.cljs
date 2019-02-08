@@ -23,7 +23,8 @@
            bank-data-file-path
            credit-data-file-path
            bank-recur-transactions
-           credit-recur-transactions]}]
+           credit-recur-transactions
+           credit-big-transactions]}]
   ;;
   [:section
    [:h2 "Bank accounts"]
@@ -99,6 +100,14 @@
                        (fn [data]
                          (swap! state assoc
                                 :credit-recur-data (reader/read-string data))))
+                      ;;
+                      (read-file!
+                       (str credit-dir-path"/"credit-big-transactions)
+                       ;; Read EDN and put it into state
+                       (fn [data]
+                         (swap! state assoc
+                                :credit-big-data (reader/read-string data))))
+                      ;;
                       (swap! state assoc :current-credit-account credit-name))}
         credit-name]
 
@@ -114,11 +123,5 @@
                        credit-accounts-path
                        (vec
                         (:credit-accounts @state))))}
-        "X"]])]
-
-   #_[:div.credits
-    [:h2 "Credit accounts"]
-    (for [credit (:credit-accounts @state)]
-      ^{:key credit}
-      [:p credit])]])
+        "X"]])]])
 

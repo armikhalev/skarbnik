@@ -5,32 +5,32 @@
   {:class (str "bold margin-left-5 " (if (< number 0) "color-red" "color-blue"))})
 
 
-(defn make-recur-keyword
+(defn three-fold-key
   ;; TODO: Spec it!
   [entry]
   (let [desc   (:description entry)
         amount (:amount entry)
         date   (:date entry)]
     ;; null-check
-    (when (not-any? nil? [desc amount date] )
+    (when (not-any? nil? [desc amount date])
       (str (.trim desc) "-" (.trim amount) "-" (.trim date)))))
 
 
-(defn set-recur-data!
-  "Adds key to `bank-recur-data` as concatenation of `description`, `amount` and `date`
+(defn set-distinct-data!
+  "Adds key to `bank-data` as concatenation of `description`, `amount` and `date`
    And value being a map of those key/value pairs in `entry`"
-  [state entry recur-data-key]
-  (let [data-key    (make-recur-keyword entry)
+  [state entry d-data-key]
+  (let [data-key    (three-fold-key entry)
         parsed-entry (select-keys entry [:description :amount :date])]
 
-    (swap! state assoc-in [recur-data-key data-key]
+    (swap! state assoc-in [d-data-key data-key]
            parsed-entry)))
 
 
-(defn unset-recur-data!
+(defn unset-distinct-data!
   "Removes selected key from state."
-  [state entry recur-data-key]
-  (let [data-key    (make-recur-keyword entry)]
-    (swap! state update-in [recur-data-key]
+  [state entry d-data-key]
+  (let [data-key    (three-fold-key entry)]
+    (swap! state update-in [d-data-key]
            dissoc
            data-key)))

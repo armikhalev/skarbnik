@@ -42,6 +42,8 @@
                       :bank-recur-data          {}
                       :credit-recur-data        {}
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      :credit-big-data          {}
+                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :initial-bank-balance     0
                       :initial-credit-balance   0
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -56,7 +58,7 @@
                       :credit                   {:error "" :message ""}}))
 ;; END: DB
 
-;; (cljs.pprint/pprint (:bank-accounts @state))
+(cljs.pprint/pprint (:credit-big-data @state))
 
 (defonce current-page (atom :home))
 
@@ -81,6 +83,7 @@
 (def credit-initial-balance-file-path "credit-initial-balance.txt")
 (def bank-recur-transactions "bank-recurring-transactions.edn")
 (def credit-recur-transactions "credit-recurring-transactions.edn")
+(def credit-big-transactions "credit-big-transactions.edn")
 (def bank-accounts-path (str root-path "/bank-accounts.edn"))
 (def credit-accounts-path (str root-path "/credit-accounts.edn"))
 ;;
@@ -211,9 +214,6 @@
 
 (defn main-page []
   [:main
-   [:h1 "Skarbnik"]
-
-   [:hr]
    (nav)
    [:hr]
    (case @current-page
@@ -227,6 +227,7 @@
                        :credit-initial-balance-file-path  credit-initial-balance-file-path
                        :credit-data-file-path             credit-data-file-path
                        :credit-recur-transactions         credit-recur-transactions
+                       :credit-big-transactions           credit-big-transactions
 
                        :bank-initial-balance-file-path  bank-initial-balance-file-path
                        :bank-data-file-path             bank-data-file-path
@@ -253,6 +254,7 @@
                            :make-dir!                 make-dir!
                            :initial-balance-file-path credit-initial-balance-file-path
                            :data-file-path            credit-data-file-path
+                           :credit-big-transactions   credit-big-transactions
                            :credit-recur-transactions credit-recur-transactions}))
 
    (let [sum (logic/get-sum-in-dollars

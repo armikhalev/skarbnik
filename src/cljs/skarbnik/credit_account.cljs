@@ -20,6 +20,7 @@
      make-dir!
      initial-balance-file-path
      data-file-path
+     credit-big-transactions
      credit-recur-transactions]}]
 
   (let [data (:credit-data @state)]
@@ -36,12 +37,14 @@
        :read-file!      read-file!
        :data-key        :credit-data})
      ;;
-     (components/input-save-account!
+     (components/button-save-account!
       {:state                      state
        :account-kind-$key          :credit-accounts
        :accounts-path              credit-accounts-path
        :recur-transactions         credit-recur-transactions
+       :big-transactions           credit-big-transactions
        :recur-data-$key            :credit-recur-data
+       :big-data-$key              :credit-big-data
        :initial-balance-$key       :initial-credit-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
@@ -62,8 +65,10 @@
      (components/transactions-table
       {:state                   state
        :data                    data
+       :credit?                 true
        :account-data-$key       :credit-data
-       :account-recur-data-$key :credit-recur-data})
+       :account-recur-data-$key :credit-recur-data
+       :account-big-data-$key   :credit-big-data})
 
      [:hr]
      (components/date-picker state data :credit-data)

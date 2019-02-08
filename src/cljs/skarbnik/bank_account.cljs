@@ -35,7 +35,7 @@
        :read-file!      read-file!
        :data-key        :bank-data})
      ;;
-     (components/input-save-account!
+     (components/button-save-account!
       {:state                      state
        :account-kind-$key          :bank-accounts
        :accounts-path              bank-accounts-path
