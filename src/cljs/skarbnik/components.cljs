@@ -205,7 +205,10 @@
 
   ^{:key idx}
   [:tr
-   {:style {:background-color (if @selected? "grey" "")}}
+   {:style {:background-color (cond
+                                @selected? "grey"
+                                @big?      "peru"
+                                :else      "")}}
    (for [category-key (logic/get-maps-categories data)
          :let [entry-val (category-key entry)]]
      ^{:key (str category-key "-" idx)}
@@ -238,7 +241,6 @@
   [{:keys [state
            data
            credit?
-           big?
            account-data-$key
            account-recur-data-$key
            account-big-data-$key]}]
@@ -254,8 +256,10 @@
       (fn [idx entry]
         (let [selected? (r/atom (contains? (account-recur-data-$key @state)
                                            (helpers/three-fold-key entry)))
-              big? (r/atom (contains? (account-big-data-$key @state)
-                                      (helpers/three-fold-key entry)))]
+              big? (if account-big-data-$key
+                     (r/atom (contains? (account-big-data-$key @state)
+                                        (helpers/three-fold-key entry)))
+                     (r/atom false))]
           (table-row
            {:type-recur-data account-recur-data-$key
             :type-big-data   account-big-data-$key

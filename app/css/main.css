@@ -69,7 +69,7 @@ label.recur-sign {
 }
 
 label.recur-sign:before {
-    content: "R?"
+    content: "r?"
 }
 
 label.recur-sign.recur:before {

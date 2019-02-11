@@ -58,7 +58,8 @@
                       :credit                   {:error "" :message ""}}))
 ;; END: DB
 
-(cljs.pprint/pprint (:credit-big-data @state))
+;; (cljs.pprint/pprint (:credit-data @state))
+;; (cljs.pprint/pprint (:bank-data @state))
 
 (defonce current-page (atom :home))
 

@@ -1,8 +1,8 @@
 # Skarbnik
 ## How does this app work?
 - User finds payments using search tool and marks them either `recurring` or `big`.
-- `big` transactions defined by user, calculation to detect date when amount is paid-off or how much is still owed would be determined by equality to the credit balance at the time of transaction.
-- E.g.: I bought a chain saw for $500 using Discover credit card on March 10. At the moment of purchase I had $100 of debt on credit card. I marked my chain saw purchase as `big` transaction. You bought other things for $200 before paying-off your debt. So, you have to pay $800 ($100+$500+$200) to pay-off your credit card balance. On March 20 I paid $300 to Discover, I still owe $500, so Skarbnik would say that I started to pay-off for the chain saw, and already paid $100! If it is still not clear why: `$800(bal) - $300(paid-off) - $500(ch.saw) + $100(initial)`.
+- `big` transactions defined by user, calculation to detect date when amount is paid-off or how much is still owed would be determined by subtraction of the amounts paid-off. If there are several `big` purchases Skarbnik will add them all and subtract the paid-off amount, the result would be balance owed for the LATEST `big` purchase, since the older ones would be paid-off by definition, cause first are paid-off the oldest debts.
+
 
 ### MAYBE?
 - Algorithm looks for payments that are similar by amount and category, then labels them as `recurring`
