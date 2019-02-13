@@ -212,10 +212,11 @@
    (for [category-key (logic/get-maps-categories data)
          :let [entry-val (category-key entry)]]
      ^{:key (str category-key "-" idx)}
-     [:td
-      (if (= (name category-key) "amount")
-        (helpers/colorize-numbers entry-val))
-      entry-val])
+     (if (= (name category-key) "amount")
+       [:td
+        (helpers/colorize-numbers entry-val)
+        (logic/cents->dollars entry-val)]
+       [:td entry-val]))
 
    [:td
     [:label.recur-sign

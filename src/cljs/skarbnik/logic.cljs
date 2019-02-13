@@ -6,6 +6,59 @@
     :refer [>defn >defn- >fdef => | <- ?]]
    [goog.labs.format.csv :as csv]))
 
+;;;;;;;;;;;;;;;;
+;; Amount fns ;;
+;;;;;;;;;;;;;;;;
+
+(defn cents->dollars
+  "Converts cents integers to dollars float numbers.
+   Returns string."
+  [cents]
+  (.toFixed (/ cents 100) 2))
+
+
+(defn dollars->cents
+  [dollars]
+  (js/parseInt (* dollars 100)))
+
+
+(defn get-sum-in-dollars
+  "Returns sum of integers, that represent cents, in dollars."
+  [v1 v2]
+  (cents->dollars
+   (+ (dollars->cents v1)
+      (dollars->cents v2))))
+
+
+(>defn get-total
+       "`data`: [{`:amount` val}]"
+       ;; {::g/trace true}
+       [data comparator-symbol]
+       [vector? symbol?
+        => string?]
+       (cents->dollars
+        (reduce
+         (fn [acc d]
+           (if (comparator-symbol (:amount d) 0)
+             (+ acc (dollars->cents (js/parseFloat (:amount d))))
+             acc))
+         0
+         data)))
+
+(defn sum-recur-amounts
+  "{string? {`:amount` string?}} -> (string? :kind number?)"
+  [recur-data]
+
+  (cents->dollars
+   (reduce
+    (fn [sum [k v]]
+      (+ sum (dollars->cents (js/parseFloat (:amount v)))))
+    0
+    recur-data)))
+
+;; ENDS: Amount fns
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CSV->maps convertor fns ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,6 +155,17 @@
 ;; ENDS: csv->maps
 
 
+(defn amount->ints
+  [data]
+  (let [ret (map
+             #(update
+               % :amount
+               (comp dollars->cents js/parseFloat))
+             data)]
+    (do
+      (prn "FIXME: logic/amount->ints")
+      ret)))
+
 ;; STARTS: CSV->maps convertor fns
 (>defn parse-csv
   "Takes csv data converts it to clojure vector. Returns maps"
@@ -114,7 +178,8 @@
     (-> csv
         csv/parse
         js->clj
-        csv->maps)))
+        csv->maps
+        amount->ints)))
 ;; ENDS: CSV->maps convertor fns
 
 
@@ -142,60 +207,6 @@
        (map (partial clojure.string/join ", "))
        (clojure.string/join "\n")))
 ;; ENDs Maps->CSV convertor fns
-
-
-;;;;;;;;;;;;;;;;
-;; Amount fns ;;
-;;;;;;;;;;;;;;;;
-
-(defn cents->dollars
-  "Converts cents integers to dollars float numbers.
-   Returns string."
-  [cents]
-  (.toFixed (/ cents 100) 2))
-
-
-(defn dollars->cents
-  [dollars]
-  (js/parseInt (* dollars 100)))
-
-
-(defn get-sum-in-dollars
-  "Returns sum of integers, that represent cents, in dollars."
-  [v1 v2]
-  (cents->dollars
-   (+ (dollars->cents v1)
-      (dollars->cents v2))))
-
-
-(>defn get-total
-  "`data`: [{`:amount` val}]"
-  ;; {::g/trace true}
-  [data comparator-symbol]
-  [vector? symbol?
-   => string?]
-  (cents->dollars
-   (reduce
-    (fn [acc d]
-      (if (comparator-symbol (:amount d) 0)
-        (+ acc (dollars->cents (js/parseFloat (:amount d))))
-        acc))
-    0
-    data)))
-
-(defn sum-recur-amounts
-  "{string? {`:amount` string?}} -> (string? :kind number?)"
-  [recur-data]
-
-  (cents->dollars
-   (reduce
-    (fn [sum [k v]]
-      (+ sum (dollars->cents (js/parseFloat (:amount v)))))
-    0
-    recur-data)))
-
-
-;; ENDS: Amount fns
 
 
 ;; Dates
