@@ -10,10 +10,12 @@
 ;; Amount fns ;;
 ;;;;;;;;;;;;;;;;
 
-(defn cents->dollars
+(>defn cents->dollars
   "Converts cents integers to dollars float numbers.
    Returns string."
   [cents]
+  [int? =>
+   string?]
   (.toFixed (/ cents 100) 2))
 
 
@@ -22,39 +24,39 @@
   (js/parseInt (* dollars 100)))
 
 
-(defn get-sum-in-dollars
+(>defn get-sum-in-dollars
   "Returns sum of integers, that represent cents, in dollars."
+  ;; {::g/trace true}
   [v1 v2]
-  (cents->dollars
-   (+ (dollars->cents v1)
-      (dollars->cents v2))))
+  [int? int? => ;; TODO: figure out how to check for float
+   int?]
+  (+ v1 v2))
 
 
 (>defn get-total
-       "`data`: [{`:amount` val}]"
-       ;; {::g/trace true}
-       [data comparator-symbol]
-       [vector? symbol?
-        => string?]
-       (cents->dollars
-        (reduce
-         (fn [acc d]
-           (if (comparator-symbol (:amount d) 0)
-             (+ acc (dollars->cents (js/parseFloat (:amount d))))
-             acc))
-         0
-         data)))
+  "`data`: [{`:amount` val}]"
+  ;; {::g/trace true}
+  [data comparator-symbol]
+  [vector? symbol?
+   => int?]
+  (reduce
+   (fn [acc d]
+     (if (comparator-symbol (:amount d) 0)
+       (+ acc (:amount d))
+       acc))
+   0
+   data))
+;; (g/check)
+
 
 (defn sum-recur-amounts
-  "{string? {`:amount` string?}} -> (string? :kind number?)"
+  "{int? {`:amount` int?}} -> (int? :kind number?)"
   [recur-data]
-
-  (cents->dollars
-   (reduce
-    (fn [sum [k v]]
-      (+ sum (dollars->cents (js/parseFloat (:amount v)))))
-    0
-    recur-data)))
+  (reduce
+   (fn [sum [k v]]
+     (+ sum (:amount v)))
+   0
+   recur-data))
 
 ;; ENDS: Amount fns
 
