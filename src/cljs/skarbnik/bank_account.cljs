@@ -54,7 +54,7 @@
       {:state state
        :initial-balance-$key :initial-bank-balance})
      ;;
-     [:h3 (str "Initial Balance: " (:initial-bank-balance @state))]
+     [:h3 (str "Initial Balance: " (logic/cents->dollars (:initial-bank-balance @state)))]
 
      [:hr]
      (components/transactions-table

@@ -47,7 +47,10 @@
         [:hr]
         [:h2 "All time:"]
         [:h3
-         [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
+         [:span "Recurring spendings sum: "]
+         [:span
+          (helpers/colorize-numbers recur-sum)
+          (logic/cents->dollars recur-sum)]]
         [:span.inline-flex.h3
          [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance)
                               (logic/cents->dollars ending-balance)]]]])))
@@ -74,13 +77,16 @@
            [:h3 "Debt: " (logic/cents->dollars plus)]
            [:h3 "Paid: " (logic/cents->dollars minus)]
            [:h3.color-danger
-            "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
+            "Non-recurring spendings: " (logic/cents->dollars
+                                         (logic/get-sum-in-dollars plus (- recur-sum)))]
            [:h3 "Added debt: " (logic/cents->dollars difference)]]
           [:section
            [:hr]
            [:h2 "All time:"]
            [:h3
-            [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
+            [:span "Recurring spendings sum: "]
+            [:span (helpers/colorize-numbers recur-sum)
+             (logic/cents->dollars recur-sum)]]
            [:span.inline-flex.h3
             [:span "Total debt: "]
             [:span
@@ -101,6 +107,7 @@
                 (fn [file-names]
                   (do
                     ;; Nullify recurring transactions data
+                    (prn "FIXME: should nullify name of the current account on new file load")
                     (swap! state assoc
                            recur-data-key {})
                     ;; Then read file and update state
@@ -190,8 +197,8 @@
                             (let [val (js/parseFloat (.-value (.-target e)))]
                               (when (and (number? val) (not (js/Number.isNaN val)))
                                 (if (= "Enter" (.-key e))
-                                  (do
-                                    (swap! state assoc initial-balance-$key val))))))}]])
+                                  (let [val-in-cents (logic/dollars->cents val)]
+                                    (swap! state assoc initial-balance-$key val-in-cents))))))}]])
 
 ;; ROW
 
