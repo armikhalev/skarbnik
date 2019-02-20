@@ -6,19 +6,19 @@
             [skarbnik.components :as components]))
 
 (def test-data
-  '({:date "11/26/2018", :description " MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE", :BAICode " ", :amount " -25.00", :SerialNum " 2018112600000001"} {:date "11/13/2018", :description " ZINAIDA LEVIN M CANTON /MA US CARD PURCHASE", :BAICode " ", :amount " -25.00", :SerialNum " 2018111300000001"} {:date "11/13/2018", :description " CASH WITHDRAWAL SANTANDER D199 Holbrook /MA US", :BAICode " ", :amount " -50.00", :SerialNum " 2018111300000002"} {:date "11/13/2018", :description " INTERNET TRANSFER FROM ACCT *2394 - SANTANDER SAVINGS", :BAICode " ", :amount " +50.00", :SerialNum " 2018111300000003"}))
+  '({:date "11/26/2018", :description " MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE", :BAICode " ", :amount -2500, :SerialNum " 2018112600000001"} {:date "11/13/2018", :description " ZINAIDA LEVIN M CANTON /MA US CARD PURCHASE", :BAICode " ", :amount -2500, :SerialNum " 2018111300000001"} {:date "11/13/2018", :description " CASH WITHDRAWAL SANTANDER D199 Holbrook /MA US", :BAICode " ", :amount -5000, :SerialNum " 2018111300000002"} {:date "11/13/2018", :description " INTERNET TRANSFER FROM ACCT *2394 - SANTANDER SAVINGS", :BAICode " ", :amount 5000, :SerialNum " 2018111300000003"}))
 
 (def state (atom {:bank-data                []
                   :credit-data              []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                   :bank-recur-data          {"Loan" {:description "QUICKEN LOANS MTG PYMTS 120518",
-                                                     :amount " -20.00",
+                                                     :amount -2000,
                                                      :date " 12/06/2018"},
                                              "Discover" {:description "DISCOVER E-PAYMENT 181008",
-                                                         :amount " -30.00",
+                                                         :amount -3000,
                                                          :date " 10/10/2018"},}
                   :credit-recur-data        {"Bank" {:description "DISCOVER E-PAYMENT 181008",
-                                                         :amount " 30.00",
+                                                         :amount 3000,
                                                          :date " 10/10/2018"},}
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                   :initial-bank-balance     0
@@ -37,12 +37,16 @@
 
 (deftest get-total-test
   (testing "Should correctly get total sum of amounts"
-    (is (= "50.00"(logic/get-total test-data >)))
-    (is (= "-100.00"(logic/get-total test-data <)))))
+    (is (= 5000
+           (logic/get-total test-data >)))
+
+    (is (= -10000
+           (logic/get-total test-data <)))))
 
 (deftest get-ending-balance-test
   (testing "Should return correct ending balance"
-    (is (= "-40.00" (logic/get-sum-in-dollars 10 -50)))))
+    (is (= -40.00
+           (logic/get-sum-in-dollars 10 -50)))))
 
 
 (defn colorize-number
@@ -78,7 +82,7 @@
     Recurring spendings sum: -50.00
     Balance:
     -50.00"
-  (components/bank-analyze-comp test-data state))
+  (components/bank-analyze test-data state))
 
 ;; ENDs: Bank
 
@@ -96,6 +100,6 @@
     Recurring spendings sum: 30.00
     Total debt:
     -50.00"
-  (components/credit-analyze-comp test-data state))
+  (components/credit-analyze test-data state))
 
 ;; ENDs: Credit

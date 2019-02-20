@@ -266,7 +266,7 @@
       [:span "Bank balance vs Credit account difference:"]
       [:span
        (helpers/colorize-numbers sum)
-       sum]])
+       (logic/cents->dollars sum)]])
    (nav)])
 
 ;; ENDs: Root

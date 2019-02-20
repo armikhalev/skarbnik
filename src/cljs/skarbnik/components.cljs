@@ -35,27 +35,34 @@
        ;; sum `plus` and `minus` to get difference
        [:section
         [:h2 "This period:"]
-        [:h3 "Income: " plus]
-        [:h3 "Spendings: " minus]
+        [:h3 "Income: " (logic/cents->dollars plus)]
+        [:h3 "Spendings: " (logic/cents->dollars minus)]
         [:h3.color-danger
-         "Non-recurring spendings: " (logic/get-sum-in-dollars minus (- recur-sum))]
-        [:h3 "Net: " difference]]
+         "Non-recurring spendings: " (logic/cents->dollars
+                                      (logic/get-sum-in-dollars minus (- recur-sum)))]
+        ;; [:h1  recur-sum*]
+        ;; (prn (:bank-recur-data @state) )
+        [:h3 "Net: " (logic/cents->dollars difference)]]
        [:section
         [:hr]
         [:h2 "All time:"]
         [:h3
-         [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
+         [:span "Recurring spendings sum: "]
+         [:span
+          (helpers/colorize-numbers recur-sum)
+          (logic/cents->dollars recur-sum)]]
         [:span.inline-flex.h3
-         [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance) ending-balance]]]])))
+         [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance)
+                              (logic/cents->dollars ending-balance)]]]])))
 
 
 (defn credit-analyze
   [data state]
   (let [plus           (logic/get-total data >)
-           minus          (logic/get-total data <)
-           difference     (logic/get-sum-in-dollars plus minus)
-           ending-balance (logic/get-sum-in-dollars (:initial-credit-balance @state) difference)
-           recur-sum      (logic/sum-recur-amounts (:credit-recur-data @state))]
+        minus          (logic/get-total data <)
+        difference     (logic/get-sum-in-dollars plus minus)
+        ending-balance (logic/get-sum-in-dollars (:initial-credit-balance @state) difference)
+        recur-sum      (logic/sum-recur-amounts (:credit-recur-data @state))]
 
        (do
          ;; Update state
@@ -67,22 +74,25 @@
           ;; sum `plus` and `minus` to get difference
           [:section
            [:h2 "This period:"]
-           [:h3 "Debt: " plus]
-           [:h3 "Paid: " minus]
+           [:h3 "Debt: " (logic/cents->dollars plus)]
+           [:h3 "Paid: " (logic/cents->dollars minus)]
            [:h3.color-danger
-            "Non-recurring spendings: " (logic/get-sum-in-dollars plus (- recur-sum))]
-           [:h3 "Added debt: " difference]]
+            "Non-recurring spendings: " (logic/cents->dollars
+                                         (logic/get-sum-in-dollars plus (- recur-sum)))]
+           [:h3 "Added debt: " (logic/cents->dollars difference)]]
           [:section
            [:hr]
            [:h2 "All time:"]
            [:h3
-            [:span "Recurring spendings sum: "] [:span (helpers/colorize-numbers recur-sum) recur-sum]]
+            [:span "Recurring spendings sum: "]
+            [:span (helpers/colorize-numbers recur-sum)
+             (logic/cents->dollars recur-sum)]]
            [:span.inline-flex.h3
             [:span "Total debt: "]
             [:span
              (if (not= 0 ending-balance)
                {:class "color-red margin-left-5"})
-             ending-balance]]]])))
+             (logic/cents->dollars ending-balance)]]]])))
 
 
 (defn button-open-file!
@@ -97,6 +107,7 @@
                 (fn [file-names]
                   (do
                     ;; Nullify recurring transactions data
+                    (prn "FIXME: should nullify name of the current account on new file load")
                     (swap! state assoc
                            recur-data-key {})
                     ;; Then read file and update state
@@ -186,8 +197,8 @@
                             (let [val (js/parseFloat (.-value (.-target e)))]
                               (when (and (number? val) (not (js/Number.isNaN val)))
                                 (if (= "Enter" (.-key e))
-                                  (do
-                                    (swap! state assoc initial-balance-$key val))))))}]])
+                                  (let [val-in-cents (logic/dollars->cents val)]
+                                    (swap! state assoc initial-balance-$key val-in-cents))))))}]])
 
 ;; ROW
 
@@ -212,10 +223,11 @@
    (for [category-key (logic/get-maps-categories data)
          :let [entry-val (category-key entry)]]
      ^{:key (str category-key "-" idx)}
-     [:td
-      (if (= (name category-key) "amount")
-        (helpers/colorize-numbers entry-val))
-      entry-val])
+     (if (= (name category-key) "amount")
+       [:td
+        (helpers/colorize-numbers entry-val)
+        (logic/cents->dollars entry-val)]
+       [:td entry-val]))
 
    [:td
     [:label.recur-sign

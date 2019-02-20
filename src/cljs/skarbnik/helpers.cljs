@@ -13,7 +13,7 @@
         date   (:date entry)]
     ;; null-check
     (when (not-any? nil? [desc amount date])
-      (str (.trim desc) "-" (.trim amount) "-" (.trim date)))))
+      (str  desc "-"  amount "-"  date))))
 
 
 (defn set-distinct-data!
