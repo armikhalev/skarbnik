@@ -46,7 +46,7 @@
 (deftest get-ending-balance-test
   (testing "Should return correct ending balance"
     (is (= -40.00
-           (logic/get-sum-in-dollars 10 -50)))))
+           (logic/get-sum 10 -50)))))
 
 
 (defn colorize-number

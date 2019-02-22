@@ -16,8 +16,8 @@
   [data state]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
-        difference     (logic/get-sum-in-dollars plus minus)
-        ending-balance (logic/get-sum-in-dollars (:initial-bank-balance @state) difference)
+        difference     (logic/get-sum plus minus)
+        ending-balance (logic/get-sum (:initial-bank-balance @state) difference)
         recur-sum*     (logic/sum-recur-amounts (:bank-recur-data @state))
         recur-sum      (if (and
                             (not (number? recur-sum*))
@@ -39,7 +39,7 @@
         [:h3 "Spendings: " (logic/cents->dollars minus)]
         [:h3.color-danger
          "Non-recurring spendings: " (logic/cents->dollars
-                                      (logic/get-sum-in-dollars minus (- recur-sum)))]
+                                      (logic/get-sum minus (- recur-sum)))]
         ;; [:h1  recur-sum*]
         ;; (prn (:bank-recur-data @state) )
         [:h3 "Net: " (logic/cents->dollars difference)]]
@@ -60,8 +60,8 @@
   [data state]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
-        difference     (logic/get-sum-in-dollars plus minus)
-        ending-balance (logic/get-sum-in-dollars (:initial-credit-balance @state) difference)
+        difference     (logic/get-sum plus minus)
+        ending-balance (logic/get-sum (:initial-credit-balance @state) difference)
         recur-sum      (logic/sum-recur-amounts (:credit-recur-data @state))]
 
        (do
@@ -78,7 +78,7 @@
            [:h3 "Paid: " (logic/cents->dollars minus)]
            [:h3.color-danger
             "Non-recurring spendings: " (logic/cents->dollars
-                                         (logic/get-sum-in-dollars plus (- recur-sum)))]
+                                         (logic/get-sum plus (- recur-sum)))]
            [:h3 "Added debt: " (logic/cents->dollars difference)]]
           [:section
            [:hr]
@@ -92,7 +92,9 @@
             [:span
              (if (not= 0 ending-balance)
                {:class "color-red margin-left-5"})
-             (logic/cents->dollars ending-balance)]]]])))
+             (if (logic/is-number? ending-balance)
+               (logic/cents->dollars ending-balance)
+               "Fix numbers in your data file")]]]])))
 
 
 (defn button-open-file!
@@ -171,17 +173,23 @@
                      (str dir-path"/"recur-transactions)
                      (recur-data-$key @state))
                     ;;
-                    (write-file!
-                     (str dir-path"/"big-transactions)
-                     (big-data-$key @state))
+                    (when big-data-$key
+                      (write-file!
+                       (str dir-path"/"big-transactions)
+                       (big-data-$key @state)))
                     ;;
                     (write-file!
                      (str dir-path"/"initial-balance-file-path)
-                     (initial-balance-$key @state))
+                     (logic/cents->dollars
+                      (initial-balance-$key @state)))
                     ;;
-                    (write-file!
-                     (str dir-path"/"data-file-path)
-                     (logic/maps->js data)))))}
+                    (let [data* (map (fn [m]
+                                       (update m :amount
+                                               logic/cents->dollars))
+                                     data)]
+                      (write-file!
+                       (str dir-path"/"data-file-path)
+                       (logic/maps->js data*))))))}
    "Save account"])
 
 ;; ENDs: SAVE button
@@ -195,7 +203,7 @@
             :type "number"
             :on-key-press (fn [e]
                             (let [val (js/parseFloat (.-value (.-target e)))]
-                              (when (and (number? val) (not (js/Number.isNaN val)))
+                              (when (logic/is-number? val)
                                 (if (= "Enter" (.-key e))
                                   (let [val-in-cents (logic/dollars->cents val)]
                                     (swap! state assoc initial-balance-$key val-in-cents))))))}]])
@@ -222,13 +230,20 @@
                                 :else      "")}}
    (for [category-key (logic/get-maps-categories data)
          :let [entry-val (category-key entry)]]
-     ^{:key (str category-key "-" idx)}
      (if (= (name category-key) "amount")
+       ^{:key (str category-key "-" idx)}
        [:td
         (helpers/colorize-numbers entry-val)
-        (logic/cents->dollars entry-val)]
+        (if (logic/is-number? entry-val)
+          (logic/cents->dollars entry-val)
+          ;;else
+          "?")]
+
+       ;; else
+       ^{:key (str category-key "-" idx)}
        [:td entry-val]))
 
+   ^{:key (str "recur-"idx)}
    [:td
     [:label.recur-sign
      {:on-click #(if @selected?
@@ -238,6 +253,7 @@
       :class (when @selected? "recur")}]]
 
    (when credit?
+     ^{:key (str "big-"idx)}
      [:td
       {:class (when @big? "color-danger")
        :on-click #(if @big?

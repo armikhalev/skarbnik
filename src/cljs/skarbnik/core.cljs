@@ -258,7 +258,7 @@
                            :credit-big-transactions   credit-big-transactions
                            :credit-recur-transactions credit-recur-transactions}))
 
-   (let [sum (logic/get-sum-in-dollars
+   (let [sum (logic/get-sum
               (- (:credit-total-difference @state))
               (:bank-total-difference @state))]
      [:h3
@@ -266,7 +266,9 @@
       [:span "Bank balance vs Credit account difference:"]
       [:span
        (helpers/colorize-numbers sum)
-       (logic/cents->dollars sum)]])
+       (if (logic/is-number? sum)
+         (logic/cents->dollars sum)
+         "Something wrong with numbers in files")]])
    (nav)])
 
 ;; ENDs: Root

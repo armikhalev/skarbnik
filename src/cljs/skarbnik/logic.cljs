@@ -10,6 +10,12 @@
 ;; Amount fns ;;
 ;;;;;;;;;;;;;;;;
 
+(defn is-number?
+  "Checks if value is number and not `NaN`."
+  [v]
+  (and (number? v) (not (js/Number.isNaN v))))
+
+
 (>defn cents->dollars
   "Converts cents integers to dollars float numbers.
    Returns string."
@@ -24,7 +30,7 @@
   (js/parseInt (* dollars 100)))
 
 
-(>defn get-sum-in-dollars
+(>defn get-sum
   "Returns sum of integers, that represent cents, in dollars."
   ;; {::g/trace true}
   [v1 v2]
