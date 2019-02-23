@@ -13,7 +13,7 @@
         date   (:date entry)]
     ;; null-check
     (when (not-any? nil? [desc amount date])
-      (str  desc "-"  amount "-"  date))))
+      (clojure.string/trim (str  desc "-"  amount "-"  date)))))
 
 
 (defn set-distinct-data!

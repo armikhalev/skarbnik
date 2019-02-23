@@ -41,7 +41,8 @@
                       ;;
                       (read-file!
                        (str bank-dir-path"/"bank-initial-balance-file-path)
-                       (fn [data] (swap! state assoc :initial-bank-balance data)))
+                       (fn [data] (swap! state assoc :initial-bank-balance
+                                         (logic/dollars->cents data))))
                       ;;
                       (read-file!
                        (str bank-dir-path"/"bank-data-file-path)
@@ -87,7 +88,8 @@
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-initial-balance-file-path)
-                       (fn [data] (swap! state assoc :initial-credit-balance data)))
+                       (fn [data] (swap! state assoc :initial-credit-balance
+                                         (logic/dollars->cents data))))
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-data-file-path)

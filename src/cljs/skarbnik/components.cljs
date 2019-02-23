@@ -172,6 +172,7 @@
                     (write-file!
                      (str dir-path"/"recur-transactions)
                      (recur-data-$key @state))
+                    (prn (recur-data-$key @state))
                     ;;
                     (when big-data-$key
                       (write-file!
