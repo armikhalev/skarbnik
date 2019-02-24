@@ -223,51 +223,78 @@
            data
            credit?]}]
 
-  ^{:key idx}
-  [:tr
-   {:style {:background-color (cond
-                                @selected? "grey"
-                                @big?      "peru"
-                                :else      "")}}
-   (for [category-key (logic/get-maps-categories data)
-         :let [entry-val (category-key entry)]]
-     (if (= (name category-key) "amount")
-       ^{:key (str category-key "-" idx)}
-       [:td
-        (helpers/colorize-numbers entry-val)
-        (if (logic/is-number? entry-val)
-          (logic/cents->dollars entry-val)
-          ;;else
-          "?")]
+  (let [amount (:amount entry)]
+    ^{:key idx}
+    [:tr
+     {:style {:background-color (cond
+                                  @selected? "grey"
+                                  @big?      "peru"
+                                  :else      "")}}
+     (for [category-key (logic/get-maps-categories data)
+           :let [entry-val (category-key entry)]]
+       (if (= (name category-key) "amount")
+         ^{:key (str category-key "-" idx)}
+         [:td
+          (helpers/colorize-numbers entry-val)
+          (if (logic/is-number? entry-val)
+            (logic/cents->dollars entry-val)
+            ;;else
+            "?")]
+
+         ;; else
+         ^{:key (str category-key "-" idx)}
+         [:td entry-val]))
+
+
+     ;; Recurring transaction label and handling
+
+     (if (and credit? (< amount 0))
+       ;; Should not show label if amount is negative, i.e. paying off debt
+       ^{:key (str "recur-"idx)}
+       [:td ""]
 
        ;; else
-       ^{:key (str category-key "-" idx)}
-       [:td entry-val]))
+       ^{:key (str "recur-"idx)}
+       [:td
+        (if-not @big?
+          [:label.recur-sign
+           {:on-click #(if @selected?
+                         (helpers/unset-distinct-data! state entry type-recur-data)
+                         ;; else
+                         (helpers/set-distinct-data! state entry type-recur-data))
+            :class (when @selected? "recur")}]
+          ;; else don't show recur to avoid user confusion
+          [:label ""]
+          )])
 
-   ^{:key (str "recur-"idx)}
-   [:td
-    (if-not @big?
-      [:label.recur-sign
-       {:on-click #(if @selected?
-                     (helpers/unset-distinct-data! state entry type-recur-data)
-                     ;; else
-                     (helpers/set-distinct-data! state entry type-recur-data))
-        :class (when @selected? "recur")}]
-      ;; else don't show recur to avoid user confusion
-      [:label ]
-      )]
 
-   (when credit?
-     ^{:key (str "big-"idx)}
-     [:td
-      {:class (when @big? "color-danger")
-       :on-click #(if @big?
-                    (helpers/unset-distinct-data! state entry type-big-data)
-                    ;; else
-                    (helpers/set-distinct-data! state entry type-big-data))}
-      (if-not @selected?
-        (if @big? "BIG" "B?")
-        "")])])
+     ;; Big transaction label and handling
+
+     (when credit?
+       ;; Should not show label if amount is negative, i.e. paying off debt
+       (if (< amount 0)
+         ^{:key (str "big-"idx)}
+         [:td ""]
+
+         ;; else
+         ^{:key (str "big-"idx)}
+         [:td
+          {:class (when @big? "color-danger")
+           :on-click #(if @big?
+                        (helpers/unset-distinct-data! state entry type-big-data)
+                        ;; else
+                        (helpers/set-distinct-data! state entry type-big-data))}
+          (if-not @selected?
+            (if @big? "BIG" "B?")
+            "")]))
+
+
+     ;; Bid Debt calculation
+
+     (if (and credit? (< amount 0))
+       ^{:key (str "big-debt-"idx)}
+       [:td "xz"])
+     ]))
 
 ;; ENDs: ROW
 

@@ -205,3 +205,4 @@ To run a command, type `lein <command>` in the terminal.
 - Create search bar
 - Add reset for Dates range
 - Figure out how to show `big` payments
+- Add ability to switch between acconts with keyboard, possibly arrow keys
