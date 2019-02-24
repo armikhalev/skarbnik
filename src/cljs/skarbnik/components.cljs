@@ -246,12 +246,16 @@
 
    ^{:key (str "recur-"idx)}
    [:td
-    [:label.recur-sign
-     {:on-click #(if @selected?
-                   (helpers/unset-distinct-data! state entry type-recur-data)
-                   ;; else
-                   (helpers/set-distinct-data! state entry type-recur-data))
-      :class (when @selected? "recur")}]]
+    (if-not @big?
+      [:label.recur-sign
+       {:on-click #(if @selected?
+                     (helpers/unset-distinct-data! state entry type-recur-data)
+                     ;; else
+                     (helpers/set-distinct-data! state entry type-recur-data))
+        :class (when @selected? "recur")}]
+      ;; else don't show recur to avoid user confusion
+      [:label ]
+      )]
 
    (when credit?
      ^{:key (str "big-"idx)}
@@ -261,7 +265,9 @@
                     (helpers/unset-distinct-data! state entry type-big-data)
                     ;; else
                     (helpers/set-distinct-data! state entry type-big-data))}
-      (if @big? "BIG" "B?")])])
+      (if-not @selected?
+        (if @big? "BIG" "B?")
+        "")])])
 
 ;; ENDs: ROW
 
