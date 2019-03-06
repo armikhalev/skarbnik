@@ -296,7 +296,5 @@
 
     (read-file!
      credit-accounts-path
-     (fn [data] (swap! state assoc :credit-accounts (reader/read-string data))))
-
-    ))
+     (fn [data] (swap! state assoc :credit-accounts (reader/read-string data))))))
 

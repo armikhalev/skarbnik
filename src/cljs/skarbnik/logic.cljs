@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as string]
    [cljs-time.core :as cl-time]
+   [cljs-time.coerce :as ->cl-time]
    [clojure.spec.alpha :as s]
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
@@ -174,6 +175,15 @@
     (do
       (prn "FIXME: logic/amount->ints")
       ret)))
+
+(defn str-dates->cljs-time
+  "Takes parsed csv data, updates `:date` values to cljs-time instances."
+  [csv]
+  (map
+   (fn [m]
+     (update m :date
+             #(->cl-time/from-date (js/Date. %))))
+   csv))
 
 ;; STARTS: CSV->maps convertor fns
 (>defn parse-csv

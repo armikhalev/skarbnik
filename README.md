@@ -6,7 +6,7 @@
 
 ### MAYBE?
 - Algorithm looks for payments that are similar by amount and category, then labels them as `recurring`
-- Also it looks for payments that are equal or higher than user defined limit of non-recurring big payment, however, it **skips*** `recurring` payments. This kind of payments are labeled `big`.
+- Also it looks for payments that are equal or higher than user defined limit of non-recurring big payment, however, it **skips** `recurring` payments. This kind of payments are labeled `big`.
 
 - To label a payment user has to search for the transaction by `description` in the search tool of the app.
 ### Should reconsider this:
