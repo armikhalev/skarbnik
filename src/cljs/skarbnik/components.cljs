@@ -233,8 +233,9 @@
                                   :else      "")}}
      (for [category-key (logic/get-maps-categories data)
            :let [entry-val (category-key entry)]]
-       (if (= (name category-key) "amount")
-         ^{:key (str category-key "-" idx)}
+       (case (name category-key)
+         "amount" ;; ->
+         ^{:key (str "amount-" idx)}
          [:td
           (helpers/colorize-numbers entry-val)
           (if (logic/is-number? entry-val)
@@ -242,7 +243,11 @@
             ;;else
             "?")]
 
-         ;; else
+         "date" ;; ->
+         ^{:key (str "date-" idx)}
+         [:td (logic/cljs-time->str entry-val)]
+
+         ;; else ->
          ^{:key (str category-key "-" idx)}
          [:td entry-val]))
 

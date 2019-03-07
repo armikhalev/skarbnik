@@ -176,14 +176,6 @@
       (prn "FIXME: logic/amount->ints")
       ret)))
 
-(defn str-dates->cljs-time
-  "Takes parsed csv data, updates `:date` values to cljs-time instances."
-  [csv]
-  (map
-   (fn [m]
-     (update m :date
-             #(->cl-time/from-date (js/Date. %))))
-   csv))
 
 ;; STARTS: CSV->maps convertor fns
 (>defn parse-csv
@@ -229,6 +221,38 @@
 
 
 ;; Dates
+
+(defn date->ints
+  "Converts date string of form YYYY-MM-DD to list of integers."
+  [date]
+  (vec (map js/parseInt (clojure.string/split date #"-"))))
+
+
+(defn ymd->mdy
+  "Converts date format YYYY-MM-DD to MM/DD/YYYY."
+  [mdy]
+  (let [date (date->ints mdy)
+        year (first date),
+        month-day    (vec (rest date))]
+    (clojure.string/join "/" (conj month-day year))))
+
+
+(defn str-dates->cljs-time
+  "Takes parsed csv data, updates `:date` values to cljs-time instances."
+  [csv]
+  (map
+   (fn [m]
+     (update m :date
+             #(->cl-time/from-date (js/Date. %))))
+   csv))
+
+(defn cljs-time->str
+  "Takes instance of cljs-time and converts it to a string in format `M/D/Y`"
+  [val]
+  (-> val
+      ->cl-time/to-string
+      ymd->mdy))
+
 (defn mdy->ymd
   "Converts date format MM/DD/YYYY to YYYY-MM-DD."
   [mdy]
@@ -236,12 +260,6 @@
         year (last date),
         rest- (take 2 date)]
     (clojure.string/join "-" (conj rest- year))))
-
-
-(defn date->ints
-  "Converts date string of form YYYY-MM-DD to list of integers."
-  [date]
-  (vec (map js/parseInt (clojure.string/split date #"-"))))
 
 
 (defn compare-dates
@@ -294,7 +312,9 @@
        (and (compare-dates <= (date->ints (mdy->ymd date)) (date->ints from-date))
             (compare-dates >= (date->ints (mdy->ymd date)) (date->ints to-date)))))
    entries))
+
 ;; ENDs Dates
+
 
 (defn get-maps-categories-str
   "[{}] -> [String]"
