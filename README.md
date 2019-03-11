@@ -198,8 +198,12 @@ To run a command, type `lein <command>` in the terminal.
 | cljfmt fix    | Auto-formats all clj/cljs code. See [cljfmt](https://github.com/weavejester/cljfmt)       |
 | kibit         | Statically analyse clj/cljs and give suggestions                                          |
 
+## NOTE:
+- `amounts` are in cents (integers) when they get to app's `state` for easier calculation, BUT amounts are presented in dollars when saved to `data-file.txt` and when showed in the UI.
+- `dates` are strings in format `MM/DD/YYYY` for everything except calculation where they are converted to `cljs-time` instances and then back to strings after calculation is finished. But they are not stored in app's state as `cljs-time` instances, they should be strings. Why? Because operations over dates are rare VS converting them from state to string for both UI and data-file.
 
 ## TODO:
+- BIG ONE: move all the impurity out of the components!!!
 - On Open File: If recur payments selected, then notify user that all selections will be lost if not saved
 - Fix all the error messages, they should notify user about solution of the problem that caused error
 - Create search bar

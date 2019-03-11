@@ -46,8 +46,7 @@
                       ;;
                       (read-file!
                        (str bank-dir-path"/"bank-data-file-path)
-                       (fn [data] (swap! state assoc :bank-data
-                                         (logic/str-dates->cljs-time data)))
+                       (fn [data] (swap! state assoc :bank-data data))
                        :parse)
                       ;;
                       (read-file!
@@ -94,9 +93,7 @@
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-data-file-path)
-                       (fn [data] (swap! state assoc :credit-data
-                                         ;; first convert dates to cljs-time instances
-                                         (logic/str-dates->cljs-time data)))
+                       (fn [data] (swap! state assoc :credit-data data))
                        :parse)
                       ;;
                       (read-file!

@@ -118,7 +118,8 @@
                       (prn "no file selected")
                       (read-file! (first file-names)
                                   (fn [data] (swap! state assoc
-                                                   data-key data))
+                                                    data-key
+                                                    data))
                                   :parse)))))}
    "Open file"])
 
@@ -151,7 +152,7 @@
            write-file!
            read-file!
            data]}]
-  [:button.button.button-smaller.open-file
+  [:button.button.button-smaller.save-file
    {:on-click #(let [dir-path (-> (show-save-file-dialog!) str)]
                 (when dir-path
                   (do
@@ -173,7 +174,6 @@
                     (write-file!
                      (str dir-path"/"recur-transactions)
                      (recur-data-$key @state))
-                    (prn (recur-data-$key @state))
                     ;;
                     (when big-data-$key
                       (write-file!
@@ -186,8 +186,9 @@
                       (initial-balance-$key @state)))
                     ;;
                     (let [data* (map (fn [m]
-                                       (update m :amount
-                                               logic/cents->dollars))
+                                       (-> m
+                                        (update , :amount
+                                                  logic/cents->dollars)))
                                      data)]
                       (write-file!
                        (str dir-path"/"data-file-path)
@@ -245,7 +246,7 @@
 
          "date" ;; ->
          ^{:key (str "date-" idx)}
-         [:td (logic/cljs-time->str entry-val)]
+         [:td entry-val]
 
          ;; else ->
          ^{:key (str category-key "-" idx)}

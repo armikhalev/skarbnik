@@ -302,6 +302,8 @@
   '(true true false)
   )
 
+(prn "TODO: rewrite `logic/filter-by-date` with `cljs-time`")
+
 (defn filter-by-date
   "Filters out entries that are bigger than `from-date` and less than `to-date`.
    Expects `entry` to have key `:date`."
@@ -314,6 +316,45 @@
    entries))
 
 ;; ENDs Dates
+
+
+;; STARTs: Big amounts
+
+(defn payments
+  "Gets all the credit payments.
+   If value of the `:amount` is negative, then it is credit payment."
+  [data]
+  (filter #(< (:amount %) 0) data))
+
+(defn filter-bigs-by-date
+  [bigs paid when?]
+  (case when?
+     :after  (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
+     :before (filter #(cl-time/before? (:date %) (:date paid)) bigs)))
+
+(defn bigs-and-paids
+  [paids bigs]
+  (loop [p  paids
+         bs bigs
+         r  []]
+    (let [fp (first p)]
+      (if (empty? p)
+        r
+        ;; else
+        (recur (rest p)
+               (filter-bigs-by-date bs fp :after)
+               (conj r (update
+                        fp :bigs
+                        (conj [] (filter-bigs-by-date bs fp :before)))))))))
+
+;; (defn reduce-bigs-and-paids
+;;   [bp]
+;;   (reduce
+;;    (fn [r b]
+;;      ())
+;;    [] bp))
+
+;; ENDs: Big amounts
 
 
 (defn get-maps-categories-str
