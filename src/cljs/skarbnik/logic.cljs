@@ -326,13 +326,17 @@
   [data]
   (filter #(< (:amount %) 0) data))
 
+;; ->
+
 (defn filter-bigs-by-date
   [bigs paid when?]
   (case when?
      :after  (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
      :before (filter #(cl-time/before? (:date %) (:date paid)) bigs)))
 
-(defn bigs-and-paids
+(defn paids-with-bigs
+  "1 step of paids getting bigs.
+   [{:date}], [{:date}] -> [{:bigs []}]"
   [paids bigs]
   (loop [p  paids
          bs bigs
@@ -346,13 +350,45 @@
                (conj r (update
                         fp :bigs
                         (conj [] (filter-bigs-by-date bs fp :before)))))))))
+;; <-
 
-;; (defn reduce-bigs-and-paids
-;;   [bp]
-;;   (reduce
-;;    (fn [r b]
-;;      ())
-;;    [] bp))
+;; ->
+
+(defn diff-paid-bigs
+  "Takes a map of paid debt with `:bigs` vector.
+   Returns difference of (- bigs paid)."
+  [big-paid]
+  (let [paid     (:amount big-paid)
+        bigs     (:bigs big-paid)
+        bigs-sum (reduce #(+ % (:amount %2)) 0 bigs)]
+    ;; plus, because `paid` is negative number
+    (+ bigs-sum
+       paid)))
+
+(defn reduce-bigs-and-paids
+  "2 step of paids getting bigs.
+   Here the `diff-paid-bigs` gets debt that goes to next paid-off.
+   [{:amount int?, :bigs [{:amount int?}]}] ->
+   [{:amount int?, :bigs [{:amount int?}]}] ;; but with debt moved to next paid-off transaction."
+  [paids-with-bigs]
+  (let [pwb (partition-all 2 1 paids-with-bigs)]
+    (loop [b pwb
+           debt (diff-paid-bigs (ffirst pwb))
+           res []]
+      (if (empty? b)
+        res
+        ;; else
+        (let [fb   (ffirst b)
+              sb   (-> b first second)
+              diff (diff-paid-bigs fb)]
+          (recur (rest b),
+                 (if (> diff 0) diff 0),
+                 (if (> debt 0)
+                   (conj res
+                         (update sb :debt + debt)),
+                   (conj res
+                         (update fb :debt + 0)))))))))
+;; <-
 
 ;; ENDs: Big amounts
 
