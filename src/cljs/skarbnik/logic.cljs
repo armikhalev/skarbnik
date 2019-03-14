@@ -371,23 +371,18 @@
    [{:amount int?, :bigs [{:amount int?}]}] ->
    [{:amount int?, :bigs [{:amount int?}]}] ;; but with debt moved to next paid-off transaction."
   [paids-with-bigs]
-  (let [pwb (partition-all 2 1 paids-with-bigs)]
-    (loop [b pwb
-           debt (diff-paid-bigs (ffirst pwb))
-           res []]
-      (if (empty? b)
-        res
-        ;; else
-        (let [fb   (ffirst b)
-              sb   (-> b first second)
-              diff (diff-paid-bigs fb)]
-          (recur (rest b),
-                 (if (> diff 0) diff 0),
-                 (if (> debt 0)
-                   (conj res
-                         (update sb :debt + debt)),
-                   (conj res
-                         (update fb :debt + 0)))))))))
+  (loop [b paids-with-bigs
+         res []]
+    (if (empty? b)
+      res
+      ;; else
+      (let [fb   (first b)
+            sb   (second b)
+            diff (diff-paid-bigs fb)]
+        (if (> diff 0)
+          (recur (drop 2 b),
+                 (conj res (update fb :debt + diff) (update sb :debt + (+ diff (:amount sb))))),
+          (recur (rest b) (conj res (update fb :debt + 0))))))))
 ;; <-
 
 ;; ENDs: Big amounts
