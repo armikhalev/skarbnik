@@ -297,11 +297,10 @@
 
 
      ;; Bid Debt calculation
-
      (if (and credit? (< amount 0))
        ^{:key (str "big-debt-"idx)}
-       [:td "xz"])
-     ]))
+       [:td.color-burnt-orange
+        (str "$" (logic/cents->dollars (:debt entry)))])]))
 
 ;; ENDs: ROW
 
@@ -339,9 +338,8 @@
             :credit?         credit?
             :big?            big?
             :data            data})))
-
       ;; feed `map-indexed`
-      (account-data-$key @state)))]])
+      data))]])
 
 
 (defn date-picker
