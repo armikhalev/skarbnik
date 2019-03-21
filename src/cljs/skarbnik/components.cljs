@@ -110,7 +110,7 @@
                 (fn [file-names]
                   (do
                     ;; Nullify recurring transactions data
-                    (prn "FIXME: should nullify name of the current account on new file load")
+                    (prn "FIXME: should nullify name of the current account on new file load and all the things: big data recurring data, all state!")
                     (swap! state assoc
                            recur-data-key {})
                     ;; Then read file and update state
@@ -235,6 +235,10 @@
      (for [category-key (logic/get-maps-categories data)
            :let [entry-val (category-key entry)]]
        (case (name category-key)
+         "date" ;; ->
+         ^{:key (str "date-" idx)}
+         [:td entry-val]
+
          "amount" ;; ->
          ^{:key (str "amount-" idx)}
          [:td
@@ -244,9 +248,17 @@
             ;;else
             "?")]
 
-         "date" ;; ->
-         ^{:key (str "date-" idx)}
-         [:td entry-val]
+         "bigs" ;; ->
+         ^{:key (str "bigs-" idx)}
+         [:td
+          (when entry-val
+            (str "hover? "(-> entry-val first :amount )))]
+
+         "debt" ;; ->
+         ^{:key (str "debt-" idx)}
+         [:td.color-burnt-orange
+          (when entry-val
+            (str "$" (logic/cents->dollars entry-val)))]
 
          ;; else ->
          ^{:key (str category-key "-" idx)}
@@ -285,19 +297,21 @@
 
          ;; else
          ^{:key (str "big-"idx)}
-         [:td
-          {:class (when @big? "color-danger")
-           :on-click #(if @big?
-                        (helpers/unset-distinct-data! state entry type-big-data)
-                        ;; else
-                        (helpers/set-distinct-data! state entry type-big-data))}
-          (if-not @selected?
+
+         (if-not @selected?
+           [:td
+            {:class (when @big? "color-danger")
+             :on-click #(if @big?
+                          (helpers/unset-distinct-data! state entry type-big-data)
+                          ;; else
+                          (helpers/set-distinct-data! state entry type-big-data))}
             (if @big? "BIG" "B?")
-            "")]))
+            ""]
+           [:td ""])))
 
 
-     ;; Bid Debt calculation
-     (if (and credit? (< amount 0))
+     ;; Big Debt
+     #_(if (and credit? (< amount 0))
        ^{:key (str "big-debt-"idx)}
        [:td.color-burnt-orange
         (str "$" (logic/cents->dollars (:debt entry)))])]))
@@ -317,7 +331,11 @@
     [:tr
      (for [th (logic/get-maps-categories-str data)]
        ^{:key th}
-       [:th th])]]
+       [:th th])
+     #_(when credit?
+       [:th.color-burnt-orange "Recurs"]
+       [:th.color-burnt-orange "Bigs"]
+       #_[:th.color-burnt-orange "B-Debts"])]]
    [:tbody
     (doall
      (map-indexed

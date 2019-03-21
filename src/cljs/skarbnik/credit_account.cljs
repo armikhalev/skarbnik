@@ -86,6 +86,8 @@
                                       (let [three-fold-key (-> m helpers/three-fold-key keyword)]
                                         (merge m (three-fold-key back-to-str-dates))))
                                     data)]
+       (prn "---->")
+       (cljs.pprint/pprint merged-data)
        (components/transactions-table
         {:state                   state
          :data                    merged-data

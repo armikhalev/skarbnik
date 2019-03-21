@@ -225,7 +225,9 @@
 (defn date->ints
   "Converts date string of form YYYY-MM-DD to list of integers."
   [date]
-  (vec (map js/parseInt (clojure.string/split date #"-"))))
+  ;; get only year-month-day, splitting out everything after 'T' (seconds etc.)
+  (let [ymd (first (clojure.string/split date #"T"))]
+    (clojure.string/split ymd #"-")))
 
 
 (defn ymd->mdy
