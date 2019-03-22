@@ -86,15 +86,13 @@
                                       (let [three-fold-key (-> m helpers/three-fold-key keyword)]
                                         (merge m (three-fold-key back-to-str-dates))))
                                     data)]
-       (prn "---->")
-       (cljs.pprint/pprint merged-data)
-       (components/transactions-table
+       [components/transactions-table
         {:state                   state
          :data                    merged-data
          :credit?                 true
          :account-data-$key       :credit-data
          :account-recur-data-$key :credit-recur-data
-         :account-big-data-$key   :credit-big-data}))
+         :account-big-data-$key   :credit-big-data}])
 
      [:hr]
      (components/date-picker state data :credit-data)

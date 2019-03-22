@@ -57,11 +57,11 @@
      [:h3 (str "Initial Balance: " (logic/cents->dollars (:initial-bank-balance @state)))]
 
      [:hr]
-     (components/transactions-table
+     [components/transactions-table
       {:state                   state
        :data                    data
        :account-data-$key       :bank-data
-       :account-recur-data-$key :bank-recur-data})
+       :account-recur-data-$key :bank-recur-data}]
 
      [:hr]
      (components/date-picker state data :bank-data)
