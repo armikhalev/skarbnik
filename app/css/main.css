@@ -6,6 +6,10 @@ html {
     border: 1px solid black;
 }
 
+.color-peru {
+    color: peru;
+}
+
 .color-burnt-orange {
     color: #cc5500;
 }

@@ -28,14 +28,14 @@
      [:h2.error-message
       (get-in @state [:bank :error])]
      ;;
-     (components/button-open-file!
+     [ components/button-open-file!
       {:open-file!      open-file!
        :state           state
        :recur-data-key  :bank-recur-data
        :read-file!      read-file!
-       :data-key        :bank-data})
+       :data-key        :bank-data} ]
      ;;
-     (components/button-save-account!
+     [ components/button-save-account!
       {:state                      state
        :account-kind-$key          :bank-accounts
        :accounts-path              bank-accounts-path
@@ -48,11 +48,11 @@
        :write-file!                write-file!
        :read-file!                 read-file!
        :make-dir!                  make-dir!
-       :data                       data})
+       :data                       data} ]
      ;;
-     (components/input-initial-balance!
+     [ components/input-initial-balance!
       {:state state
-       :initial-balance-$key :initial-bank-balance})
+       :initial-balance-$key :initial-bank-balance} ]
      ;;
      [:h3 (str "Initial Balance: " (logic/cents->dollars (:initial-bank-balance @state)))]
 
@@ -64,7 +64,7 @@
        :account-recur-data-$key :bank-recur-data}]
 
      [:hr]
-     (components/date-picker state data :bank-data)
+     [ components/date-picker state data :bank-data ]
      ;;
-     (components/bank-analyze data state)]))
+     [ components/bank-analyze data state ]]))
 

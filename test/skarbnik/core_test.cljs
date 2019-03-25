@@ -82,7 +82,7 @@
     Recurring spendings sum: -50.00
     Balance:
     -50.00"
-  (components/bank-analyze test-data state))
+  [ components/bank-analyze test-data state ])
 
 ;; ENDs: Bank
 
@@ -100,6 +100,6 @@
     Recurring spendings sum: 30.00
     Total debt:
     -50.00"
-  (components/credit-analyze test-data state))
+  [ components/credit-analyze test-data state ])
 
 ;; ENDs: Credit

@@ -215,74 +215,76 @@
 
 (defn table-row
   "`type-recur-data` (or `:bank-recur-data`  `:credit-recur-data`)"
-  [{:keys [type-recur-data
-           type-big-data
-           state
-           idx
-           entry
-           selected?
-           big?
-           data
-           credit?]}]
+  []
 
-  (let [amount (:amount entry)
-        open? (r/atom false)]
-    (fn []
+  (let [open? (r/atom false)]
+    (fn [{:keys [type-recur-data
+                 type-big-data
+                 state
+                 idx
+                 entry
+                 selected?
+                 big?
+                 data
+                 credit?]}]
       [:tr
        {:style {:background-color (cond
                                     @selected? "grey"
                                     @big?      "peru"
                                     :else      "")}}
-       (for [category-key (logic/get-maps-categories data)
-             :let [entry-val (category-key entry)]]
-         (case (name category-key)
-           "date" ;; ->
-           ^{:key (str "date-" idx)}
-           [:td entry-val]
+       (doall
+        (for [category-key (logic/get-maps-categories data)
+              :let [entry-val (category-key entry)]]
+          (case (name category-key)
+            "date" ;; ->
+            ^{:key (str "date-" idx)}
+            [:td entry-val]
 
-           "amount" ;; ->
-           ^{:key (str "amount-" idx)}
-           [:td
-            (helpers/colorize-numbers entry-val)
-            (if (logic/is-number? entry-val)
-              (logic/cents->dollars entry-val)
-              ;;else
-              "?")]
+            "amount" ;; ->
+            ^{:key (str "amount-" idx)}
+            [:td
+             (helpers/colorize-numbers entry-val)
+             (if (logic/is-number? entry-val)
+               (logic/cents->dollars entry-val)
+               ;;else
+               "?")]
 
-           "bigs" ;; ->
-           (if @open?
-           ^{:key (str "bigs-" idx)}
-           [:td
-            {:on-click #(do
-                          (prn @open?)
-                          (swap! open? not))}
-            
-              "open"
-            ]
-           ;; else
-           ^{:key (str "bigs-" idx)}
-           [:td
-            {:on-click #(do
-                          (prn @open?)
-                          (swap! open? not))}
-            
-            "clojse"
-            ])
+            "bigs" ;; ->
+            (if entry-val
+              ^{:key (str "bigs-" idx)}
+              [:td.color-peru
+               {:on-click #(swap! open? not)}
+               (if @open?
+                 (doall
+                  (for [v entry-val]
+                    ^{:key (str "bigs-sub-" idx "-" (helpers/three-fold-key v))}
+                    [:tr.border
+                     [:td.color-burnt-orange "desc: "]
+                     [:td (:description v)]
+                     [:td.color-burnt-orange "date: "]
+                     [:td (-> v :date logic/cljs-time->str)]
+                     [:td.color-burnt-orange "amount: "]
+                     [:td (str "$" (-> v :amount logic/cents->dollars))]]))
+                 "Show linked debts")]
 
-           "debt" ;; ->
-           ^{:key (str "debt-" idx)}
-           [:td.color-burnt-orange
-            (when entry-val
-              (str "$" (logic/cents->dollars entry-val)))]
+              ;; else
+              ^{:key (str "bigs-" idx)}
+              [:td ""])
 
-           ;; else ->
-           ^{:key (str category-key "-" idx)}
-           [:td entry-val]))
+            "debt" ;; ->
+            ^{:key (str "debt-" idx)}
+            [:td.color-burnt-orange
+             (when entry-val
+               (str "$" (logic/cents->dollars entry-val)))]
+
+            ;; else ->
+            ^{:key (str category-key "-" idx)}
+            [:td entry-val])))
 
 
        ;; Recurring transaction label and handling
 
-       (if (and credit? (< amount 0))
+       (if (and credit? (< (:amount entry) 0))
          ;; Should not show label if amount is negative, i.e. paying off debt
          ^{:key (str "recur-"idx)}
          [:td ""]
@@ -298,15 +300,14 @@
                            (helpers/set-distinct-data! state entry type-recur-data))
               :class (when @selected? "recur")}]
             ;; else don't show recur to avoid user confusion
-            [:label ""]
-            )])
+            [:label ""])])
 
 
        ;; Big transaction label and handling
 
        (when credit?
          ;; Should not show label if amount is negative, i.e. paying off debt
-         (if (< amount 0)
+         (if (< (:amount entry) 0)
            ^{:key (str "big-"idx)}
            [:td ""]
 
@@ -370,7 +371,7 @@
             :selected?       selected?
             :credit?         credit?
             :big?            big?
-            :data            data} ]))
+            :data            data}]))
       ;; feed `map-indexed`
       data))]])
 

@@ -1,5 +1,5 @@
 (ns skarbnik.core
-  (:require [reagent.core :as reagent :refer [atom]]
+  (:require [reagent.core :as r]
             [clojure.core.async :as async]
             [cljs-time.core :as cl-time]
             [cljs.nodejs :as nodejs]
@@ -28,7 +28,7 @@
 
 
 ;; DB
-(defonce state (atom {:bank-accounts            []
+(defonce state (r/atom {:bank-accounts            []
                       :credit-accounts          []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :current-bank-account     ""
@@ -62,7 +62,7 @@
 ;; (cljs.pprint/pprint (:credit-data @state))
 ;; (cljs.pprint/pprint (:bank-data @state))
 
-(defonce current-page (atom :home))
+(defonce current-page (r/atom :home))
 
 ;; nodejs
 
@@ -216,7 +216,7 @@
 
 (defn main-page []
   [:main
-   (nav)
+   [ nav ]
    [:hr]
    (case @current-page
      :home (home/page {:state                           state
@@ -279,7 +279,7 @@
 
 (defn mount-root
   []
-  (reagent/render [main-page] (.getElementById js/document "app")))
+  (r/render [main-page] (.getElementById js/document "app")))
 
 (defn init!
   []
