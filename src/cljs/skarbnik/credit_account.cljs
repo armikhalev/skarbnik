@@ -77,7 +77,7 @@
                                                m :date #(logic/cljs-time->str %))]
                                         ;; returns ->
                                         (update
-                                         a (-> d helpers/three-fold-key keyword )
+                                         a (-> d helpers/three-fold-key keyword)
                                          merge d)))
                                     {}
                                     data-with-bigs-and-debt)
