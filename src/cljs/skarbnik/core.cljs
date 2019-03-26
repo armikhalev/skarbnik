@@ -9,6 +9,7 @@
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
             [skarbnik.helpers :as helpers]
+            [skarbnik.db :as db]
             [skarbnik.bank-account :as bank]
             [skarbnik.credit-account :as credit]
             [skarbnik.home :as home]
@@ -25,9 +26,7 @@
 
 ;; END: Specs
 
-
-
-;; DB
+;; OLD DB
 (defonce state (r/atom {:bank-accounts            []
                       :credit-accounts          []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -274,9 +273,7 @@
 
 ;; ENDs: Root
 
-
 ;; Init
-
 (defn mount-root
   []
   (r/render [main-page] (.getElementById js/document "app")))
@@ -290,11 +287,11 @@
 
     (read-file!
      bank-accounts-path
-     (fn [data] (swap! state assoc :bank-accounts (reader/read-string data))))
+     (fn [data] (db/bank-accounts! into (reader/read-string data))))
 
     ;; CREDIT
 
     (read-file!
      credit-accounts-path
-     (fn [data] (swap! state assoc :credit-accounts (reader/read-string data))))))
+     (fn [data] (db/credit-accounts! into (reader/read-string data))))))
 
