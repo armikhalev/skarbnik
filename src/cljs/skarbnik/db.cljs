@@ -55,3 +55,19 @@
    (r/rswap! credit-accounts f v)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def current-bank-account
+  (r/cursor db [ :current-bank-account ]))
+
+(defn current-bank-account!
+  ([v]
+   (reset! current-bank-account v)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def current-credit-account
+  (r/cursor db [ :current-credit-account ]))
+
+(defn current-credit-account!
+  ([v]
+   (reset! current-credit-account v)))

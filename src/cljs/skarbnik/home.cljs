@@ -58,7 +58,7 @@
                        (fn [data]
                          (swap! state assoc
                                 :bank-recur-data (reader/read-string data))))
-                      (swap! state assoc :current-bank-account bank-name))}
+                      (db/current-bank-account! bank-name))}
         bank-name]
 
        ;; DELETE account button
@@ -111,7 +111,7 @@
                          (swap! state assoc
                                 :credit-big-data (reader/read-string data))))
                       ;;
-                      (swap! state assoc :current-credit-account credit-name))}
+                      (db/current-credit-account! credit-name))}
         credit-name]
 
        ;; DELETE account button

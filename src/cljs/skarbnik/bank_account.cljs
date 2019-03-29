@@ -25,7 +25,7 @@
 
   (let [data (:bank-data @state)]
     [:section
-     [:h2 (str "Bank account: " (:current-bank-account @state))]
+     [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
       (get-in @state [:bank :error])]
      ;;

@@ -26,7 +26,7 @@
 
   (let [data (:credit-data @state)]
     [:section
-     [:h2 (str "Credit account: " (:current-credit-account @state))]
+     [:h2 (str "Credit account: " @db/current-credit-account)]
      [:h2.error-message
       (get-in @state [:credit :error])]
 
