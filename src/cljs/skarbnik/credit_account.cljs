@@ -3,6 +3,7 @@
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.db :as db]
             [skarbnik.helpers :as helpers]
             [skarbnik.logic :as logic]
             [skarbnik.components :as components]))
@@ -39,7 +40,8 @@
      ;;
      [ components/button-save-account!
       {:state                      state
-       :account-kind-$key          :credit-accounts
+       :account-kind-cursor        db/credit-accounts
+       :account-kind-mutator!      db/credit-accounts!
        :accounts-path              credit-accounts-path
        :recur-transactions         credit-recur-transactions
        :big-transactions           credit-big-transactions

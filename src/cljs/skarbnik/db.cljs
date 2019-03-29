@@ -32,16 +32,26 @@
                       :bank                     {:error "" :message ""}
                       :credit                   {:error "" :message ""}}))
 
+;;;;;;;;;;;;; Cursors & Mutators ;;;;;;;;;;;;;
+
 (def bank-accounts
   (r/cursor db [ :bank-accounts ]))
 
 (defn bank-accounts!
-  [f v]
-  (r/rswap! bank-accounts f v))
+  ([f]
+   (r/rswap! bank-accounts f))
+  ([f v]
+   (r/rswap! bank-accounts f v)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def credit-accounts
   (r/cursor db [ :credit-accounts ]))
 
 (defn credit-accounts!
-  [f v]
-  (r/rswap! credit-accounts f v))
+  ([f]
+   (r/rswap! credit-accounts f))
+  ([f v]
+   (r/rswap! credit-accounts f v)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;

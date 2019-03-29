@@ -6,12 +6,15 @@
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.db :as db]
             [skarbnik.helpers :as helpers]
             [skarbnik.logic :as logic]
             [skarbnik.components :as components]))
 
 (defn page
-  "Home page with all the accounts in two columns: `banks` and `credits`"
+  "Home page with all the accounts in two columns: `banks` and `credits`.
+   This is not meant to be a pure function, since it's a page - the highest parent component.
+   Hence `db` is used from namespace, not from input."
   [{:keys [state
            read-file!
            write-file!
@@ -29,7 +32,7 @@
   [:section
    [:h2 "Bank accounts"]
    [:ul.banks
-    (for [bank-dir-path (:bank-accounts @state)
+    (for [bank-dir-path @db/bank-accounts
           :let [bank-name (-> bank-dir-path (split #"/") last)]]
       ^{:key bank-name}
       [:li.inline-flex.border.margin-left-5
@@ -62,21 +65,19 @@
        [:button.button.margin-left-5.delete-bank
         {:on-click #(do
                       ;; remove bank-dir from state
-                      (swap! state update-in [:bank-accounts]
-                             (fn [s] (remove #{bank-dir-path} s)))
+                      (db/bank-accounts! (partial remove #{bank-dir-path}))
 
                       ;; then remove it from file
                       (write-file!
                        bank-accounts-path
-                       (vec
-                        (:bank-accounts @state))))}
+                       (vec @db/bank-accounts)))}
         "X"]])]
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
    [:h2 "Credit accounts"]
    [:ul.credits
-    (for [credit-dir-path (:credit-accounts @state)
+    (for [credit-dir-path @db/credit-accounts
           :let [credit-name (-> credit-dir-path (split #"/") last)]]
       ^{:key credit-name}
       [:li.inline-flex.border.margin-left-5
@@ -116,14 +117,12 @@
        ;; DELETE account button
        [:button.button.margin-left-5.delete-credit
         {:on-click #(do
-                      ;; remove credit-dir from state
-                      (swap! state update-in [:credit-accounts]
-                             (fn [s] (remove #{credit-dir-path} s)))
+                      ;; remove bank-dir from state
+                      (db/credit-accounts! (partial remove #{credit-dir-path}))
 
                       ;; then remove it from file
                       (write-file!
                        credit-accounts-path
-                       (vec
-                        (:credit-accounts @state))))}
+                       (vec @db/credit-accounts)))}
         "X"]])]])
 

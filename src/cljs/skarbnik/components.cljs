@@ -139,7 +139,8 @@
 
 (defn button-save-account!
   [{:keys [state
-           account-kind-$key
+           account-kind-cursor
+           account-kind-mutator!
            accounts-path
            recur-transactions
            big-transactions
@@ -158,15 +159,15 @@
                 (when dir-path
                   (do
                     ;; Update state and save it to file
-                    (when (account-NOT-in-accounts? (account-kind-$key @state) dir-path)
+                    (when (account-NOT-in-accounts? @account-kind-cursor dir-path)
 
                       ;; add directory name to accounts in state
-                      (swap! state update account-kind-$key conj dir-path)
+                      (account-kind-mutator! conj dir-path)
 
                       ;; write path to *-accounts.edn for persistance
                       (write-file!
                        accounts-path
-                       (account-kind-$key @state)))
+                       @account-kind-cursor))
 
                     ;; create dir (if doesn't exist fn will handle it)
                     (make-dir! dir-path)
