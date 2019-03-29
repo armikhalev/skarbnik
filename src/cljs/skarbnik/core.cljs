@@ -58,9 +58,6 @@
                       :credit                   {:error "" :message ""}}))
 ;; END: DB
 
-;; (cljs.pprint/pprint (:credit-data @state))
-;; (cljs.pprint/pprint (:bank-data @state))
-
 (defonce current-page (r/atom :home))
 
 ;; nodejs

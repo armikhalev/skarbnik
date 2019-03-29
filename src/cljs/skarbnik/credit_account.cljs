@@ -24,7 +24,7 @@
      credit-big-transactions
      credit-recur-transactions]}]
 
-  (let [data (:credit-data @state)]
+  (let [data @db/credit-data]
     [:section
      [:h2 (str "Credit account: " @db/current-credit-account)]
      [:h2.error-message

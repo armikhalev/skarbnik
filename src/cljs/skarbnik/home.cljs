@@ -49,7 +49,7 @@
                       ;;
                       (read-file!
                        (str bank-dir-path"/"bank-data-file-path)
-                       (fn [data] (swap! state assoc :bank-data data))
+                       (fn [data] (db/bank-data! data))
                        :parse)
                       ;;
                       (read-file!
@@ -94,7 +94,7 @@
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-data-file-path)
-                       (fn [data] (swap! state assoc :credit-data data))
+                       (fn [data] (db/credit-data! data))
                        :parse)
                       ;;
                       (read-file!

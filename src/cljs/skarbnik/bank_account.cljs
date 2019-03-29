@@ -23,7 +23,7 @@
      data-file-path
      bank-recur-transactions]}]
 
-  (let [data (:bank-data @state)]
+  (let [data @db/bank-data]
     [:section
      [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message

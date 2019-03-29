@@ -8,9 +8,6 @@
                       :current-bank-account     ""
                       :current-credit-account   ""
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :current-bank-dir-path    ""
-                      :current-credit-dir-path  ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :bank-data                []
                       :credit-data              []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -43,7 +40,7 @@
   ([f v]
    (r/rswap! bank-accounts f v)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 
 (def credit-accounts
   (r/cursor db [ :credit-accounts ]))
@@ -54,20 +51,40 @@
   ([f v]
    (r/rswap! credit-accounts f v)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;---
 
 (def current-bank-account
   (r/cursor db [ :current-bank-account ]))
 
 (defn current-bank-account!
-  ([v]
-   (reset! current-bank-account v)))
+  [v]
+  (reset! current-bank-account v))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 
 (def current-credit-account
   (r/cursor db [ :current-credit-account ]))
 
 (defn current-credit-account!
-  ([v]
-   (reset! current-credit-account v)))
+  [v]
+  (reset! current-credit-account v))
+
+;;;;;;;;;;; DATA ;;;;;;;;;;;;;;;
+
+(def bank-data
+  (r/cursor db [ :bank-data ]))
+
+(defn bank-data!
+  [v]
+   (reset! bank-data v))
+
+;;;
+
+(def credit-data
+  (r/cursor db [ :credit-data ]))
+
+(defn credit-data!
+  [v]
+  (reset! credit-data v))
+
+;;; <-- ENDs: DATA
