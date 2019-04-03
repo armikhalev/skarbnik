@@ -44,7 +44,7 @@
                       ;;
                       (read-file!
                        (str bank-dir-path"/"bank-initial-balance-file-path)
-                       (fn [data] (swap! state assoc :initial-bank-balance
+                       (fn [data] (db/initial-bank-balance!
                                          (logic/dollars->cents data))))
                       ;;
                       (read-file!
@@ -56,8 +56,7 @@
                        (str bank-dir-path"/"bank-recur-transactions)
                        ;; Read EDN and put it into state
                        (fn [data]
-                         (swap! state assoc
-                                :bank-recur-data (reader/read-string data))))
+                         (db/bank-recur-data! (reader/read-string data))))
                       (db/current-bank-account! bank-name))}
         bank-name]
 

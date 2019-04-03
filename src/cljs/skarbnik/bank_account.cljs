@@ -30,11 +30,11 @@
       (get-in @state [:bank :error])]
      ;;
      [ components/button-open-file!
-      {:open-file!      open-file!
-       :state           state
-       :recur-data-key  :bank-recur-data
-       :read-file!      read-file!
-       :data-key        :bank-data} ]
+      {:open-file!          open-file!
+       :state               state
+       :recur-data-mutator! db/bank-recur-data!
+       :read-file!          read-file!
+       :data-key            :bank-data} ]
      ;;
      [ components/button-save-account!
       {:state                      state
@@ -42,8 +42,8 @@
        :account-kind-mutator!      db/bank-accounts!
        :accounts-path              bank-accounts-path
        :recur-transactions         bank-recur-transactions
-       :recur-data-$key            :bank-recur-data
-       :initial-balance-$key       :initial-bank-balance
+       :recur-data                 db/bank-recur-data
+       :initial-balance            db/initial-bank-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
@@ -52,21 +52,23 @@
        :make-dir!                  make-dir!
        :data                       data} ]
      ;;
-     [ components/input-initial-balance!
-      {:state state
-       :initial-balance-$key :initial-bank-balance} ]
+     [components/input-initial-balance! db/initial-bank-balance!]
      ;;
-     [:h3 (str "Initial Balance: " (logic/cents->dollars (:initial-bank-balance @state)))]
+     [:h3 (str "Initial Balance: " (logic/cents->dollars @db/initial-bank-balance))]
 
      [:hr]
      [components/transactions-table
       {:state                   state
        :data                    data
-       :account-data-$key       :bank-data
-       :account-recur-data-$key :bank-recur-data}]
+       :recur-data-mutator!     db/bank-recur-data!
+       :big-data-mutator!       db/credit-big-data!
+       :recur-data              db/bank-recur-data}]
 
      [:hr]
      [ components/date-picker state data :bank-data ]
      ;;
-     [ components/bank-analyze data state ]]))
+     [ components/bank-analyze {:data                 data
+                                :initial-bank-balance db/initial-bank-balance
+                                :bank-recur-data      db/bank-recur-data
+                                :state state} ]]))
 

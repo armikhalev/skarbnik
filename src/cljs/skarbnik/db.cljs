@@ -88,3 +88,60 @@
   (reset! credit-data v))
 
 ;;; <-- ENDs: DATA
+
+;;; REcur data
+
+(def bank-recur-data
+  (r/cursor db [ :bank-recur-data ]))
+
+(defn bank-recur-data!
+  ([f]
+   (r/rswap! bank-recur-data f))
+  ([f v]
+   (r/rswap! bank-recur-data f v))
+  ([f k v]
+   (r/rswap! bank-recur-data f k v)))
+
+;;;
+
+(def credit-recur-data
+  (r/cursor db [ :credit-recur-data ]))
+
+(defn credit-recur-data!
+  ([f]
+   (r/rswap! credit-recur-data f))
+  ([f v]
+   (r/rswap! credit-recur-data f v))
+  ([f k v]
+   (r/rswap! credit-recur-data f k v)))
+
+;;;; Credit Big Data
+
+(def credit-big-data
+  (r/cursor db [ :credit-big-data ]))
+
+(defn credit-big-data!
+  ([f]
+   (r/rswap! credit-big-data f))
+  ([f v]
+   (r/rswap! credit-big-data f v))
+  ([f k v]
+   (r/rswap! credit-big-data f k v)))
+
+;;; Initial balances
+
+(def initial-bank-balance
+  (r/cursor db [ :initial-bank-balance ]))
+
+(defn initial-bank-balance!
+  [v]
+  (reset! initial-bank-balance v))
+
+;;;;
+
+(def initial-credit-balance
+  (r/cursor db [ :initial-credit-balance ]))
+
+(defn initial-credit-balance!
+  [v]
+  (reset! initial-credit-balance v))

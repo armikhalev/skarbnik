@@ -1,4 +1,6 @@
 (ns skarbnik.components
+  "Components should be without side effects, but they depend on required libraries.
+   State management should be provided only through args."
   (:require
    [reagent.core :as r]
    [cljs.reader :as reader]
@@ -8,19 +10,21 @@
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
    [skarbnik.helpers :as helpers]
-   [skarbnik.db :as db]
    [skarbnik.logic :as logic]))
 
 
 
 
 (defn bank-analyze
-  [data state]
+  [{:keys [data
+           state
+           initial-bank-balance
+           bank-recur-data]}]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
         difference     (logic/get-sum plus minus)
-        ending-balance (logic/get-sum (:initial-bank-balance @state) difference)
-        recur-sum*     (logic/sum-recur-amounts (:bank-recur-data @state))
+        ending-balance (logic/get-sum @initial-bank-balance difference)
+        recur-sum*     (logic/sum-recur-amounts @bank-recur-data)
         recur-sum      (if (and
                             (not (number? recur-sum*))
                             (js/Number.isNaN recur-sum*))
@@ -42,8 +46,6 @@
         [:h3.color-danger
          "Non-recurring spendings: " (logic/cents->dollars
                                       (logic/get-sum minus (- recur-sum)))]
-        ;; [:h1  recur-sum*]
-        ;; (prn (:bank-recur-data @state) )
         [:h3 "Net: " (logic/cents->dollars difference)]]
        [:section
         [:hr]
@@ -102,7 +104,7 @@
 (defn button-open-file!
   [{:keys [open-file!
            state
-           recur-data-key
+           recur-data-mutator!
            read-file!
            data-key]}]
 
@@ -112,8 +114,7 @@
                   (do
                     ;; Nullify recurring transactions data
                     (prn "FIXME: should nullify name of the current account on new file load and all the things: big data recurring data, all state!")
-                    (swap! state assoc
-                           recur-data-key {})
+                    (recur-data-mutator! {})
                     ;; Then read file and update state
                     (if (= file-names nil)
                       (prn "no file selected")
@@ -144,9 +145,9 @@
            accounts-path
            recur-transactions
            big-transactions
-           recur-data-$key
+           recur-data
            big-data-$key
-           initial-balance-$key
+           initial-balance
            initial-balance-file-path
            data-file-path
            show-save-file-dialog!
@@ -175,7 +176,7 @@
                     ;; Write files
                     (write-file!
                      (str dir-path"/"recur-transactions)
-                     (recur-data-$key @state))
+                     @recur-data)
                     ;;
                     (when big-data-$key
                       (write-file!
@@ -185,7 +186,7 @@
                     (write-file!
                      (str dir-path"/"initial-balance-file-path)
                      (logic/cents->dollars
-                      (initial-balance-$key @state)))
+                      @initial-balance))
                     ;;
                     (let [data* (map (fn [m]
                                        (-> m
@@ -201,8 +202,7 @@
 
 
 (defn input-initial-balance!
-  [{:keys [state
-           initial-balance-$key]}]
+  [initial-balance-mutator!]
   [:p  "Press Enter to set Initial balance: "
    [:input {:placeholder "0"
             :type "number"
@@ -211,17 +211,17 @@
                               (when (logic/is-number? val)
                                 (if (= "Enter" (.-key e))
                                   (let [val-in-cents (logic/dollars->cents val)]
-                                    (swap! state assoc initial-balance-$key val-in-cents))))))}]])
+                                    (initial-balance-mutator! val-in-cents)
+                                    #_(swap! state assoc initial-balance-$key val-in-cents))))))}]])
 
 ;; ROW
 
 (defn table-row
-  "`type-recur-data` (or `:bank-recur-data`  `:credit-recur-data`)"
   []
 
   (let [open? (r/atom false)]
-    (fn [{:keys [type-recur-data
-                 type-big-data
+    (fn [{:keys [recur-data-mutator!
+                 big-data-mutator!
                  state
                  idx
                  entry
@@ -297,9 +297,9 @@
           (if-not @big?
             [:label.recur-sign
              {:on-click #(if @selected?
-                           (helpers/unset-distinct-data! state entry type-recur-data)
+                           (helpers/unset-distinct-data! recur-data-mutator! entry)
                            ;; else
-                           (helpers/set-distinct-data! state entry type-recur-data))
+                           (helpers/set-distinct-data! recur-data-mutator! entry))
               :class (when @selected? "recur")}]
             ;; else don't show recur to avoid user confusion
             [:label ""])])
@@ -320,9 +320,9 @@
              [:td
               {:class (when @big? "color-danger")
                :on-click #(if @big?
-                            (helpers/unset-distinct-data! state entry type-big-data)
+                            (helpers/unset-distinct-data! big-data-mutator! entry)
                             ;; else
-                            (helpers/set-distinct-data! state entry type-big-data))}
+                            (helpers/set-distinct-data! big-data-mutator! entry))}
               (if @big? "BIG" "B?")
               ""]
              [:td ""])))])))
@@ -333,9 +333,10 @@
 (defn transactions-table
   [{:keys [state
            data
+           recur-data-mutator!
+           big-data-mutator!
            credit?
-           account-data-$key
-           account-recur-data-$key
+           recur-data
            account-big-data-$key]}]
   [:table
    [:thead
@@ -357,7 +358,7 @@
     (doall
      (map-indexed
       (fn [idx entry]
-        (let [selected? (r/atom (contains? (account-recur-data-$key @state)
+        (let [selected? (r/atom (contains? @recur-data
                                            (helpers/three-fold-key entry)))
               big? (if account-big-data-$key
                      (r/atom (contains? (account-big-data-$key @state)
@@ -366,8 +367,8 @@
 
           ^{:key idx}
           [table-row
-           {:type-recur-data account-recur-data-$key
-            :type-big-data   account-big-data-$key
+           {:recur-data-mutator! recur-data-mutator!
+            :big-data-mutator!   big-data-mutator!
             :state           state
             :entry           entry
             :selected?       selected?
