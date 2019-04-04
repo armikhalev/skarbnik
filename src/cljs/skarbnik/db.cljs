@@ -145,3 +145,40 @@
 (defn initial-credit-balance!
   [v]
   (reset! initial-credit-balance v))
+
+;;; Total Differnce
+
+(def bank-total-difference
+  (r/cursor db [ :bank-total-difference ]))
+
+(defn bank-total-difference!
+  [v]
+  (reset! bank-total-difference v))
+;;
+
+(def credit-total-difference
+  (r/cursor db [ :credit-total-difference ]))
+
+(defn credit-total-difference!
+  [v]
+  (reset! credit-total-difference v))
+
+;; :from-date                ""
+;; :to-date                  ""
+
+(def from-date
+  (r/cursor db [ :from-date ]))
+
+(defn from-date!
+  [v]
+  (reset! from-date v))
+
+;;;
+
+
+(def to-date
+  (r/cursor db [ :to-date ]))
+
+(defn to-date!
+  [v]
+  (reset! to-date v))

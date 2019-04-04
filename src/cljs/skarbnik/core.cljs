@@ -257,7 +257,7 @@
 
    (let [sum (logic/get-sum
               (- (:credit-total-difference @state))
-              (:bank-total-difference @state))]
+              @db/bank-total-difference)]
      [:h3
       {:class "inline-flex"}
       [:span "Bank balance vs Credit account difference:"]

@@ -65,10 +65,18 @@
        :recur-data              db/bank-recur-data}]
 
      [:hr]
-     [ components/date-picker state data :bank-data ]
+     [ components/date-picker
+      {:from-date! db/from-date!
+       :from-date db/from-date
+       :to-date! db/to-date!
+       :to-date db/to-date
+       :data data
+       :account-data-mutator! db/bank-data!} ]
      ;;
-     [ components/bank-analyze {:data                 data
-                                :initial-bank-balance db/initial-bank-balance
-                                :bank-recur-data      db/bank-recur-data
-                                :state state} ]]))
+     [ components/bank-analyze {:data                   data
+                                :state state
+                                :initial-bank-balance   db/initial-bank-balance
+                                :bank-recur-data        db/bank-recur-data
+                                :bank-total-difference! db/bank-total-difference!
+                                } ]]))
 

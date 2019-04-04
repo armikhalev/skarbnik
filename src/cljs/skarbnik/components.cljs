@@ -19,7 +19,8 @@
   [{:keys [data
            state
            initial-bank-balance
-           bank-recur-data]}]
+           bank-recur-data
+           bank-total-difference!]}]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
         difference     (logic/get-sum plus minus)
@@ -33,7 +34,7 @@
 
     (do
       ;; Update state
-      (swap! state assoc :bank-total-difference ending-balance)
+      (bank-total-difference! ending-balance)
 
       ;; View
       [:section.sums
@@ -380,24 +381,28 @@
 
 
 (defn date-picker
-  [state data account-kind-$key]
+  [{:keys [from-date
+           from-date!
+           to-date
+           to-date!
+           data
+           account-data-mutator!]}]
   [:section.date-picker
    [:label "Select date range from: "]
    [:input
     {:type "date"
-     :on-change #(swap! state assoc :from-date (.-target.value %))
+     :on-change #(from-date! (.-target.value %))
      :name "from-date"}]
    [:label " to: "]
    [:input
     {:type "date"
-     :on-change #(swap! state assoc :to-date (.-target.value %))
+     :on-change #(to-date! (.-target.value %))
      :name "to-date"}]
 
    [:button.margin-left-5
-    {:on-click #(swap! state assoc
-                       account-kind-$key
-                       (logic/filter-by-date
-                        data
-                        (:from-date @state)
-                        (:to-date @state)))}
+    {:on-click #(account-data-mutator!
+                 (logic/filter-by-date
+                  data
+                  @from-date
+                  @to-date))}
     "Filter by date"]])
