@@ -97,8 +97,8 @@
   (r/cursor db [ :bank-recur-data ]))
 
 (defn bank-recur-data!
-  ([f]
-   (r/rswap! bank-recur-data f))
+  ([v]
+   (reset! bank-recur-data v))
   ([f v]
    (r/rswap! bank-recur-data f v))
   ([f k v]
@@ -110,8 +110,8 @@
   (r/cursor db [ :credit-recur-data ]))
 
 (defn credit-recur-data!
-  ([f]
-   (r/rswap! credit-recur-data f))
+  ([v]
+   (reset! credit-recur-data v))
   ([f v]
    (r/rswap! credit-recur-data f v))
   ([f k v]
@@ -201,7 +201,7 @@
 
 (defn bank!
   [path v]
-  (swap! bank assoc path v))
+  (r/rswap! bank assoc path v))
 
 ;;;
 
@@ -210,4 +210,4 @@
 
 (defn credit!
   [path v]
-  (swap! credit assoc path v))
+  (r/rswap! credit assoc path v))

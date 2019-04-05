@@ -32,10 +32,9 @@
      ;;
      [ components/button-open-file!
       {:open-file!          open-file!
-       :state               state
        :recur-data-mutator! db/bank-recur-data!
        :read-file!          read-file!
-       :data-key            :bank-data} ]
+       :data-mutator!       db/bank-data!}]
      ;;
      [ components/button-save-account!
       {:state                      state

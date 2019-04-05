@@ -104,10 +104,9 @@
 
 (defn button-open-file!
   [{:keys [open-file!
-           state
            recur-data-mutator!
            read-file!
-           data-key]}]
+           data-mutator!]}]
 
   [:button.button.button-smaller.open-file
    {:on-click #(open-file!
@@ -115,14 +114,14 @@
                   (do
                     ;; Nullify recurring transactions data
                     (prn "FIXME: should nullify name of the current account on new file load and all the things: big data recurring data, all state!")
+
                     (recur-data-mutator! {})
+
                     ;; Then read file and update state
                     (if (= file-names nil)
                       (prn "no file selected")
                       (read-file! (first file-names)
-                                  (fn [data] (swap! state assoc
-                                                    data-key
-                                                    data))
+                                  (fn [data] (data-mutator! data))
                                   :parse)))))}
    "Open file"])
 
@@ -147,7 +146,7 @@
            recur-transactions
            big-transactions
            recur-data
-           big-data-$key
+           credit-big-data
            initial-balance
            initial-balance-file-path
            data-file-path
@@ -179,10 +178,10 @@
                      (str dir-path"/"recur-transactions)
                      @recur-data)
                     ;;
-                    (when big-data-$key
+                    (when credit-big-data
                       (write-file!
                        (str dir-path"/"big-transactions)
-                       (big-data-$key @state)))
+                       @credit-big-data))
                     ;;
                     (write-file!
                      (str dir-path"/"initial-balance-file-path)

@@ -46,7 +46,7 @@
        :recur-transactions         credit-recur-transactions
        :big-transactions           credit-big-transactions
        :recur-data-$key            :credit-recur-data
-       :big-data-$key              :credit-big-data
+       :credit-big-data            db/credit-big-data
        :initial-balance-$key       :initial-credit-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
