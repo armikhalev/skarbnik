@@ -26,6 +26,8 @@
                       :to-date                  ""
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :error-message            ""
+
+                      ;; Those two can handle all the meta/UI info about accounts
                       :bank                     {:error "" :message ""}
                       :credit                   {:error "" :message ""}}))
 
@@ -182,3 +184,30 @@
 (defn to-date!
   [v]
   (reset! to-date v))
+
+;;; Error messages
+
+(def error-message
+  (r/cursor db [ :error-message ]))
+
+(defn error-message!
+  [v]
+  (reset! error-message v))
+
+;; Account meta/UI
+
+(def bank
+  (r/cursor db [ :bank ]))
+
+(defn bank!
+  [path v]
+  (swap! bank assoc path v))
+
+;;;
+
+(def credit
+  (r/cursor db [ :credit ]))
+
+(defn credit!
+  [path v]
+  (swap! credit assoc path v))

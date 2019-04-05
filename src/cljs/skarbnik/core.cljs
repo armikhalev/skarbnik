@@ -232,6 +232,7 @@
                        :bank-recur-transactions         bank-recur-transactions})
 
      :bank (bank/page {:state                     state
+                       :bank-ui                   db/bank
                        :bank-accounts-path        bank-accounts-path
                        :root-path                 root-path
                        :show-save-file-dialog!    show-save-file-dialog!

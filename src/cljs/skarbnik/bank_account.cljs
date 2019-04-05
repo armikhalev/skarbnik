@@ -13,6 +13,7 @@
   "Creates BANK account page"
   [{:keys
     [state
+     bank-ui
      bank-accounts-path
      open-file!
      show-save-file-dialog!
@@ -27,7 +28,7 @@
     [:section
      [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
-      (get-in @state [:bank :error])]
+      (:error @bank-ui)]
      ;;
      [ components/button-open-file!
       {:open-file!          open-file!
