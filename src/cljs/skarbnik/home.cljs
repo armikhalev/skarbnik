@@ -15,8 +15,7 @@
   "Home page with all the accounts in two columns: `banks` and `credits`.
    This is not meant to be a pure function, since it's a page - the highest parent component.
    Hence `db` is used from namespace, not from input."
-  [{:keys [state
-           read-file!
+  [{:keys [read-file!
            write-file!
            bank-accounts-path
            credit-accounts-path
@@ -88,8 +87,8 @@
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-initial-balance-file-path)
-                       (fn [data] (swap! state assoc :initial-credit-balance
-                                         (logic/dollars->cents data))))
+                       (fn [data] (db/initial-credit-balance!
+                                   (logic/dollars->cents data))))
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-data-file-path)
@@ -100,15 +99,13 @@
                        (str credit-dir-path"/"credit-recur-transactions)
                        ;; Read EDN and put it into state
                        (fn [data]
-                         (swap! state assoc
-                                :credit-recur-data (reader/read-string data))))
+                         (db/credit-recur-data! (reader/read-string data))))
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-big-transactions)
                        ;; Read EDN and put it into state
                        (fn [data]
-                         (swap! state assoc
-                                :credit-big-data (reader/read-string data))))
+                         (db/credit-big-data! (reader/read-string data))))
                       ;;
                       (db/current-credit-account! credit-name))}
         credit-name]

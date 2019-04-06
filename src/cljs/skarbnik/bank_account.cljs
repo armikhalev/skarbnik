@@ -37,8 +37,7 @@
        :data-mutator!       db/bank-data!}]
      ;;
      [ components/button-save-account!
-      {:state                      state
-       :account-kind-cursor        db/bank-accounts
+      {:account-kind-cursor        db/bank-accounts
        :account-kind-mutator!      db/bank-accounts!
        :accounts-path              bank-accounts-path
        :recur-transactions         bank-recur-transactions
@@ -61,7 +60,6 @@
       {:state                   state
        :data                    data
        :recur-data-mutator!     db/bank-recur-data!
-       :big-data-mutator!       db/credit-big-data!
        :recur-data              db/bank-recur-data}]
 
      [:hr]

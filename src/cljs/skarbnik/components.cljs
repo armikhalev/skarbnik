@@ -17,7 +17,6 @@
 
 (defn bank-analyze
   [{:keys [data
-           state
            initial-bank-balance
            bank-recur-data
            bank-total-difference!]}]
@@ -33,7 +32,6 @@
                          recur-sum*)]
 
     (do
-      ;; Update state
       (bank-total-difference! ending-balance)
 
       ;; View
@@ -62,16 +60,19 @@
 
 
 (defn credit-analyze
-  [data state]
+  [{:keys [data
+           initial-credit-balance
+           credit-recur-data
+           credit-total-difference!]}]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
         difference     (logic/get-sum plus minus)
-        ending-balance (logic/get-sum (:initial-credit-balance @state) difference)
-        recur-sum      (logic/sum-recur-amounts (:credit-recur-data @state))]
+        ending-balance (logic/get-sum @initial-credit-balance difference)
+        recur-sum      (logic/sum-recur-amounts @credit-recur-data)]
 
        (do
-         ;; Update state
-         (swap! state assoc :credit-total-difference ending-balance)
+         ;; Update
+         (credit-total-difference! ending-balance)
 
          ;; View
          [:section.sums
@@ -117,7 +118,7 @@
 
                     (recur-data-mutator! {})
 
-                    ;; Then read file and update state
+                    ;; Then read file and update
                     (if (= file-names nil)
                       (prn "no file selected")
                       (read-file! (first file-names)
@@ -139,8 +140,7 @@
      0))
 
 (defn button-save-account!
-  [{:keys [state
-           account-kind-cursor
+  [{:keys [account-kind-cursor
            account-kind-mutator!
            accounts-path
            recur-transactions
@@ -159,10 +159,10 @@
    {:on-click #(let [dir-path (-> (show-save-file-dialog!) str)]
                 (when dir-path
                   (do
-                    ;; Update state and save it to file
+                    ;; Update and save it to file
                     (when (account-NOT-in-accounts? @account-kind-cursor dir-path)
 
-                      ;; add directory name to accounts in state
+                      ;; add directory name to accounts
                       (account-kind-mutator! conj dir-path)
 
                       ;; write path to *-accounts.edn for persistance
@@ -211,8 +211,7 @@
                               (when (logic/is-number? val)
                                 (if (= "Enter" (.-key e))
                                   (let [val-in-cents (logic/dollars->cents val)]
-                                    (initial-balance-mutator! val-in-cents)
-                                    #_(swap! state assoc initial-balance-$key val-in-cents))))))}]])
+                                    (initial-balance-mutator! val-in-cents))))))}]])
 
 ;; ROW
 
@@ -222,7 +221,6 @@
   (let [open? (r/atom false)]
     (fn [{:keys [recur-data-mutator!
                  big-data-mutator!
-                 state
                  idx
                  entry
                  selected?
@@ -334,10 +332,10 @@
   [{:keys [state
            data
            recur-data-mutator!
+           credit-big-data
            big-data-mutator!
            credit?
-           recur-data
-           account-big-data-$key]}]
+           recur-data]}]
   [:table
    [:thead
     [:tr
@@ -360,8 +358,8 @@
       (fn [idx entry]
         (let [selected? (r/atom (contains? @recur-data
                                            (helpers/three-fold-key entry)))
-              big? (if account-big-data-$key
-                     (r/atom (contains? (account-big-data-$key @state)
+              big? (if @credit-big-data
+                     (r/atom (contains? @credit-big-data
                                         (helpers/three-fold-key entry)))
                      (r/atom false))]
 
@@ -369,7 +367,6 @@
           [table-row
            {:recur-data-mutator! recur-data-mutator!
             :big-data-mutator!   big-data-mutator!
-            :state           state
             :entry           entry
             :selected?       selected?
             :credit?         credit?

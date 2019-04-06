@@ -13,6 +13,7 @@
   "Creates CREDIT account page"
   [{:keys
     [state
+     credit-ui
      credit-accounts-path
      open-file!
      show-save-file-dialog!
@@ -21,7 +22,6 @@
      make-dir!
      initial-balance-file-path
      data-file-path
-     credit-big-transactions
      credit-recur-transactions]}]
 
   (let [data @db/credit-data]
@@ -32,22 +32,18 @@
 
      ;;
      [ components/button-open-file!
-      {:open-file!      open-file!
-       :state           state
-       :recur-data-key  :credit-recur-data
-       :read-file!      read-file!
-       :data-key        :credit-data} ]
+      {:open-file!          open-file!
+       :recur-data-mutator! db/credit-recur-data!
+       :read-file!          read-file!
+       :data-mutator!       db/credit-data!} ]
      ;;
      [ components/button-save-account!
-      {:state                      state
-       :account-kind-cursor        db/credit-accounts
+      {:account-kind-cursor        db/credit-accounts
        :account-kind-mutator!      db/credit-accounts!
        :accounts-path              credit-accounts-path
        :recur-transactions         credit-recur-transactions
-       :big-transactions           credit-big-transactions
-       :recur-data-$key            :credit-recur-data
-       :credit-big-data            db/credit-big-data
-       :initial-balance-$key       :initial-credit-balance
+       :recur-data                 db/credit-recur-data
+       :initial-balance            db/initial-credit-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
@@ -57,11 +53,9 @@
        :data                       data} ]
 
      ;;
-     [ components/input-initial-balance!
-      {:state state
-       :initial-balance-$key :initial-credit-balance} ]
+     [components/input-initial-balance! db/initial-credit-balance!]
 
-     [:h3 (str "Initial Balance: " (logic/cents->dollars (:initial-credit-balance @state)))]
+     [:h3 (str "Initial Balance: " (logic/cents->dollars @db/initial-credit-balance))]
 
      [:hr]
 
@@ -92,12 +86,24 @@
         {:state                   state
          :data                    merged-data
          :credit?                 true
-         :account-data-$key       :credit-data
-         :account-recur-data-$key :credit-recur-data
-         :account-big-data-$key   :credit-big-data}])
+         :recur-data-mutator!     db/credit-recur-data!
+         :credit-big-data         db/credit-big-data
+         :big-data-mutator!       db/credit-big-data!
+         :recur-data              db/credit-recur-data}])
 
      [:hr]
-     [ components/date-picker state data :credit-data ]
+     [ components/date-picker
+      {:from-date! db/from-date!
+       :from-date db/from-date
+       :to-date! db/to-date!
+       :to-date db/to-date
+       :data data
+       :account-data-mutator! db/credit-data!} ]
      ;;
-     [ components/credit-analyze data state ]]))
+     [ components/credit-analyze {:data                   data
+                                  :state state
+                                  :initial-credit-balance   db/initial-credit-balance
+                                  :credit-recur-data        db/credit-recur-data
+                                  :credit-total-difference! db/credit-total-difference!
+                                  }]]))
 

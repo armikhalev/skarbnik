@@ -234,7 +234,6 @@
      :bank (bank/page {:state                     state
                        :bank-ui                   db/bank
                        :bank-accounts-path        bank-accounts-path
-                       :root-path                 root-path
                        :show-save-file-dialog!    show-save-file-dialog!
                        :open-file!                open-file!
                        :read-file!                read-file!
@@ -245,6 +244,7 @@
                        :bank-recur-transactions   bank-recur-transactions})
 
      :credit (credit/page {:state                     state
+                           :credit-ui                 db/credit
                            :credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
                            :show-save-file-dialog!    show-save-file-dialog!

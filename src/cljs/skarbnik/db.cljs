@@ -123,8 +123,8 @@
   (r/cursor db [ :credit-big-data ]))
 
 (defn credit-big-data!
-  ([f]
-   (r/rswap! credit-big-data f))
+  ([v]
+   (reset! credit-big-data v))
   ([f v]
    (r/rswap! credit-big-data f v))
   ([f k v]
