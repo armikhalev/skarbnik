@@ -12,8 +12,7 @@
 (defn page
   "Creates CREDIT account page"
   [{:keys
-    [state
-     credit-ui
+    [credit-ui
      credit-accounts-path
      open-file!
      show-save-file-dialog!
@@ -28,7 +27,7 @@
     [:section
      [:h2 (str "Credit account: " @db/current-credit-account)]
      [:h2.error-message
-      (get-in @state [:credit :error])]
+      (:error @db/credit)]
 
      ;;
      [ components/button-open-file!
@@ -63,7 +62,7 @@
      ;; TODO: add logic to merge data with bigs-and-paids
      (let [paids*                  (logic/payments data)
            paids                   (logic/str-dates->cljs-time paids*)
-           bigs*                   (-> @state :credit-big-data vals)
+           bigs*                   (-> @db/credit-big-data vals)
            bigs                    (logic/str-dates->cljs-time bigs*)
            paids-with-bigs         (logic/paids-with-bigs paids bigs)
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
@@ -83,8 +82,7 @@
                                         (merge m (three-fold-key back-to-str-dates))))
                                     data)]
        [components/transactions-table
-        {:state                   state
-         :data                    merged-data
+        {:data                    merged-data
          :credit?                 true
          :recur-data-mutator!     db/credit-recur-data!
          :credit-big-data         db/credit-big-data
@@ -101,7 +99,6 @@
        :account-data-mutator! db/credit-data!} ]
      ;;
      [ components/credit-analyze {:data                   data
-                                  :state state
                                   :initial-credit-balance   db/initial-credit-balance
                                   :credit-recur-data        db/credit-recur-data
                                   :credit-total-difference! db/credit-total-difference!

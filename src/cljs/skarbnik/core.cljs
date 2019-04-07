@@ -17,47 +17,6 @@
 
 (nodejs/enable-util-print!)
 
-;; Specs
-;; TODO
-
-;; `:bank-recur-data` and `:credit-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
-;; value a map of the form {`description`:val `amount`:val `date`:val}
-;; then it will allow find recurring amounts if that amount and other data is in this map.
-
-;; END: Specs
-
-;; OLD DB
-(defonce state (r/atom {:bank-accounts            []
-                      :credit-accounts          []
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :current-bank-account     ""
-                      :current-credit-account   ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :current-bank-dir-path    ""
-                      :current-credit-dir-path  ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :bank-data                []
-                      :credit-data              []
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :bank-recur-data          {}
-                      :credit-recur-data        {}
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :credit-big-data          {}
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :initial-bank-balance     0
-                      :initial-credit-balance   0
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :bank-total-difference    0
-                      :credit-total-difference  0
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :from-date                ""
-                      :to-date                  ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :error-message            ""
-                      :bank                     {:error "" :message ""}
-                      :credit                   {:error "" :message ""}}))
-;; END: DB
-
 (defonce current-page (r/atom :home))
 
 ;; nodejs
@@ -131,14 +90,14 @@
         cur-page @current-page]
     (case cur-page
       :bank   (if (<= (count cats) 2)
-                (swap! state assoc-in [:bank :error]
+                (db/bank! :error
                        (str "Please, add missing columns: " cats " at " (name cur-page)))
-                (swap! state assoc-in [:bank :error] ""))
+                (db/bank! :error ""))
 
       :credit (if (<= (count cats) 2)
-                (swap! state assoc-in [:credit :error]
+                (db/credit! :error
                        (str "Please, add missing columns: " cats " at " (name cur-page)))
-                (swap! state assoc-in [:credit :error] ""))
+                (db/credit! :error ""))
       ;; If home page, then there is no need to check cats, since they should have been checked the first time file was uploaded in either `:bank` or `:credit` pages
       :default)))
 
@@ -215,8 +174,7 @@
    [ nav ]
    [:hr]
    (case @current-page
-     :home (home/page {:state                           state
-                       :current-page                    current-page
+     :home (home/page {:current-page                    current-page
                        :write-file!                     write-file!
                        :bank-accounts-path              bank-accounts-path
                        :credit-accounts-path            credit-accounts-path
@@ -231,9 +189,7 @@
                        :bank-data-file-path             bank-data-file-path
                        :bank-recur-transactions         bank-recur-transactions})
 
-     :bank (bank/page {:state                     state
-                       :bank-ui                   db/bank
-                       :bank-accounts-path        bank-accounts-path
+     :bank (bank/page {:bank-accounts-path        bank-accounts-path
                        :show-save-file-dialog!    show-save-file-dialog!
                        :open-file!                open-file!
                        :read-file!                read-file!
@@ -243,8 +199,7 @@
                        :data-file-path            bank-data-file-path
                        :bank-recur-transactions   bank-recur-transactions})
 
-     :credit (credit/page {:state                     state
-                           :credit-ui                 db/credit
+     :credit (credit/page {:credit-ui                 db/credit
                            :credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
                            :show-save-file-dialog!    show-save-file-dialog!
@@ -257,7 +212,7 @@
                            :credit-recur-transactions credit-recur-transactions}))
 
    (let [sum (logic/get-sum
-              (- (:credit-total-difference @state))
+              (- @db/credit-total-difference)
               @db/bank-total-difference)]
      [:h3
       {:class "inline-flex"}

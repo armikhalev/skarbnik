@@ -329,8 +329,7 @@
 
 
 (defn transactions-table
-  [{:keys [state
-           data
+  [{:keys [data
            recur-data-mutator!
            credit-big-data
            big-data-mutator!
@@ -358,7 +357,7 @@
       (fn [idx entry]
         (let [selected? (r/atom (contains? @recur-data
                                            (helpers/three-fold-key entry)))
-              big? (if @credit-big-data
+              big? (if credit-big-data
                      (r/atom (contains? @credit-big-data
                                         (helpers/three-fold-key entry)))
                      (r/atom false))]

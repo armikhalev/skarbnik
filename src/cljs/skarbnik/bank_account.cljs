@@ -12,9 +12,7 @@
 (defn page
   "Creates BANK account page"
   [{:keys
-    [state
-     bank-ui
-     bank-accounts-path
+    [bank-accounts-path
      open-file!
      show-save-file-dialog!
      read-file!
@@ -28,7 +26,7 @@
     [:section
      [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
-      (:error @bank-ui)]
+      (:error @db/credit)]
      ;;
      [ components/button-open-file!
       {:open-file!          open-file!
@@ -57,8 +55,7 @@
 
      [:hr]
      [components/transactions-table
-      {:state                   state
-       :data                    data
+      {:data                    data
        :recur-data-mutator!     db/bank-recur-data!
        :recur-data              db/bank-recur-data}]
 
@@ -72,7 +69,6 @@
        :account-data-mutator! db/bank-data!} ]
      ;;
      [ components/bank-analyze {:data                   data
-                                :state state
                                 :initial-bank-balance   db/initial-bank-balance
                                 :bank-recur-data        db/bank-recur-data
                                 :bank-total-difference! db/bank-total-difference!

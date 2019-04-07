@@ -22,16 +22,11 @@
   [mutator! entry]
   (let [data-key    (three-fold-key entry)
         parsed-entry (select-keys entry [:description :amount :date])]
-    (mutator! assoc data-key parsed-entry)
-    #_(swap! state assoc-in [d-data-key data-key]
-           parsed-entry)))
+    (mutator! assoc data-key parsed-entry)))
 
 
 (defn unset-distinct-data!
   "Removes selected key from state."
   [mutator! entry]
   (let [data-key    (three-fold-key entry)]
-    (mutator! dissoc data-key)
-    #_(swap! state update-in [d-data-key]
-           dissoc
-           data-key)))
+    (mutator! dissoc data-key)))

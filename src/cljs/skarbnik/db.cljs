@@ -2,6 +2,15 @@
   (:require [reagent.core :as r]
             [clojure.spec.alpha :as s]))
 
+;; Specs
+;; TODO
+
+;; `:bank-recur-data` and `:credit-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
+;; value a map of the form {`description`:val `amount`:val `date`:val}
+;; then it will allow find recurring amounts if that amount and other data is in this map.
+
+;; END: Specs
+
 (defonce db (r/atom { :bank-accounts            []
                       :credit-accounts          []
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
