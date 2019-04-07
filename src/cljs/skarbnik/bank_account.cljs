@@ -3,6 +3,7 @@
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
+            [skarbnik.db :as db]
             [skarbnik.helpers :as helpers]
             [skarbnik.logic :as logic]
             [skarbnik.components :as components]))
@@ -11,8 +12,7 @@
 (defn page
   "Creates BANK account page"
   [{:keys
-    [state
-     bank-accounts-path
+    [bank-accounts-path
      open-file!
      show-save-file-dialog!
      read-file!
@@ -22,26 +22,25 @@
      data-file-path
      bank-recur-transactions]}]
 
-  (let [data (:bank-data @state)]
+  (let [data @db/bank-data]
     [:section
-     [:h2 (str "Bank account: " (:current-bank-account @state))]
+     [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
-      (get-in @state [:bank :error])]
+      (:error @db/credit)]
      ;;
      [ components/button-open-file!
-      {:open-file!      open-file!
-       :state           state
-       :recur-data-key  :bank-recur-data
-       :read-file!      read-file!
-       :data-key        :bank-data} ]
+      {:open-file!          open-file!
+       :recur-data-mutator! db/bank-recur-data!
+       :read-file!          read-file!
+       :data-mutator!       db/bank-data!}]
      ;;
      [ components/button-save-account!
-      {:state                      state
-       :account-kind-$key          :bank-accounts
+      {:account-kind-cursor        db/bank-accounts
+       :account-kind-mutator!      db/bank-accounts!
        :accounts-path              bank-accounts-path
        :recur-transactions         bank-recur-transactions
-       :recur-data-$key            :bank-recur-data
-       :initial-balance-$key       :initial-bank-balance
+       :recur-data                 db/bank-recur-data
+       :initial-balance            db/initial-bank-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
@@ -50,21 +49,28 @@
        :make-dir!                  make-dir!
        :data                       data} ]
      ;;
-     [ components/input-initial-balance!
-      {:state state
-       :initial-balance-$key :initial-bank-balance} ]
+     [components/input-initial-balance! db/initial-bank-balance!]
      ;;
-     [:h3 (str "Initial Balance: " (logic/cents->dollars (:initial-bank-balance @state)))]
+     [:h3 (str "Initial Balance: " (logic/cents->dollars @db/initial-bank-balance))]
 
      [:hr]
      [components/transactions-table
-      {:state                   state
-       :data                    data
-       :account-data-$key       :bank-data
-       :account-recur-data-$key :bank-recur-data}]
+      {:data                    data
+       :recur-data-mutator!     db/bank-recur-data!
+       :recur-data              db/bank-recur-data}]
 
      [:hr]
-     [ components/date-picker state data :bank-data ]
+     [ components/date-picker
+      {:from-date! db/from-date!
+       :from-date db/from-date
+       :to-date! db/to-date!
+       :to-date db/to-date
+       :data data
+       :account-data-mutator! db/bank-data!} ]
      ;;
-     [ components/bank-analyze data state ]]))
+     [ components/bank-analyze {:data                   data
+                                :initial-bank-balance   db/initial-bank-balance
+                                :bank-recur-data        db/bank-recur-data
+                                :bank-total-difference! db/bank-total-difference!
+                                } ]]))
 

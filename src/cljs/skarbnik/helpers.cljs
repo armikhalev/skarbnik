@@ -19,18 +19,14 @@
 (defn set-distinct-data!
   "Adds key to `bank-data` as concatenation of `description`, `amount` and `date`
    And value being a map of those key/value pairs in `entry`"
-  [state entry d-data-key]
+  [mutator! entry]
   (let [data-key    (three-fold-key entry)
         parsed-entry (select-keys entry [:description :amount :date])]
-
-    (swap! state assoc-in [d-data-key data-key]
-           parsed-entry)))
+    (mutator! assoc data-key parsed-entry)))
 
 
 (defn unset-distinct-data!
   "Removes selected key from state."
-  [state entry d-data-key]
+  [mutator! entry]
   (let [data-key    (three-fold-key entry)]
-    (swap! state update-in [d-data-key]
-           dissoc
-           data-key)))
+    (mutator! dissoc data-key)))
