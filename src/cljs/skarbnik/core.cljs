@@ -199,8 +199,7 @@
                        :data-file-path            bank-data-file-path
                        :bank-recur-transactions   bank-recur-transactions})
 
-     :credit (credit/page {:credit-ui                 db/credit
-                           :credit-accounts-path      credit-accounts-path
+     :credit (credit/page {:credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
                            :show-save-file-dialog!    show-save-file-dialog!
                            :read-file!                read-file!

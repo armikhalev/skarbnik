@@ -1,39 +1,57 @@
 (ns skarbnik.core-test
   (:require [cljs.test :refer-macros [is testing async]]
-            [reagent.core :as reagent]
+            [reagent.core :as r]
             [devcards.core :refer-macros [deftest defcard-rg]]
             [skarbnik.logic :as logic]
+            [skarbnik.db :as sdb]
             [skarbnik.components :as components]))
+
+;; Gets the real db and make a copy, then use it for testing
+
+(def state sdb/db)
+
+;; Initial balance
+(def initial-bank-balance  sdb/initial-bank-balance)
+(def initial-bank-balance! sdb/initial-bank-balance!)
+;;
+(def initial-credit-balance  sdb/initial-credit-balance)
+(def initial-credit-balance! sdb/initial-credit-balance!)
+
+;; REcur data
+(def bank-recur-data  sdb/bank-recur-data)
+(def bank-recur-data! sdb/bank-recur-data!)
+;;
+(def credit-recur-data  sdb/credit-recur-data)
+(def credit-recur-data! sdb/credit-recur-data!)
+
+;; Total diff
+(def bank-total-difference  sdb/bank-total-difference)
+(def bank-total-difference! sdb/bank-total-difference!)
+;;
+(def credit-total-difference  sdb/credit-total-difference)
+(def credit-total-difference! sdb/credit-total-difference!)
+
+;;;;;;;;;;;;;;;;;;;;; Prepare data ;;;;;
+
+(bank-recur-data! {"Loan" {:description "QUICKEN LOANS MTG PYMTS 120518",
+                           :amount -2000,
+                           :date " 12/06/2018"},
+                   "Discover" {:description "DISCOVER E-PAYMENT 181008",
+                               :amount -3000,
+                               :date " 10/10/2018"}})
+
+(credit-recur-data! {"Bank" {:description "DISCOVER E-PAYMENT 181008",
+           :amount 3000,
+           :date " 10/10/2018"}})
+
 
 (def test-data
   '({:date "11/26/2018", :description " MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE", :BAICode " ", :amount -2500, :SerialNum " 2018112600000001"} {:date "11/13/2018", :description " ZINAIDA LEVIN M CANTON /MA US CARD PURCHASE", :BAICode " ", :amount -2500, :SerialNum " 2018111300000001"} {:date "11/13/2018", :description " CASH WITHDRAWAL SANTANDER D199 Holbrook /MA US", :BAICode " ", :amount -5000, :SerialNum " 2018111300000002"} {:date "11/13/2018", :description " INTERNET TRANSFER FROM ACCT *2394 - SANTANDER SAVINGS", :BAICode " ", :amount 5000, :SerialNum " 2018111300000003"}))
 
-(def state (atom {:bank-data                []
-                  :credit-data              []
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                  :bank-recur-data          {"Loan" {:description "QUICKEN LOANS MTG PYMTS 120518",
-                                                     :amount -2000,
-                                                     :date " 12/06/2018"},
-                                             "Discover" {:description "DISCOVER E-PAYMENT 181008",
-                                                         :amount -3000,
-                                                         :date " 10/10/2018"},}
-                  :credit-recur-data        {"Bank" {:description "DISCOVER E-PAYMENT 181008",
-                                                         :amount 3000,
-                                                         :date " 10/10/2018"},}
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                  :initial-bank-balance     0
-                  :initial-credit-balance   0
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                  :bank-total-difference    0
-                  :credit-total-difference  0
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                  :from-date                ""
-                  :to-date                  ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                  :error-message            ""
-                  :bank                     {:error ""}
-                  :credit                   {:error ""}}))
+;;; ENDs: prepare data
 
+
+;;; TESTS !!!
 
 (deftest get-total-test
   (testing "Should correctly get total sum of amounts"
@@ -82,7 +100,10 @@
     Recurring spendings sum: -50.00
     Balance:
     -50.00"
-  [ components/bank-analyze test-data state ])
+  [ components/bank-analyze {:data test-data
+                             :initial-bank-balance   initial-bank-balance
+                             :bank-recur-data        bank-recur-data
+                             :bank-total-difference! bank-total-difference!}])
 
 ;; ENDs: Bank
 
@@ -100,6 +121,9 @@
     Recurring spendings sum: 30.00
     Total debt:
     -50.00"
-  [ components/credit-analyze test-data state ])
+  [ components/credit-analyze {:data                     test-data
+                               :initial-credit-balance   initial-credit-balance
+                               :credit-recur-data        credit-recur-data
+                               :credit-total-difference! credit-total-difference!}])
 
 ;; ENDs: Credit

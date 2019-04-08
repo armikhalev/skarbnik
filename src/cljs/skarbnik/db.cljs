@@ -62,7 +62,7 @@
   ([f v]
    (r/rswap! credit-accounts f v)))
 
-;;;---
+;;; Current account
 
 (def current-bank-account
   (r/cursor db [ :current-bank-account ]))

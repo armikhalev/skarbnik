@@ -12,8 +12,7 @@
 (defn page
   "Creates CREDIT account page"
   [{:keys
-    [credit-ui
-     credit-accounts-path
+    [credit-accounts-path
      open-file!
      show-save-file-dialog!
      read-file!
@@ -101,6 +100,5 @@
      [ components/credit-analyze {:data                   data
                                   :initial-credit-balance   db/initial-credit-balance
                                   :credit-recur-data        db/credit-recur-data
-                                  :credit-total-difference! db/credit-total-difference!
-                                  }]]))
+                                  :credit-total-difference! db/credit-total-difference!}]]))
 

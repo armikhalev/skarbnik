@@ -71,6 +71,5 @@
      [ components/bank-analyze {:data                   data
                                 :initial-bank-balance   db/initial-bank-balance
                                 :bank-recur-data        db/bank-recur-data
-                                :bank-total-difference! db/bank-total-difference!
-                                } ]]))
+                                :bank-total-difference! db/bank-total-difference!}]]))
 
