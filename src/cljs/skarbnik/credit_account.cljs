@@ -1,5 +1,6 @@
 (ns skarbnik.credit-account
   (:require [reagent.core :as r]
+            [clojure.pprint :as pp]
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
@@ -58,7 +59,6 @@
      [:hr]
 
      ;; Add `:bigs` and `:debt`
-     ;; TODO: add logic to merge data with bigs-and-paids
      (let [paids*                  (logic/payments data)
            paids                   (logic/str-dates->cljs-time paids*)
            bigs*                   (-> @db/credit-big-data vals)
@@ -78,7 +78,9 @@
            merged-data             (map
                                     (fn [m]
                                       (let [three-fold-key (-> m helpers/three-fold-key keyword)]
-                                        (merge m (three-fold-key back-to-str-dates))))
+                                        (if-let [tfk (three-fold-key back-to-str-dates)]
+                                          (merge m tfk)
+                                          (merge m {:bigs [] :debt 0}))))
                                     data)]
        [components/transactions-table
         {:data                    merged-data

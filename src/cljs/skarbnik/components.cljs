@@ -215,9 +215,7 @@
 
 ;; ROW
 
-(defn table-row
-  []
-
+(defn table-row []
   (let [open? (r/atom false)]
     (fn [{:keys [recur-data-mutator!
                  big-data-mutator!
@@ -361,7 +359,6 @@
                      (r/atom (contains? @credit-big-data
                                         (helpers/three-fold-key entry)))
                      (r/atom false))]
-
           ^{:key idx}
           [table-row
            {:recur-data-mutator! recur-data-mutator!
