@@ -33,6 +33,10 @@
      [ components/button-open-file!
       {:open-file!          open-file!
        :recur-data-mutator! db/credit-recur-data!
+       :big-data-mutator!   db/credit-big-data!
+       :current-account!    db/current-credit-account!
+       :initial-balance!    db/initial-credit-balance!
+       :total-difference!   db/credit-total-difference!
        :read-file!          read-file!
        :data-mutator!       db/credit-data!} ]
      ;;

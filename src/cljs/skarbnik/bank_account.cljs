@@ -26,13 +26,16 @@
     [:section
      [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
-      (:error @db/credit)]
+      (:error @db/bank)]
      ;;
      [ components/button-open-file!
       {:open-file!          open-file!
        :recur-data-mutator! db/bank-recur-data!
+       :current-account!    db/current-bank-account!
+       :initial-balance!    db/initial-bank-balance!
+       :total-difference!   db/bank-total-difference!
        :read-file!          read-file!
-       :data-mutator!       db/bank-data!}]
+       :data-mutator!       db/bank-data!} ]
      ;;
      [ components/button-save-account!
       {:account-kind-cursor        db/bank-accounts
