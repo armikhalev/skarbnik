@@ -65,7 +65,7 @@
      ;; Add `:bigs` and `:debt`
      (let [paids*                  (logic/payments data)
            paids                   (logic/str-dates->cljs-time paids*)
-           bigs*                   (-> @db/credit-big-data vals)
+           bigs*                   (vals @db/credit-big-data)
            bigs                    (logic/str-dates->cljs-time bigs*)
            paids-with-bigs         (logic/paids-with-bigs paids bigs)
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
@@ -86,6 +86,7 @@
                                           (merge m tfk)
                                           (merge m {:bigs [] :debt 0}))))
                                     data)]
+       (pp/pprint data-with-bigs-and-debt)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true

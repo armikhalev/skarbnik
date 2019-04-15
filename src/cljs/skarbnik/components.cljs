@@ -280,8 +280,9 @@
             "debt" ;; ->
             ^{:key (str "debt-" idx)}
             [:td.color-burnt-orange
-             (when entry-val
-               (str "$" (logic/cents->dollars entry-val)))]
+             (if (> entry-val 0)
+               (str "$" (logic/cents->dollars entry-val))
+               "")]
 
             ;; else ->
             ^{:key (str category-key "-" idx)}
