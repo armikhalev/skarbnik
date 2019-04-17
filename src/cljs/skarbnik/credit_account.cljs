@@ -86,7 +86,8 @@
                                           (merge m tfk)
                                           (merge m {:bigs [] :debt 0}))))
                                     data)]
-       (pp/pprint data-with-bigs-and-debt)
+       ;; (prn "credt-account below `data-with-bigs-and-debt`" )
+       ;; (pp/pprint data-with-bigs-and-debt)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true

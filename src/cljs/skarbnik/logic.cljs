@@ -365,8 +365,10 @@
         bigs     (:bigs big-paid)
         bigs-sum (reduce #(+ % (:amount %2)) 0 bigs)]
     ;; plus, because `paid` is negative number
-    (+ bigs-sum
-       paid)))
+    (if (> bigs-sum 0)
+      (+ bigs-sum
+         paid)
+      0)))
 
 (defn reduce-bigs-and-paids
   "2 step of paids getting bigs.
@@ -382,52 +384,14 @@
       res
       ;; else
       (let [fb   (first b)
-            sb   (second b)
             diff (diff-paid-bigs fb)]
-        (do
-          (prn "0--> " bigs)
-          (recur (rest b),
+        (recur (rest b),
                  (conj res
                        (-> fb
                            (update , :bigs into bigs)
                            (update , :debt + (+ debt diff))))
                  (if (> diff 0) (:bigs fb) bigs)
-                 diff))))))
-
-#_(defn reduce-bigs-and-paids
-  "2 step of paids getting bigs.
-   Here the `diff-paid-bigs` gets debt that goes to next paid-off.
-   [{:amount int?, :bigs [{:amount int?}]}] ->
-   [{:amount int?, :bigs [{:amount int?}]}] ;; but with debt moved to next paid-off transaction."
-  [paids-with-bigs*]
-  (let [paids-with-bigs (conj paids-with-bigs* {} {})]
-    (loop [b paids-with-bigs
-           res []
-           debt 0]
-      (if (empty? b)
-        res
-        ;; else
-        (let [fb   (first b)
-              sb   (second b)
-              diff (diff-paid-bigs fb)]
-          (do
-            (prn "0--> " b)
-            (recur (rest b),
-                   (conj res
-                         (update fb :debt + (+ debt diff))
-                         #_(update sb :bigs conj (:bigs fb)))
-                   diff))
-          #_(if (> diff 0)
-            (do
-              (prn "1--> " debt)
-              (recur (rest b),
-                     (conj res (update fb :debt + diff) (update sb :debt + (+ diff (:amount sb))))
-                     diff)),
-            #_(do
-              (prn "2--->" diff)
-              (recur (rest b)
-                     (conj res (update fb :debt + 0))
-                     diff))))))))
+                 diff)))))
 ;; <-
 
 ;; ENDs: Big amounts
