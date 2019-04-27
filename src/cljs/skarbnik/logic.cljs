@@ -2,9 +2,11 @@
   (:require
    [clojure.string :as string]
    [clojure.pprint :as pp]
+   [skarbnik.helpers :as helpers]
    [cljs-time.core :as cl-time]
    [cljs-time.coerce :as ->cl-time]
    [clojure.spec.alpha :as s]
+   [skarbnik.odd-specs :as odd-specs]
    [ghostwheel.core :as g
     :refer [>defn >defn- >fdef => | <- ?]]
    [goog.labs.format.csv :as csv]))
@@ -85,18 +87,19 @@
    (string/split s #"\s")))
 
 ;; STARTS: get-categories
+
 (s/def ::csv-vectors?
   (s/coll-of
    (s/coll-of string? :kind vector?)
    :kind vector?))
 
-(s/def ::date string?)
-(s/def ::amount string?)
+(s/def ::date odd-specs/some-str-dates)
+(s/def ::amount int?)
 (s/def ::description string?)
 
-(s/def ::description (s/keys :req-un [::date ::amount ::description]))
-(s/def ::categories?
-  (s/coll-of ::description))
+(s/def ::transaction (s/keys :req-un [::date ::amount ::description]))
+(s/def ::transactions
+  (s/coll-of ::transaction))
 
 (defn find-cat
   [s re]
@@ -119,7 +122,7 @@
    data))
 
 
-;; Check if all the required categories are in the derived categories vector
+;; Check if all the required categories are in the derived transactions vector
 (def req-cats [:date :amount :description])
 
 (defn all-cats?
@@ -136,13 +139,13 @@
        (set req-cats) (set cats))))
 
 (>defn get-categories
-  "Parses first row of vector of vectors of strings to get headers.
+  "Parses first row of `[[string?]]` to get headers.
    Returns either vector of keys including `req-cats` or missing keys."
   ;; {::g/trace 4}
   [csv]
   [::csv-vectors?
    => (s/or :diffs vector?
-            :cats  ::categories?)]
+            :cats  ::transactions)]
 
   (let [data-cats (map str->keys (first csv))
         categories (categorize cats data-cats)]
@@ -323,10 +326,24 @@
 
 ;; STARTs: Big amounts
 
-(defn payments
+;; SPECS for bigs and debts
+
+(s/def ::cl-time-transaction (s/keys :req-un [::odd-specs/date ::amount ::description]))
+(s/def ::cl-time-transactions (s/coll-of ::cl-time-transaction))
+
+(s/def ::bigs       (s/coll-of ::cl-time-transaction))
+(s/def ::a-paid-off (s/keys :req-un [::odd-specs/date ::amount ::description ::bigs]))
+(s/def ::paid-offs  (s/coll-of ::a-paid-off))
+
+;; ENDs: Specs for bigs and debts
+
+(>defn payments
   "Gets all the credit payments.
    If value of the `:amount` is negative, then it is credit payment."
+  ;; {::g/trace 4}
   [data]
+  [::transactions
+   => ::transactions | #(every? (fn [v] (< (:amount v) 0)) %)]
   (filter #(< (:amount %) 0) data))
 
 ;; ->
@@ -337,10 +354,13 @@
      :after  (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
      :before (filter #(cl-time/before? (:date %) (:date paid)) bigs)))
 
-(defn paids-with-bigs
+
+(>defn paids-with-bigs
   "1 step of paids getting bigs.
    [{:date}], [{:date}] -> [{:bigs []}]"
   [paids bigs]
+  [::cl-time-transactions ::cl-time-transactions
+   => ::paid-offs]
   (loop [p  paids
          bs bigs
          r  []]
@@ -375,6 +395,7 @@
    Here the `diff-paid-bigs` gets debt that goes to next paid-off.
    [{:amount int?, :bigs [{:amount int?}]}] ->
    [{:amount int?, :bigs [{:amount int?}]}] ;; but with debt moved to next paid-off transaction."
+  ;; {::g/trace 4}
   [paids-with-bigs]
   (loop [b paids-with-bigs
          res []
@@ -393,6 +414,29 @@
                  (if (> diff 0) (:bigs fb) bigs)
                  diff)))))
 ;; <-
+
+(defn reduce-back-to-str-dates
+  [data-with-bigs-and-debt]
+  (reduce
+   (fn [a m]
+     (let [d (update
+              m :date #(cljs-time->str %))]
+       ;; returns ->
+       (update
+        a (-> d helpers/three-fold-key keyword)
+        merge d)))
+   {}
+   data-with-bigs-and-debt))
+
+(defn merge-bigs-debt-and-data
+  [data back-to-str-dates]
+  (map
+   (fn [m]
+     (let [three-fold-key (-> m helpers/three-fold-key keyword)]
+       (if-let [tfk (three-fold-key back-to-str-dates)]
+         (merge m tfk)
+         (merge m {:bigs [] :debt 0}))))
+   data))
 
 ;; ENDs: Big amounts
 
@@ -414,4 +458,4 @@
       first
       keys))
 
-;; (g/check)
+(g/check)

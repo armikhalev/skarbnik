@@ -69,25 +69,10 @@
            bigs                    (logic/str-dates->cljs-time bigs*)
            paids-with-bigs         (logic/paids-with-bigs paids bigs)
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
-           back-to-str-dates       (reduce
-                                    (fn [a m]
-                                      (let [d (update
-                                               m :date #(logic/cljs-time->str %))]
-                                        ;; returns ->
-                                        (update
-                                         a (-> d helpers/three-fold-key keyword)
-                                         merge d)))
-                                    {}
-                                    data-with-bigs-and-debt)
-           merged-data             (map
-                                    (fn [m]
-                                      (let [three-fold-key (-> m helpers/three-fold-key keyword)]
-                                        (if-let [tfk (three-fold-key back-to-str-dates)]
-                                          (merge m tfk)
-                                          (merge m {:bigs [] :debt 0}))))
-                                    data)]
+           back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
+           merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
        ;; (prn "credt-account below `data-with-bigs-and-debt`" )
-       ;; (pp/pprint data-with-bigs-and-debt)
+       ;; (pp/pprint paids)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true

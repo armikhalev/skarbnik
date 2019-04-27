@@ -10,8 +10,8 @@
                  [org.clojure/clojurescript "1.10.339"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]
                  [devcards "0.2.6" :exclusions [org.clojure/clojure]]
-                 [gnl/ghostwheel.tracer "0.3.5"]
-                 [gnl/ghostwheel "0.3.5"]
+                 [gnl/ghostwheel.tracer "0.3.8"]
+                 [gnl/ghostwheel "0.3.8"]
                  [cljsjs/nodejs-externs "1.0.4-1"]
                  [reagent "0.8.1"]]
 
