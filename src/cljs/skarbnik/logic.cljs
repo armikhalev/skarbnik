@@ -326,7 +326,6 @@
 
 ;; STARTs: Big amounts
 
-;; SPECS for bigs and debts
 
 (s/def ::cl-time-transaction (s/keys :req-un [::odd-specs/date ::amount ::description]))
 (s/def ::cl-time-transactions (s/coll-of ::cl-time-transaction))
@@ -335,7 +334,6 @@
 (s/def ::a-paid-off (s/keys :req-un [::odd-specs/date ::amount ::description ::bigs]))
 (s/def ::paid-offs  (s/coll-of ::a-paid-off))
 
-;; ENDs: Specs for bigs and debts
 
 (>defn payments
   "Gets all the credit payments.
@@ -377,10 +375,12 @@
 
 ;; ->
 
-(defn diff-paid-bigs
+(>defn diff-paid-bigs
   "Takes a map of paid debt with `:bigs` vector.
    Returns difference of (- bigs paid)."
   [big-paid]
+  [::a-paid-off
+   => number? | #(>= % 0)]
   (let [paid     (:amount big-paid)
         bigs     (:bigs big-paid)
         bigs-sum (reduce #(+ % (:amount %2)) 0 bigs)]
@@ -390,13 +390,14 @@
          paid)
       0)))
 
-(defn reduce-bigs-and-paids
+(>defn reduce-bigs-and-paids
   "2 step of paids getting bigs.
    Here the `diff-paid-bigs` gets debt that goes to next paid-off.
    [{:amount int?, :bigs [{:amount int?}]}] ->
    [{:amount int?, :bigs [{:amount int?}]}] ;; but with debt moved to next paid-off transaction."
-  ;; {::g/trace 4}
   [paids-with-bigs]
+  [::paid-offs
+   => ::paid-offs]
   (loop [b paids-with-bigs
          res []
          bigs {}
@@ -416,6 +417,8 @@
 ;; <-
 
 (defn reduce-back-to-str-dates
+  "Takes `::paid-offs` converts dates to string.
+   Returns a map with keys being `three-fold-key`, values `::a-paid-off`"
   [data-with-bigs-and-debt]
   (reduce
    (fn [a m]
@@ -428,8 +431,14 @@
    {}
    data-with-bigs-and-debt))
 
-(defn merge-bigs-debt-and-data
+(>defn merge-bigs-debt-and-data
+  "NOTE: Spec tests might be intermittent due to uncertain second arg `any?`.
+   `Any?` is used to overcome inability to create dynamic keys in spec,
+   which should create a map with dynamic key of form `three-fold-key` and value `::a-paid-off`."
+  ;; {::g/trace 4}
   [data back-to-str-dates]
+  [::transactions any?
+   => ::transactions]
   (map
    (fn [m]
      (let [three-fold-key (-> m helpers/three-fold-key keyword)]
@@ -458,4 +467,4 @@
       first
       keys))
 
-(g/check)
+;; (g/check)
