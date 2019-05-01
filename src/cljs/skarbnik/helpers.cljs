@@ -1,4 +1,5 @@
-(ns skarbnik.helpers)
+(ns skarbnik.helpers
+  (:require [clojure.string :as string]) )
 
 (defn colorize-numbers
   [number]
@@ -8,12 +9,12 @@
 (defn three-fold-key
   ;; TODO: Spec it!
   [entry]
-  (let [desc   (:description entry)
+  (let [desc   (-> entry :description (string/replace #" " "-"))
         amount (:amount entry)
-        date   (:date entry)]
+        date   (-> entry :date (string/replace #"/" "-"))]
     ;; null-check
     (when (not-any? nil? [desc amount date])
-      (clojure.string/trim (str  desc "-"  amount "-"  date)))))
+      (string/trim (str  desc "-"  amount "-"  date)))))
 
 
 (defn set-distinct-data!

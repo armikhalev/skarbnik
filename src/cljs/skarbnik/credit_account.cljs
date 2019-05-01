@@ -72,7 +72,7 @@
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
            merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
        ;; (prn "credt-account below `data-with-bigs-and-debt`" )
-       ;; (pp/pprint paids)
+       ;; (pp/pprint back-to-str-dates)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true
