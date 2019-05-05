@@ -149,31 +149,42 @@
 (def test-credit-data
   '({:date "12/02/2017",
      :description "  Lots of Bad Services",
-     :amount 10000,
-     :Category "  Services"}
+     :amount 10000}
     {:date "12/05/2017",
      :description "  spasibo vashu za nogu",
-     :amount -1000,
-     :Category "  Payments and Credits"}
+     :amount -1000}
     {:date "12/01/2018",
      :description "  JMF LANDSCAPING HOLBROOK MA",
-     :amount 10000,
-     :Category "  Services"}
+     :amount 10000}
     {:date "12/03/2018",
      :description "  MBTA MTICKET BOSTON MA",
-     :amount 20000,
-     :Category "  Travel/ Entertainment"}
+     :amount 20000}
     {:date "12/05/2018",
      :description "  INTERNET PAYMENT - THANK YOU",
-     :amount -10000,
-     :Category "  Payments and Credits"}))
+     :amount -10000}))
+
+(def test-credit-big-data
+  {"--Lots-of-Bad-Services-200-12-02-2017"
+   {:description "  Lots of Bad Services",
+    :amount 200,
+    :date (dates->cljs-time  "12/02/2017")},
+   "--MBTA-MTICKET-BOSTON-MA-20000-12-03-2018"
+   {:description "  MBTA MTICKET BOSTON MA",
+    :amount 20000,
+    :date (dates->cljs-time "12/03/2018")}})
+
+(defn paids-with-bigs [test-credit-data* test-credit-big-data*]
+  (let [paids* (logic/payments test-credit-data*)
+        paids  (logic/str-dates->cljs-time paids*)
+        bigs*  (vals test-credit-big-data*)
+        bigs   (logic/str-dates->cljs-time bigs*)]
+    (logic/paids-with-bigs paids bigs)))
 
 (def back-to-str-dates
   {:--spasibo-vashu-za-nogu--1000-12-05-2017
    {:date "12/05/2017",
     :description "  spasibo vashu za nogu",
     :amount -1000,
-    :Category "  Payments and Credits",
     :bigs '({:description "  Lots of Bad Services",
             :amount 10000,
             :date (dates->cljs-time  "12/02/2017")}),
@@ -182,7 +193,6 @@
    {:date "12/05/2018",
     :description "  INTERNET PAYMENT - THANK YOU",
     :amount -10000,
-    :Category "  Payments and Credits",
     :bigs '({:description "  Lots of Bad Services",
             :amount 10000,
             :date (dates->cljs-time  "12/02/2017")}
@@ -195,13 +205,11 @@
   '({:date "12/02/2017",
      :description "  Lots of Bad Services",
      :amount 10000,
-     :Category "  Services",
      :bigs [],
      :debt 0}
     {:date "12/05/2017",
      :description "  spasibo vashu za nogu",
      :amount -1000,
-     :Category "  Payments and Credits",
      :bigs
      ({:description "  Lots of Bad Services",
        :amount 10000,
@@ -210,19 +218,16 @@
     {:date "12/01/2018",
      :description "  JMF LANDSCAPING HOLBROOK MA",
      :amount 10000,
-     :Category "  Services",
      :bigs [],
      :debt 0}
     {:date "12/03/2018",
      :description "  MBTA MTICKET BOSTON MA",
      :amount 20000,
-     :Category "  Travel/ Entertainment",
      :bigs [],
      :debt 0}
     {:date "12/05/2018",
      :description "  INTERNET PAYMENT - THANK YOU",
      :amount -10000,
-     :Category "  Payments and Credits",
      :bigs
      ({:description "  Lots of Bad Services",
        :amount 10000,
@@ -232,7 +237,18 @@
        :date (dates->cljs-time "12/03/2018")}),
      :debt 19000}))
 
+(def test-credit-data-first-paid-off
+  (conj (rest test-credit-data) (assoc (first test-credit-data) :amount 200)))
+
 (deftest merge-bigs-debt-and-data-test
+  (testing
+      "Should not pass debt to next payment debts if payment paid off all the previous debts."
+    (let [paids-with-bigs* (paids-with-bigs
+                            test-credit-data-first-paid-off
+                            test-credit-big-data)
+          data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs*)]
+      (is (= (mapv :debt data-with-bigs-and-debt)
+             [0 10000]))))
   (testing
       "Should return transactions with debts
        that go over to the next payment (negative amount),
@@ -241,4 +257,6 @@
             test-credit-data
             back-to-str-dates)
            expected-bigs-debt-and-data))))
+
 ;; ENDS: LOGIC
+

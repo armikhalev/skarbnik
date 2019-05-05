@@ -263,7 +263,7 @@
                (if @open?
                  (doall
                   (for [v entry-val]
-                    ^{:key (str "bigs-sub-" idx "-" (helpers/three-fold-key v))}
+                    ^{:key (str "bigs-sub-"idx"-"(:amount v)"-"(-> v :date str)"-"(:description v))}
                     [:tr.border
                      [:td.color-burnt-orange "desc: "]
                      [:td (:description v)]
@@ -271,7 +271,7 @@
                      [:td (-> v :date logic/cljs-time->str)]
                      [:td.color-burnt-orange "amount: "]
                      [:td (str "$" (-> v :amount logic/cents->dollars))]]))
-                 "Show linked debts")]
+                 (when (seq entry-val) "..."))]
 
               ;; else
               ^{:key (str "bigs-" idx)}

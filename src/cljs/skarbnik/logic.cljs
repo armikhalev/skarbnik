@@ -378,16 +378,16 @@
 (>defn diff-paid-bigs
   "Takes a map of paid debt with `:bigs` vector.
    Returns difference of (- bigs paid)."
+  ;; {::g/trace 4}
   [big-paid]
   [::a-paid-off
    => number? | #(>= % 0)]
   (let [paid     (:amount big-paid)
         bigs     (:bigs big-paid)
-        bigs-sum (reduce #(+ % (:amount %2)) 0 bigs)]
-    ;; plus, because `paid` is negative number
-    (if (> bigs-sum 0)
-      (+ bigs-sum
-         paid)
+        bigs-sum (reduce #(+ % (:amount %2)) 0 bigs)
+        res      (+ bigs-sum paid)] ;; plus, because `paid` is negative number
+    (if (> res 0)
+      res
       0)))
 
 (>defn reduce-bigs-and-paids
@@ -408,12 +408,12 @@
       (let [fb   (first b)
             diff (diff-paid-bigs fb)]
         (recur (rest b),
-                 (conj res
-                       (-> fb
-                           (update , :bigs into bigs)
-                           (update , :debt + (+ debt diff))))
-                 (if (> diff 0) (:bigs fb) bigs)
-                 diff)))))
+               (conj res
+                     (-> fb
+                         (update , :bigs into bigs)
+                         (update , :debt + (+ debt diff))))
+               (if (> diff 0) (:bigs fb) bigs)
+               diff)))))
 ;; <-
 
 (defn reduce-back-to-str-dates

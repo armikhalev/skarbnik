@@ -9,9 +9,11 @@
 (defn three-fold-key
   ;; TODO: Spec it!
   [entry]
-  (let [desc   (-> entry :description (string/replace #" " "-"))
+  (let [desc*  (:description entry)
+        desc   (if (string? desc*) (-> desc* (string/replace #" " "-")), desc*)
         amount (:amount entry)
-        date   (-> entry :date (string/replace #"/" "-"))]
+        date*  (:date entry)
+        date   (if (string? date*) (string/replace date* #"/" "-"), date*)]
     ;; null-check
     (when (not-any? nil? [desc amount date])
       (string/trim (str  desc "-"  amount "-"  date)))))
