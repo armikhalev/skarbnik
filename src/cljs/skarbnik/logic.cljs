@@ -348,6 +348,7 @@
 
 (defn filter-bigs-by-date
   [bigs paid when?]
+  (prn " BIGS-> " bigs " PAID-> " paid " WHEN?-> " when?)
   (case when?
      :after  (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
      :before (filter #(cl-time/before? (:date %) (:date paid)) bigs)))
@@ -382,10 +383,15 @@
   [big-paid]
   [::a-paid-off
    => number? | #(>= % 0)]
-  (let [paid     (:amount big-paid)
-        bigs     (:bigs big-paid)
-        bigs-sum (reduce #(+ % (:amount %2)) 0 bigs)
-        res      (+ bigs-sum paid)] ;; plus, because `paid` is negative number
+  (let [paid      (:amount        big-paid)
+        bigs      (:bigs          big-paid)
+        debt      (:overflow-debt big-paid)
+        bigs-sum  (reduce #(+ % (:amount %2)) 0 bigs)
+        bigs-paid (+ bigs-sum paid)
+        res       (cond
+                    (> debt 0) (+ debt paid)
+                    (seq bigs) bigs-paid
+                    :else      0)] ;; plus, because `paid` is negative number
     (if (> res 0)
       res
       0)))
@@ -405,13 +411,19 @@
     (if (empty? b)
       res
       ;; else
-      (let [fb   (first b)
+      (let [fb*  (first b)
+            ;; Since `diff-paid-bigs` cannot get `bigs` before recur, easier to calculate debt overflow here
+            fb   (if (> debt 0)
+                   (-> fb*
+                       ;; (update :debt + debt (:amount fb*))
+                       (update :overflow-debt + debt))
+                   fb*)
             diff (diff-paid-bigs fb)]
         (recur (rest b),
                (conj res
                      (-> fb
-                         (update , :bigs into bigs)
-                         (update , :debt + (+ debt diff))))
+                         (update , :debt + diff)
+                         (update , :bigs into bigs)))
                (if (> diff 0) (:bigs fb) bigs)
                diff)))))
 ;; <-

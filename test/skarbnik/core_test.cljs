@@ -240,7 +240,20 @@
 (def test-credit-data-first-paid-off
   (conj (rest test-credit-data) (assoc (first test-credit-data) :amount 200)))
 
+(def more-data-with-bigs-and-debt
+  (let [d (vec test-credit-data-first-paid-off)]
+    (conj d (assoc (last d) :amount -5000) (last d))))
+
 (deftest merge-bigs-debt-and-data-test
+  (testing
+      "Should calculate debt with any number of paid-offs afterwards, not overflowing non-debt."
+    (let [paids-with-bigs* (paids-with-bigs
+                            more-data-with-bigs-and-debt
+                            test-credit-big-data)
+          data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs*)]
+      (is (= (mapv :debt data-with-bigs-and-debt)
+             [0 10000 5000 0]))))
+
   (testing
       "Should not pass debt to next payment debts if payment paid off all the previous debts."
     (let [paids-with-bigs* (paids-with-bigs
