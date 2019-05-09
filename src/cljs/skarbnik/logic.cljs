@@ -99,7 +99,7 @@
 
 (s/def ::transaction (s/keys :req-un [::date ::amount ::description]))
 (s/def ::transactions
-  (s/coll-of ::transaction))
+(s/coll-of ::transaction))
 
 (defn find-cat
   [s re]
@@ -347,11 +347,14 @@
 ;; ->
 
 (defn filter-bigs-by-date
+  "[{:date cljs-time?}], {:date cljs-time?}, :after | :before? -> ::bigs"
   [bigs paid when?]
   (prn " BIGS-> " bigs " PAID-> " paid " WHEN?-> " when?)
   (case when?
-     :after  (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
-     :before (filter #(cl-time/before? (:date %) (:date paid)) bigs)))
+    :after (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
+    :before (concat
+             (filter #(cl-time/equal?  (:date %) (:date paid)) bigs)
+             (filter #(cl-time/before? (:date %) (:date paid)) bigs))))
 
 
 (>defn paids-with-bigs
@@ -379,7 +382,7 @@
 (>defn diff-paid-bigs
   "Takes a map of paid debt with `:bigs` vector.
    Returns difference of (- bigs paid)."
-  ;; {::g/trace 4}
+  {::g/trace 4}
   [big-paid]
   [::a-paid-off
    => number? | #(>= % 0)]
@@ -388,10 +391,13 @@
         debt      (:overflow-debt big-paid)
         bigs-sum  (reduce #(+ % (:amount %2)) 0 bigs)
         bigs-paid (+ bigs-sum paid)
+        debt?     (> debt 0)
+        bigs?     (seq bigs)
         res       (cond
-                    (> debt 0) (+ debt paid)
-                    (seq bigs) bigs-paid
-                    :else      0)] ;; plus, because `paid` is negative number
+                    (and debt? bigs?) (+ debt bigs-paid)
+                    debt?             (+ debt paid) ;; plus, because `paid` is negative number
+                    bigs?             bigs-paid
+                    :else             0)]
     (if (> res 0)
       res
       0)))
@@ -415,7 +421,7 @@
             ;; Since `diff-paid-bigs` cannot get `bigs` before recur, easier to calculate debt overflow here
             fb   (if (> debt 0)
                    (-> fb*
-                       ;; (update :debt + debt (:amount fb*))
+                       ;; (update :overflow-bigs into (:bigs fb*))
                        (update :overflow-debt + debt))
                    fb*)
             diff (diff-paid-bigs fb)]
