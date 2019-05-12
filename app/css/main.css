@@ -80,3 +80,14 @@ label.recur-sign.recur:before {
     /* Unicode for open circle arrow */
     content: "\021BA"
 }
+
+table.side-drawer {
+    position: fixed;
+    right: 0;
+    background-color: rosybrown;
+    border-bottom: 2px solid grey;
+}
+
+.closed {
+    visibility: hidden;
+}

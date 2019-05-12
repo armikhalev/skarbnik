@@ -203,10 +203,9 @@ To run a command, type `lein <command>` in the terminal.
 - `dates` are strings in format `MM/DD/YYYY` for everything except calculation where they are converted to `cljs-time` instances and then back to strings after calculation is finished. But they are not stored in app's state as `cljs-time` instances, they should be strings. Why? Because operations over dates are rare VS converting them from state to string for both UI and data-file.
 
 ## TODO:
-- BIG ONE: move all the impurity out of the components!!!
+- Need sorting by date ascending
 - On Open File: If recur payments selected, then notify user that all selections will be lost if not saved
 - Fix all the error messages, they should notify user about solution of the problem that caused error
 - Create search bar
 - Add reset for Dates range
-- Figure out how to show `big` payments
-- Add ability to switch between acconts with keyboard, possibly arrow keys
+- Add ability to switch between accounts with keyboard, possibly arrow keys

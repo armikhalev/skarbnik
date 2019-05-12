@@ -349,7 +349,6 @@
 (defn filter-bigs-by-date
   "[{:date cljs-time?}], {:date cljs-time?}, :after | :before? -> ::bigs"
   [bigs paid when?]
-  (prn " BIGS-> " bigs " PAID-> " paid " WHEN?-> " when?)
   (case when?
     :after (filter #(cl-time/after?  (:date %) (:date paid)) bigs)
     :before (concat
@@ -382,7 +381,7 @@
 (>defn diff-paid-bigs
   "Takes a map of paid debt with `:bigs` vector.
    Returns difference of (- bigs paid)."
-  {::g/trace 4}
+  ;; {::g/trace 4}
   [big-paid]
   [::a-paid-off
    => number? | #(>= % 0)]

@@ -224,113 +224,104 @@
 ;; ROW
 
 (defn table-row []
-  (let [open? (r/atom false)]
-    (fn [{:keys [recur-data-mutator!
-                 big-data-mutator!
-                 idx
-                 entry
-                 selected?
-                 big?
-                 data
-                 credit?]}]
-      [:tr
-       {:style {:background-color (cond
-                                    @selected? "grey"
-                                    @big?      "peru"
-                                    :else      "")}}
-       (doall
-        (for [category-key (logic/get-maps-categories data)
-              :let [entry-val (category-key entry)]]
-          (case (name category-key)
-            "date" ;; ->
-            ^{:key (str "date-" idx)}
-            [:td entry-val]
+  (fn [{:keys [recur-data-mutator!
+               big-data-mutator!
+               side-drawer-mutator!
+               idx
+               entry
+               selected?
+               big?
+               data
+               credit?]}]
+    [:tr
+     {:style {:background-color (cond
+                                  @selected? "grey"
+                                  @big?      "peru"
+                                  :else      "")}}
+     (doall
+      (for [category-key (logic/get-maps-categories data)
+            :let [entry-val (category-key entry)]]
+        (case (name category-key)
+          "date" ;; ->
+          ^{:key (str "date-" idx)}
+          [:td entry-val]
 
-            "amount" ;; ->
-            ^{:key (str "amount-" idx)}
-            [:td
-             (helpers/colorize-numbers entry-val)
-             (if (logic/is-number? entry-val)
-               (logic/cents->dollars entry-val)
-               ;;else
-               "?")]
+          "amount" ;; ->
+          ^{:key (str "amount-" idx)}
+          [:td
+           (helpers/colorize-numbers entry-val)
+           (if (logic/is-number? entry-val)
+             (logic/cents->dollars entry-val)
+             ;;else
+             "?")]
 
-            "bigs" ;; ->
-            (if entry-val
-              ^{:key (str "bigs-" idx)}
-              [:td.color-peru
-               {:on-click #(swap! open? not)}
-               (if @open?
-                 (doall
-                  (for [v entry-val]
-                    ^{:key (str "bigs-sub-"idx"-"(:amount v)"-"(-> v :date str)"-"(:description v))}
-                    [:tr.border
-                     [:td.color-burnt-orange "desc: "]
-                     [:td (:description v)]
-                     [:td.color-burnt-orange "date: "]
-                     [:td (-> v :date logic/cljs-time->str)]
-                     [:td.color-burnt-orange "amount: "]
-                     [:td (str "$" (-> v :amount logic/cents->dollars))]]))
-                 (when (seq entry-val) "..."))]
+          "bigs" ;; ->
+          (if entry-val
+            ^{:key (str "bigs-" idx)}
+            [:td.color-peru
+             {:on-click #(do
+                           (side-drawer-mutator! :closed? false)
+                           (side-drawer-mutator! :data entry-val))}
+             (when (seq entry-val) "...")]
 
-              ;; else
-              ^{:key (str "bigs-" idx)}
-              [:td ""])
+            ;; else
+            ^{:key (str "bigs-" idx)}
+            [:td ""])
 
-            "debt" ;; ->
-            ^{:key (str "debt-" idx)}
-            [:td.color-burnt-orange
-             (if (> entry-val 0)
-               (str "$" (logic/cents->dollars entry-val))
-               "")]
+          "debt" ;; ->
+          ^{:key (str "debt-" idx)}
+          [:td.color-burnt-orange
+           (if (> entry-val 0)
+             (str "$" (logic/cents->dollars entry-val))
+             "")]
 
-            ;; else ->
-            ^{:key (str category-key "-" idx)}
-            [:td entry-val])))
+          ;; else ->
+          ^{:key (str category-key "-" idx)}
+          [:td entry-val])))
 
 
-       ;; Recurring transaction label and handling
+     ;; Recurring transaction label and handling
 
-       (if (and credit? (< (:amount entry) 0))
-         ;; Should not show label if amount is negative, i.e. paying off debt
-         ^{:key (str "recur-"idx)}
+     (if (and credit? (< (:amount entry) 0))
+       ;; Should not show label if amount is negative, i.e. paying off debt
+       ^{:key (str "recur-"idx)}
+       [:td ""]
+
+       ;; else
+       ^{:key (str "recur-"idx)}
+       [:td
+        (if-not @big?
+          [:label.recur-sign
+           {:on-click #(if @selected?
+                         (helpers/unset-distinct-data! recur-data-mutator! entry)
+                         ;; else
+                         (helpers/set-distinct-data! recur-data-mutator! entry))
+            :class (when @selected? "recur")}]
+          ;; else don't show recur to avoid user confusion
+          [:label ""])])
+
+
+     ;; Big transaction label and handling
+
+     (when credit?
+       ;; Should not show label if amount is negative, i.e. paying off debt
+       (if (< (:amount entry) 0)
+         ^{:key (str "big-"idx)}
          [:td ""]
 
          ;; else
-         ^{:key (str "recur-"idx)}
-         [:td
-          (if-not @big?
-            [:label.recur-sign
-             {:on-click #(if @selected?
-                           (helpers/unset-distinct-data! recur-data-mutator! entry)
-                           ;; else
-                           (helpers/set-distinct-data! recur-data-mutator! entry))
-              :class (when @selected? "recur")}]
-            ;; else don't show recur to avoid user confusion
-            [:label ""])])
+         ^{:key (str "big-"idx)}
 
-
-       ;; Big transaction label and handling
-
-       (when credit?
-         ;; Should not show label if amount is negative, i.e. paying off debt
-         (if (< (:amount entry) 0)
-           ^{:key (str "big-"idx)}
-           [:td ""]
-
-           ;; else
-           ^{:key (str "big-"idx)}
-
-           (if-not @selected?
-             [:td
-              {:class (when @big? "color-danger")
-               :on-click #(if @big?
-                            (helpers/unset-distinct-data! big-data-mutator! entry)
-                            ;; else
-                            (helpers/set-distinct-data! big-data-mutator! entry))}
-              (if @big? "BIG" "B?")
-              ""]
-             [:td ""])))])))
+         (if-not @selected?
+           [:td
+            {:class (when @big? "color-danger")
+             :on-click #(if @big?
+                          (helpers/unset-distinct-data! big-data-mutator! entry)
+                          ;; else
+                          (helpers/set-distinct-data! big-data-mutator! entry))}
+            (if @big? "BIG" "B?")
+            ""]
+           [:td ""])))]))
 
 ;; ENDs: ROW
 
@@ -340,6 +331,7 @@
            recur-data-mutator!
            credit-big-data
            big-data-mutator!
+           side-drawer-mutator!
            credit?
            recur-data]}]
   [:table
@@ -370,8 +362,9 @@
                      (r/atom false))]
           ^{:key idx}
           [table-row
-           {:recur-data-mutator! recur-data-mutator!
-            :big-data-mutator!   big-data-mutator!
+           {:recur-data-mutator!  recur-data-mutator!
+            :big-data-mutator!    big-data-mutator!
+            :side-drawer-mutator! side-drawer-mutator!
             :entry           entry
             :selected?       selected?
             :credit?         credit?
@@ -380,6 +373,26 @@
       ;; feed `map-indexed`
       data))]])
 
+(defn side-drawer
+  [entry-val
+   closed?
+   side-drawer-mutator!]
+  [:table.side-drawer
+   {:class (when closed? "closed")
+    :on-click #(do
+                (side-drawer-mutator! :closed? true)
+                (side-drawer-mutator! :data {}))}
+   [:tbody
+    (doall
+     (for [v entry-val]
+       ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+       [:tr.border
+        [:td.color-burnt-orange "desc: "]
+        [:td (:description v)]
+        [:td.color-burnt-orange "date: "]
+        [:td (-> v :date logic/cljs-time->str)]
+        [:td.color-burnt-orange "amount: "]
+        [:td (str "$" (-> v :amount logic/cents->dollars))]]))]])
 
 (defn date-picker
   [{:keys [from-date

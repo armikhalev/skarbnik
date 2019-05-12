@@ -36,6 +36,7 @@
                       ;;;;;;;;;;;;;;;;;;;;;;;;;;
                       :error-message            ""
 
+                      :side-drawer              {:data {} :closed? false}
                       ;; Those two can handle all the meta/UI info about accounts
                       :bank                     {:error "" :message ""}
                       :credit                   {:error "" :message ""}}))
@@ -204,6 +205,21 @@
   (reset! error-message v))
 
 ;; Account meta/UI
+
+(def side-drawer
+  (r/cursor db [ :side-drawer ]))
+
+(def side-drawer-data
+  (r/cursor db [ :side-drawer :data ]))
+
+(def side-drawer-closed?
+  (r/cursor db [ :side-drawer :closed?]))
+
+(defn side-drawer!
+  [path v]
+  (r/rswap! side-drawer assoc path v))
+
+;;
 
 (def bank
   (r/cursor db [ :bank ]))
