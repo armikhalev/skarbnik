@@ -166,14 +166,6 @@ Using [`electron-packager`](https://github.com/maxogden/electron-packager), we a
 - if not installed get `electron-packager`, then run `electron-packager . skarbnik --icon=img/logo.icns` inside `app` directory, that should do it!
 - launch `Skarbnik.app` that will be inside newly created directory `Skarbnik-darwin-x64` 
 
-To create the release directories:
-
-```
-grunt release
-```
-
-This will create the directories in the `builds` folder.
-
 Note: you will need to be on OSX to create a DMG file and on Windows to create the setup .exe file.
 
 
@@ -203,7 +195,7 @@ To run a command, type `lein <command>` in the terminal.
 - `dates` are strings in format `MM/DD/YYYY` for everything except calculation where they are converted to `cljs-time` instances and then back to strings after calculation is finished. But they are not stored in app's state as `cljs-time` instances, they should be strings. Why? Because operations over dates are rare VS converting them from state to string for both UI and data-file.
 
 ## TODO:
-- Need sorting by date ascending
+- Need sorting by date ascending: on file load if data sorted not in ascending order, notify with option to sort data
 - On Open File: If recur payments selected, then notify user that all selections will be lost if not saved
 - Fix all the error messages, they should notify user about solution of the problem that caused error
 - Create search bar

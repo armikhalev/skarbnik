@@ -206,6 +206,7 @@
                            :write-file!               write-file!
                            :make-dir!                 make-dir!
                            :initial-balance-file-path credit-initial-balance-file-path
+                           :big-transactions-path     credit-big-transactions
                            :data-file-path            credit-data-file-path
                            :credit-big-transactions   credit-big-transactions
                            :credit-recur-transactions credit-recur-transactions}))

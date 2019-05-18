@@ -152,7 +152,7 @@
            account-kind-mutator!
            accounts-path
            recur-transactions
-           big-transactions
+           big-transactions-path
            recur-data
            credit-big-data
            initial-balance
@@ -188,7 +188,7 @@
                     ;;
                     (when credit-big-data
                       (write-file!
-                       (str dir-path"/"big-transactions)
+                       (str dir-path"/"big-transactions-path)
                        @credit-big-data))
                     ;;
                     (write-file!
@@ -378,13 +378,13 @@
    closed?
    side-drawer-mutator!]
   [:table.side-drawer
-   {:class (when closed? "closed")
+   {:class (when @closed? "closed")
     :on-click #(do
                 (side-drawer-mutator! :closed? true)
                 (side-drawer-mutator! :data {}))}
    [:tbody
     (doall
-     (for [v entry-val]
+     (for [v @entry-val]
        ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
        [:tr.border
         [:td.color-burnt-orange "desc: "]

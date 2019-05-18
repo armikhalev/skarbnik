@@ -20,6 +20,7 @@
      write-file!
      make-dir!
      initial-balance-file-path
+     big-transactions-path
      data-file-path
      credit-recur-transactions]}]
 
@@ -45,7 +46,9 @@
        :account-kind-mutator!      db/credit-accounts!
        :accounts-path              credit-accounts-path
        :recur-transactions         credit-recur-transactions
+       :big-transactions-path      big-transactions-path
        :recur-data                 db/credit-recur-data
+       :credit-big-data            db/credit-big-data
        :initial-balance            db/initial-credit-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
@@ -71,16 +74,20 @@
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
            merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
-       ;; (prn "credt-account below `data-with-bigs-and-debt`" )
-       ;; (pp/pprint back-to-str-dates)
+       ;; (prn "credt-account below, line 74" )
+       ;; (pp/pprint paids)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true
          :recur-data-mutator!     db/credit-recur-data!
          :credit-big-data         db/credit-big-data
          :big-data-mutator!       db/credit-big-data!
+         :side-drawer-mutator!    db/side-drawer!
          :recur-data              db/credit-recur-data}])
-
+     [components/side-drawer
+      db/side-drawer-data
+      db/side-drawer-closed?
+      db/side-drawer!]
      [:hr]
      [ components/date-picker
       {:from-date! db/from-date!
@@ -90,7 +97,7 @@
        :data data
        :account-data-mutator! db/credit-data!} ]
      ;;
-     [ components/credit-analyze {:data                   data
+     [ components/credit-analyze {:data                     data
                                   :initial-credit-balance   db/initial-credit-balance
                                   :credit-recur-data        db/credit-recur-data
                                   :credit-total-difference! db/credit-total-difference!}]]))
