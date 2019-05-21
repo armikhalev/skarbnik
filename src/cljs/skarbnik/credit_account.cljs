@@ -85,7 +85,7 @@
          :side-drawer-mutator!    db/side-drawer!
          :recur-data              db/credit-recur-data}])
      [components/side-drawer
-      db/side-drawer-data
+      @db/side-drawer-data
       db/side-drawer-closed?
       db/side-drawer!]
      [:hr]

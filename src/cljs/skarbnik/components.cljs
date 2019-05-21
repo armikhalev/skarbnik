@@ -231,7 +231,7 @@
                entry
                selected?
                big?
-               data
+               category-keys
                credit?]}]
     [:tr
      {:style {:background-color (cond
@@ -239,8 +239,12 @@
                                   @big?      "peru"
                                   :else      "")}}
      (doall
-      (for [category-key (logic/get-maps-categories data)
-            :let [entry-val (category-key entry)]]
+      (for [category-key category-keys
+            :let [entry-val   (category-key entry)
+                  ;; this three are used in side-drawer not in the row
+                  description (:description entry)
+                  date        (:date        entry)
+                  amount      (:amount      entry)]]
         (case (name category-key)
           "date" ;; ->
           ^{:key (str "date-" idx)}
@@ -261,7 +265,10 @@
             [:td.color-peru
              {:on-click #(do
                            (side-drawer-mutator! :closed? false)
-                           (side-drawer-mutator! :data entry-val))}
+                           (side-drawer-mutator! :data {:entry entry-val
+                                                        :parent-transaction {:description description
+                                                                             :date        date
+                                                                             :amount      amount}}))}
              (when (seq entry-val) "...")]
 
             ;; else
@@ -365,8 +372,10 @@
            {:recur-data-mutator!  recur-data-mutator!
             :big-data-mutator!    big-data-mutator!
             :side-drawer-mutator! side-drawer-mutator!
+            :idx             idx
             :entry           entry
             :selected?       selected?
+            :category-keys   (logic/get-maps-categories data)
             :credit?         credit?
             :big?            big?
             :data            data}]))
@@ -374,19 +383,31 @@
       data))]])
 
 (defn side-drawer
-  [entry-val
+  [{:keys [entry parent-transaction]} ;; <- `db/side-drawer-data` desctructured
    closed?
    side-drawer-mutator!]
   [:table.side-drawer
    {:class (when @closed? "closed")
     :on-click #(do
                 (side-drawer-mutator! :closed? true)
-                (side-drawer-mutator! :data {}))}
+                (side-drawer-mutator! :data {:entry []
+                                             :parent-transaction {:date nil
+                                                                  :description ""
+                                                                  :amount ""}}))}
    [:tbody
+
+    [:tr
+     [:td.color-blue "Clicked: "]
+
+     [:td (:description parent-transaction)]
+     [:td (->> parent-transaction :date (str "d: "))]
+     [:td (str "$: "(-> parent-transaction :amount))]]
+    [:tr
+     [:hr]]
     (doall
-     (for [v @entry-val]
+     (for [v entry]
        ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
-       [:tr.border
+       [:tr
         [:td.color-burnt-orange "desc: "]
         [:td (:description v)]
         [:td.color-burnt-orange "date: "]
