@@ -33,17 +33,17 @@
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :from-date                ""
                      :to-date                  ""
-                     :current-date-range-bank-data {}
+                     :current-date-range-bank-data   {}
                      :current-date-range-credit-data {}
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :error-message            ""
 
-                     side-drawer              {:data
-                                               {:entry []
-                                                :parent-transaction {:date nil
-                                                                     :description ""
-                                                                     :amount ""}}
-                                               :closed? false}
+                     :side-drawer              {:data
+                                                {:entry []
+                                                 :parent-transaction {:date nil
+                                                                      :description ""
+                                                                      :amount ""}}
+                                                :closed? false}
                      ;; Those two can handle all the meta/UI info about accounts
                      :bank                     {:error "" :message ""}
                      :credit                   {:error "" :message ""}}))
