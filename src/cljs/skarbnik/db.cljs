@@ -11,40 +11,42 @@
 
 ;; END: Specs
 
-(defonce db (r/atom { :bank-accounts            []
-                      :credit-accounts          []
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :current-bank-account     ""
-                      :current-credit-account   ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :bank-data                []
-                      :credit-data              []
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :bank-recur-data          {}
-                      :credit-recur-data        {}
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :credit-big-data          {}
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :initial-bank-balance     0
-                      :initial-credit-balance   0
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :bank-total-difference    0
-                      :credit-total-difference  0
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :from-date                ""
-                      :to-date                  ""
-                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      :error-message            ""
+(defonce db (r/atom {:bank-accounts            []
+                     :credit-accounts          []
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :current-bank-account     ""
+                     :current-credit-account   ""
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-data                []
+                     :credit-data              []
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-recur-data          {}
+                     :credit-recur-data        {}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :credit-big-data          {}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :initial-bank-balance     0
+                     :initial-credit-balance   0
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-total-difference    0
+                     :credit-total-difference  0
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :from-date                ""
+                     :to-date                  ""
+                     :current-date-range-bank-data {}
+                     :current-date-range-credit-data {}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :error-message            ""
 
-                     :side-drawer              {:data
-                                                {:entry []
-                                                 :parent-transaction {:date nil
-                                                                      :description ""
-                                                                      :amount ""}}
-                                                :closed? false}
-                      ;; Those two can handle all the meta/UI info about accounts
-                      :bank                     {:error "" :message ""}
-                      :credit                   {:error "" :message ""}}))
+                     side-drawer              {:data
+                                               {:entry []
+                                                :parent-transaction {:date nil
+                                                                     :description ""
+                                                                     :amount ""}}
+                                               :closed? false}
+                     ;; Those two can handle all the meta/UI info about accounts
+                     :bank                     {:error "" :message ""}
+                     :credit                   {:error "" :message ""}}))
 
 ;;;;;;;;;;;;; Cursors & Mutators ;;;;;;;;;;;;;
 
