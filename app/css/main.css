@@ -82,6 +82,7 @@ label.recur-sign.recur:before {
 }
 
 table.side-drawer {
+    padding: 5px;
     position: fixed;
     top: 50%;
     right: 0;
@@ -91,4 +92,9 @@ table.side-drawer {
 
 .closed {
     visibility: hidden;
+}
+
+.close-btn:before {
+    /* Unicode for Circle Times ⊗ */
+    content: "\02297";
 }

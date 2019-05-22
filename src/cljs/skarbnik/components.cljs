@@ -395,7 +395,8 @@
                                                                   :description ""
                                                                   :amount ""}}))}
    [:tbody
-
+    [:tr
+     [:td.close-btn.color-burnt-orange]]
     [:tr
      [:td.color-blue "Clicked: "]
 
