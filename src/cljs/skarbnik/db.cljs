@@ -33,8 +33,8 @@
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :from-date                ""
                      :to-date                  ""
-                     :current-date-range-bank-data   {}
-                     :current-date-range-credit-data {}
+                     :current-date-range-bank-data   []
+                     :current-date-range-credit-data []
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :error-message            ""
 
@@ -43,7 +43,7 @@
                                                  :parent-transaction {:date nil
                                                                       :description ""
                                                                       :amount ""}}
-                                                :closed? false}
+                                                :closed? true}
                      ;; Those two can handle all the meta/UI info about accounts
                      :bank                     {:error "" :message ""}
                      :credit                   {:error "" :message ""}}))
@@ -182,8 +182,7 @@
   [v]
   (reset! credit-total-difference v))
 
-;; :from-date                ""
-;; :to-date                  ""
+;; DATES
 
 (def from-date
   (r/cursor db [ :from-date ]))
@@ -201,6 +200,20 @@
 (defn to-date!
   [v]
   (reset! to-date v))
+
+(def current-date-range-bank-data
+  (r/cursor db [ :current-date-range-bank-data ]))
+
+(defn current-date-range-bank-data!
+  [v]
+  (reset! current-date-range-bank-data v))
+
+(def current-date-range-credit-data
+  (r/cursor db [ :current-date-range-credit-data ]))
+
+(defn current-date-range-credit-data!
+  [v]
+  (reset! current-date-range-credit-data v))
 
 ;;; Error messages
 

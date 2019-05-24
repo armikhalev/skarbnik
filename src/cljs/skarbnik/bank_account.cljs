@@ -22,7 +22,10 @@
      data-file-path
      bank-recur-transactions]}]
 
-  (let [data @db/bank-data]
+  (let [cur-range-data @db/current-date-range-bank-data
+        data           (if (empty? cur-range-data)
+                         @db/bank-data
+                         cur-range-data)]
     [:section
      [:h2 (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
@@ -69,7 +72,7 @@
        :to-date! db/to-date!
        :to-date db/to-date
        :data data
-       :account-data-mutator! db/bank-data!} ]
+       :account-data-mutator! db/current-date-range-bank-data!} ]
      ;;
      [ components/bank-analyze {:data                   data
                                 :initial-bank-balance   db/initial-bank-balance

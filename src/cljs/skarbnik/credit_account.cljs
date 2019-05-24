@@ -24,7 +24,10 @@
      data-file-path
      credit-recur-transactions]}]
 
-  (let [data @db/credit-data]
+  (let [cur-range-data @db/current-date-range-credit-data
+        data           (if (empty? cur-range-data)
+                         @db/credit-data
+                         cur-range-data)]
     [:section
      [:h2 (str "Credit account: " @db/current-credit-account)]
      [:h2.error-message
@@ -90,12 +93,12 @@
       db/side-drawer!]
      [:hr]
      [ components/date-picker
-      {:from-date! db/from-date!
-       :from-date db/from-date
-       :to-date! db/to-date!
-       :to-date db/to-date
-       :data data
-       :account-data-mutator! db/credit-data!} ]
+      {:from-date!            db/from-date!
+       :from-date             db/from-date
+       :to-date!              db/to-date!
+       :to-date               db/to-date
+       :data                  data
+       :account-data-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/credit-analyze {:data                     data
                                   :initial-credit-balance   db/initial-credit-balance

@@ -226,22 +226,36 @@
 
 ;; Dates
 
-(defn date->ints
-  "Converts date string of form YYYY-MM-DD to list of integers."
+(defn date->strs
+  "Converts date string of form YYYY-MM-DD to list of strings."
   [date]
   ;; get only year-month-day, splitting out everything after 'T' (seconds etc.)
   (let [ymd (first (clojure.string/split date #"T"))]
     (clojure.string/split ymd #"-")))
 
+(defn date->ints
+  "Converts date string of form YYYY-MM-DD to list of integers."
+  [date]
+  ;; get only year-month-day, splitting out everything after 'T' (seconds etc.)
+  (as-> date $d
+      (first (clojure.string/split $d #"T"))
+      (clojure.string/split $d #"-")
+      (map js/parseInt $d)))
 
 (defn ymd->mdy
   "Converts date format YYYY-MM-DD to MM/DD/YYYY."
   [mdy]
-  (let [date (date->ints mdy)
+  (let [date (date->strs mdy)
         year (first date),
         month-day    (vec (rest date))]
     (clojure.string/join "/" (conj month-day year))))
 
+(defn a-str-date->cljs-time
+  "String`y-m-d` -> Object`:cl-time`"
+  [date]
+  (->> date
+       date->ints
+       (apply cl-time/date-time)))
 
 (defn str-dates->cljs-time
   "Takes parsed csv data, updates `:date` values to cljs-time instances."
@@ -268,58 +282,22 @@
     (clojure.string/join "-" (conj rest- year))))
 
 
-(defn compare-dates
-  "Compares two lists of dates, integers of form [YYYY MM DD] using comparison operator.
-   Returns boolean."
-  [comparator-symbol first-date second-date]
-  (or
-   ;; If dates are different, filter out
-   (some false?
-         (map
-          comparator-symbol
-          first-date second-date))
-   ;; If dates are the same should include them
-   (every? true?
-           (map = first-date second-date))))
-
-(comment
-  ;;; f >= s
-  [2018 12 9]
-  [2018 11 12]
-  ;; lessEq
-  '(true false true)
-  [2018 12 9]
-  [2018 12 12]
-  '(true true true)
-  [2018 12 10]
-  [2018 12 05]
-  '(true true false)
-
-  ;;; f <= s
-  [2018 11 10]
-  [2018 12 05]
-  '(true false true)
-  ;; MoreEq
-  [2018 12 9]
-  [2018 12 1]
-  '(true true true)
-  [2018 12 05]
-  [2018 12 10]
-  '(true true false)
-  )
-
-(prn "TODO: rewrite `logic/filter-by-date` with `cljs-time`")
-
 (defn filter-by-date
-  "Filters out entries that are bigger than `from-date` and less than `to-date`.
-   Expects `entry` to have key `:date`."
-  [entries from-date to-date]
-  (filter
-   (fn [entry]
-     (let [date (:date entry)]
-       (and (compare-dates <= (date->ints (mdy->ymd date)) (date->ints from-date))
-            (compare-dates >= (date->ints (mdy->ymd date)) (date->ints to-date)))))
-   entries))
+    "Filters out entries that are bigger than `from-date` and less than `to-date`.
+     Expects `entry` to have key `:date`"
+    [entries
+     from-date
+     to-date]
+  (let [$from-date (a-str-date->cljs-time from-date)
+        $to-date   (a-str-date->cljs-time to-date)]
+    (filterv
+     (fn [entry]
+       (let [date (-> entry :date mdy->ymd a-str-date->cljs-time)]
+         (and (or (cl-time/equal?  date $from-date)
+                  (cl-time/after?  date $from-date))
+              (or (cl-time/equal?  date $to-date)
+                  (cl-time/before? date $to-date)))))
+     entries)))
 
 ;; ENDs Dates
 

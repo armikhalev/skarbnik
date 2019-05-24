@@ -404,7 +404,8 @@
      [:td (->> parent-transaction :date (str "d: "))]
      [:td (str "$: "(-> parent-transaction :amount))]]
     [:tr
-     [:hr]]
+     [:td
+      [:hr]]]
     (doall
      (for [v entry]
        ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
@@ -434,11 +435,14 @@
     {:type "date"
      :on-change #(to-date! (.-target.value %))
      :name "to-date"}]
-
    [:button.margin-left-5
-    {:on-click #(account-data-mutator!
-                 (logic/filter-by-date
-                  data
-                  @from-date
-                  @to-date))}
-    "Filter by date"]])
+    {:on-click
+     #(account-data-mutator!
+       (logic/filter-by-date
+        data
+        @from-date
+        @to-date))}
+    "Filter by date"]
+   [:button.margin-left-5
+    {:on-click #(account-data-mutator! {})}
+    "Reset"]])
