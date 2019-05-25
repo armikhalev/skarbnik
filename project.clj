@@ -28,15 +28,16 @@
                                         :cache-analysis true}}
 
                        ;;; NOTE: For PROD the below devcards dev built config must be commented out
-                       :devcards-test
-                       {:source-paths ["env/dev/cljs" "test"]
+                       ;; :devcards-test
+                       #_{:source-paths ["env/dev/cljs" "test"]
                                        :figwheel {:devcards true}
                                        :compiler {:main runners.browser
                                                   :optimizations :none
                                                   :asset-path "cljs/tests/out"
                                                   :output-dir "resources/public/cljs/tests/out"
                                                   :output-to "resources/public/cljs/tests/all-tests.js"
-                                                  :source-map-timestamp true}}}}
+                                                  :source-map-timestamp true}}
+                       }}
 
   :clean-targets ^{:protect false} [:target-path "out" "app/js/p"]
 

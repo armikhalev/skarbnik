@@ -171,6 +171,7 @@
 
 (defn main-page []
   [:main
+   {:class @db/ui-background}
    [ nav ]
    [:hr]
    (case @current-page
@@ -222,7 +223,17 @@
        (if (logic/is-number? sum)
          (logic/cents->dollars sum)
          "Something wrong with numbers in files")]])
-   (nav)])
+   (nav)
+
+   [:hr]
+
+   [:div.ui-styles
+    [:button.button-micro
+     {:on-click #(db/ui-background!
+                  (case @db/ui-background
+                    "" "white-background"
+                    ""))}
+     "Theme"]]])
 
 ;; ENDs: Root
 

@@ -46,7 +46,10 @@
                                                 :closed? true}
                      ;; Those two can handle all the meta/UI info about accounts
                      :bank                     {:error "" :message ""}
-                     :credit                   {:error "" :message ""}}))
+                     :credit                   {:error "" :message ""}
+
+                     ;; UI
+                     :ui-styles {:background ""}}))
 
 ;;;;;;;;;;;;; Cursors & Mutators ;;;;;;;;;;;;;
 
@@ -256,3 +259,12 @@
 (defn credit!
   [path v]
   (r/rswap! credit assoc path v))
+
+;; UI
+
+(def ui-background
+  (r/cursor db [ :ui-styles :background ]))
+
+(defn ui-background!
+  [v]
+  (reset! ui-background v))
