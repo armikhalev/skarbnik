@@ -201,3 +201,4 @@ To run a command, type `lein <command>` in the terminal.
 - Create search bar
 - Add reset for Dates range
 - Add ability to switch between accounts with keyboard, possibly arrow keys
+- Home page: Add message indicating that `there are no accounts yet` on first use of the app

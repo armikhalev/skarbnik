@@ -33,3 +33,6 @@ pom.xml.asc
 *.txt
 .rebel_readline_history
 /resources/public/cljs
+app/skarbnik-darwin-x64.zip
+*.log
+figwheel_server.log

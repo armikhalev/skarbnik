@@ -98,7 +98,7 @@
 
 (defn bank-data!
   [v]
-   (reset! bank-data v))
+  (reset! bank-data (sort-by :date v)))
 
 ;;;
 
@@ -107,7 +107,7 @@
 
 (defn credit-data!
   [v]
-  (reset! credit-data v))
+  (reset! credit-data (sort-by :date v)))
 
 ;;; <-- ENDs: DATA
 
