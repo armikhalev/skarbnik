@@ -1,5 +1,6 @@
 (ns skarbnik.db
   (:require [reagent.core :as r]
+            [cljs.pprint :as pp]
             [clojure.spec.alpha :as s]))
 
 ;; Specs
@@ -98,7 +99,18 @@
 
 (defn bank-data!
   [v]
-  (reset! bank-data (sort-by :date v)))
+  (let [transaction-type (-> v first :TransactionType)
+        debit?          #(= "debit" (:TransactionType %))
+        data             (if transaction-type
+                           (map
+                            #(if (debit? %)
+                               (update % :amount - )
+                               ;;else
+                               %)
+                            v)
+                           ;;else
+                           v)]
+    (reset! bank-data (sort-by :date data))))
 
 ;;;
 
@@ -107,7 +119,18 @@
 
 (defn credit-data!
   [v]
-  (reset! credit-data (sort-by :date v)))
+  (let [transaction-type (-> v first :TransactionType)
+        credit?          #(= "credit" (:TransactionType %))
+        data             (if transaction-type
+                           (map
+                            #(if (credit? %)
+                               (update % :amount - )
+                               ;;else
+                               %)
+                            v)
+                           ;;else
+                           v)]
+  (reset! credit-data (sort-by :date data))))
 
 ;;; <-- ENDs: DATA
 
