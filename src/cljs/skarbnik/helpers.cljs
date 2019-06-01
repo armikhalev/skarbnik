@@ -9,7 +9,8 @@
 (defn three-fold-key
   ;; TODO: Spec it!
   [entry]
-  (let [desc*  (string/trim (:description entry))
+  (let [desc?  (:description entry)
+        desc*  (string/trim (if desc? desc? " "))
         desc   (if (string? desc*) (-> desc* (string/replace #" " "")), desc*)
         amount (:amount entry)
         date*  (:date entry)

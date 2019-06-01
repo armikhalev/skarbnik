@@ -226,6 +226,7 @@
 
 ;; Dates
 
+
 (defn date->strs
   "Converts date string of form YYYY-MM-DD to list of strings."
   [date]
@@ -437,7 +438,7 @@
   (map
    (fn [m]
      (let [three-fold-key (-> m helpers/three-fold-key keyword)]
-       (if-let [tfk (three-fold-key back-to-str-dates)]
+       (if-let [tfk (get back-to-str-dates three-fold-key)]
          (merge m tfk)
          (merge m {:bigs [] :debt 0}))))
    data))

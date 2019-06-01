@@ -112,7 +112,6 @@
            total-difference!
            read-file!
            data-mutator!]}]
-
   [:button.button.button-smaller.open-file
    {:on-click #(open-file!
                 (fn [file-names]
