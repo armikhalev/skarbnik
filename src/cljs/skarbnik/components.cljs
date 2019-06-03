@@ -3,6 +3,7 @@
    State management should be provided only through args."
   (:require
    [reagent.core :as r]
+   [clojure.pprint :as pp]
    [cljs.reader :as reader]
    [cljs-time.core :as cl-time]
    [clojure.string :as string
@@ -345,6 +346,18 @@
     [:tr
      (for [th (logic/get-maps-categories-str data)]
        (case th
+         "description"
+         ^{:key th}
+         [:th "Description"]
+
+         "amount"
+         ^{:key th}
+         [:th "Amount"]
+
+         "date"
+         ^{:key th}
+         [:th "Date"]
+
          "bigs"
          ^{:key th}
          [:th.color-burnt-orange "Bigs"]
