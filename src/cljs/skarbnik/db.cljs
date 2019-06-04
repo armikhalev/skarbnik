@@ -99,15 +99,18 @@
 
 (defn bank-data!
   [v]
-  (let [transaction-type (-> v first :TransactionType)
-        debit?          #(= "debit" (:TransactionType %))
-        data             (if transaction-type
-                           (map
-                            #(if (debit? %)
-                               (update % :amount - )
-                               ;;else
-                               %)
-                            v)
+  (let [;; This is needed for Mint app, that doesn't add minus to transactions
+        ;; instead it gives Transaction Type
+        transaction-type? (-> v first :TransactionType)
+        debit?            #(= "debit" (:TransactionType %))
+        data              (map
+                           #(if (and transaction-type? (debit? %))
+                              (-> %
+                                  (update , :amount -)
+                                  (assoc , :_sk-id (str (random-uuid))))
+                              ;;else
+                              (assoc % :_sk-id (str (random-uuid))))
+                           v
                            ;;else
                            v)]
     (reset! bank-data (sort-by :date data))))
@@ -119,15 +122,18 @@
 
 (defn credit-data!
   [v]
-  (let [transaction-type (-> v first :TransactionType)
-        credit?          #(= "credit" (:TransactionType %))
-        data             (if transaction-type
-                           (map
-                            #(if (credit? %)
-                               (update % :amount - )
-                               ;;else
-                               %)
-                            v)
+  (let [;; This is needed for Mint app, that doesn't add minus to transactions
+        ;; instead it gives Transaction Type
+        transaction-type? (-> v first :TransactionType)
+        credit?           #(= "credit" (:TransactionType %))
+        data              (map
+                           #(if (and transaction-type? (credit? %))
+                              (-> %
+                                  (update , :amount -)
+                                  (assoc , :_sk-id (str (random-uuid))))
+                              ;;else
+                              (assoc % :_sk-id (str (random-uuid))))
+                           v
                            ;;else
                            v)]
   (reset! credit-data (sort-by :date data))))
@@ -291,3 +297,7 @@
 (defn ui-background!
   [v]
   (reset! ui-background v))
+
+;; Transactions keys
+
+()
