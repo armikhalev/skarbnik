@@ -414,7 +414,7 @@
 
 (defn reduce-back-to-str-dates
   "Takes `::paid-offs` converts dates to string.
-   Returns a map with keys being `three-fold-key`, values `::a-paid-off`"
+   Returns a map with keys being `:_sk-id`, values `::a-paid-off`"
   [data-with-bigs-and-debt]
   (reduce
    (fn [a m]
@@ -422,7 +422,7 @@
               m :date #(cljs-time->str %))]
        ;; returns ->
        (update
-        a (-> d helpers/three-fold-key keyword)
+        a (-> d :_sk-id keyword)
         merge d)))
    {}
    data-with-bigs-and-debt))
@@ -430,15 +430,15 @@
 (>defn merge-bigs-debt-and-data
   "NOTE: Spec tests might be intermittent due to uncertain second arg `any?`.
    `Any?` is used to overcome inability to create dynamic keys in spec,
-   which should create a map with dynamic key of form `three-fold-key` and value `::a-paid-off`."
+   which should create a map with dynamic key of form `:_sk-id` and value `::a-paid-off`."
   ;; {::g/trace 4}
   [data back-to-str-dates]
   [::transactions any?
    => ::transactions]
   (map
    (fn [m]
-     (let [three-fold-key (-> m helpers/three-fold-key keyword)]
-       (if-let [tfk (get back-to-str-dates three-fold-key)]
+     (let [sk-id (-> m :_sk-id keyword)]
+       (if-let [tfk (get back-to-str-dates sk-id)]
          (merge m tfk)
          (merge m {:bigs [] :debt 0}))))
    data))

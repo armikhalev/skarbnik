@@ -374,10 +374,10 @@
      (map-indexed
       (fn [idx entry]
         (let [selected? (r/atom (contains? @recur-data
-                                           (helpers/three-fold-key entry)))
+                                           (:_sk-id entry)))
               big? (if credit-big-data
                      (r/atom (contains? @credit-big-data
-                                        (helpers/three-fold-key entry)))
+                                        (:_sk-id entry)))
                      (r/atom false))]
           ^{:key idx}
           [table-row
