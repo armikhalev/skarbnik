@@ -1,6 +1,8 @@
 (ns skarbnik.db
   (:require [reagent.core :as r]
             [cljs.pprint :as pp]
+            [cljs-time.core :as cljs-time]
+            [skarbnik.logic :as logic]
             [clojure.spec.alpha :as s]))
 
 ;; Specs
@@ -103,17 +105,23 @@
         ;; instead it gives Transaction Type
         transaction-type? (-> v first :TransactionType)
         debit?            #(= "debit" (:TransactionType %))
-        data              (map
-                           #(if (and transaction-type? (debit? %))
-                              (-> %
-                                  (update , :amount -)
-                                  (assoc , :_sk-id (str (random-uuid))))
-                              ;;else
-                              (assoc % :_sk-id (str (random-uuid))))
-                           v
-                           ;;else
-                           v)]
-    (reset! bank-data (sort-by :date data))))
+        data              (if transaction-type?
+                            (map
+                             #(if (debit? %)
+                                (-> %
+                                    (update , :amount -)
+                                    (assoc , :_sk-id (str (random-uuid))))
+                                ;;else
+                                (assoc % :_sk-id (str (random-uuid))))
+                             v)
+                            ;;else
+                            (map #(assoc % :_sk-id (str (random-uuid))) v))]
+    (reset! bank-data (sort-by
+                       :date
+                       #(cljs-time/before?
+                         (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+                         (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+                       data))))
 
 ;;;
 
@@ -126,17 +134,23 @@
         ;; instead it gives Transaction Type
         transaction-type? (-> v first :TransactionType)
         credit?           #(= "credit" (:TransactionType %))
-        data              (map
-                           #(if (and transaction-type? (credit? %))
-                              (-> %
-                                  (update , :amount -)
-                                  (assoc , :_sk-id (str (random-uuid))))
-                              ;;else
-                              (assoc % :_sk-id (str (random-uuid))))
-                           v
-                           ;;else
-                           v)]
-  (reset! credit-data (sort-by :date data))))
+        data              (if transaction-type?
+                            (map
+                             #(if (credit? %)
+                                (-> %
+                                    (update , :amount -)
+                                    (assoc , :_sk-id (str (random-uuid))))
+                                ;;else
+                                (assoc % :_sk-id (str (random-uuid))))
+                             v)
+                            ;;else
+                            (map #(assoc % :_sk-id (str (random-uuid))) v))]
+    (reset! credit-data (sort-by
+                         :date
+                         #(cljs-time/before?
+                           (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+                           (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+                         data))))
 
 ;;; <-- ENDs: DATA
 
