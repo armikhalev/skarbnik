@@ -312,6 +312,3 @@
   [v]
   (reset! ui-background v))
 
-;; Transactions keys
-
-()

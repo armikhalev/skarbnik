@@ -377,7 +377,7 @@
                                            (:_sk-id entry)))
               big? (if credit-big-data
                      (r/atom (contains? @credit-big-data
-                                        (:_sk-id entry)))
+                                        (-> entry :_sk-id keyword)))
                      (r/atom false))]
           ^{:key idx}
           [table-row
@@ -414,7 +414,7 @@
 
      [:td (:description parent-transaction)]
      [:td (->> parent-transaction :date (str "d: "))]
-     [:td (str "$: "(-> parent-transaction :amount))]]
+     [:td (str "$: "(-> parent-transaction :amount logic/cents->dollars))]]
     [:tr
      [:td
       [:hr]]]

@@ -10,7 +10,7 @@
   "Adds key to `bank-data` as concatenation of `description`, `amount` and `date`
    And value being a map of those key/value pairs in `entry`"
   [mutator! entry]
-  (let [data-key    (:_sk-id entry)
+  (let [data-key    (-> entry :_sk-id keyword)
         parsed-entry (select-keys entry [:description :amount :date])]
     (mutator! assoc data-key parsed-entry)))
 
@@ -18,5 +18,5 @@
 (defn unset-distinct-data!
   "Removes selected key from state."
   [mutator! entry]
-  (let [data-key    (:_sk-id entry)]
+  (let [data-key    (-> entry :_sk-id keyword)]
     (mutator! dissoc data-key)))
