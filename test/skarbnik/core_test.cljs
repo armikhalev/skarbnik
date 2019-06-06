@@ -148,27 +148,32 @@
 
 (def test-credit-data
   '({:date "12/02/2017",
+     :_sk-id "392fe6ad-c549-4c0e-93d5-baca1befbf87",
      :description "  Lots of Bad Services",
      :amount 10000}
     {:date "12/05/2017",
+     :_sk-id "90653c71-d90f-4e9c-a3a4-c94a8d57d8e0",
      :description "  spasibo vashu za nogu",
      :amount -1000}
     {:date "12/01/2018",
+     :_sk-id "15f27610-6c58-4ece-a059-3c9b2e244ea5",
      :description "  JMF LANDSCAPING HOLBROOK MA",
      :amount 10000}
     {:date "12/03/2018",
+     :_sk-id "43ef6bc4-6751-4d7f-b614-51eaecad528b",
      :description "  MBTA MTICKET BOSTON MA",
      :amount 20000}
     {:date "12/05/2018",
+     :_sk-id "c0fa6d17-00c2-47cd-93a2-321f5ca00eea",
      :description "  INTERNET PAYMENT - THANK YOU",
      :amount -10000}))
 
 (def test-credit-big-data
-  {"--Lots-of-Bad-Services-200-12-02-2017"
+  {:392fe6ad-c549-4c0e-93d5-baca1befbf87
    {:description "  Lots of Bad Services",
     :amount 200,
     :date (dates->cljs-time  "12/02/2017")},
-   "--MBTA-MTICKET-BOSTON-MA-20000-12-03-2018"
+   :43ef6bc4-6751-4d7f-b614-51eaecad528b
    {:description "  MBTA MTICKET BOSTON MA",
     :amount 20000,
     :date (dates->cljs-time "12/03/2018")}})
@@ -181,7 +186,7 @@
     (logic/paids-with-bigs paids bigs)))
 
 (def back-to-str-dates
-  {:--spasibo-vashu-za-nogu--1000-12-05-2017
+  {:90653c71-d90f-4e9c-a3a4-c94a8d57d8e0
    {:date "12/05/2017",
     :description "  spasibo vashu za nogu",
     :amount -1000,
@@ -189,7 +194,7 @@
             :amount 10000,
             :date (dates->cljs-time  "12/02/2017")}),
     :debt 9000},
-   :--INTERNET-PAYMENT---THANK-YOU--10000-12-05-2018
+   :c0fa6d17-00c2-47cd-93a2-321f5ca00eea
    {:date "12/05/2018",
     :description "  INTERNET PAYMENT - THANK YOU",
     :amount -10000,
@@ -203,11 +208,13 @@
 
 (def expected-bigs-debt-and-data
   '({:date "12/02/2017",
+     :_sk-id "392fe6ad-c549-4c0e-93d5-baca1befbf87",
      :description "  Lots of Bad Services",
      :amount 10000,
      :bigs [],
      :debt 0}
     {:date "12/05/2017",
+     :_sk-id "90653c71-d90f-4e9c-a3a4-c94a8d57d8e0",
      :description "  spasibo vashu za nogu",
      :amount -1000,
      :bigs
@@ -216,16 +223,19 @@
        :date (dates->cljs-time "12/02/2017")}),
      :debt 9000}
     {:date "12/01/2018",
+     :_sk-id "15f27610-6c58-4ece-a059-3c9b2e244ea5",
      :description "  JMF LANDSCAPING HOLBROOK MA",
      :amount 10000,
      :bigs [],
      :debt 0}
     {:date "12/03/2018",
+     :_sk-id "43ef6bc4-6751-4d7f-b614-51eaecad528b",
      :description "  MBTA MTICKET BOSTON MA",
      :amount 20000,
      :bigs [],
      :debt 0}
     {:date "12/05/2018",
+     :_sk-id "c0fa6d17-00c2-47cd-93a2-321f5ca00eea",
      :description "  INTERNET PAYMENT - THANK YOU",
      :amount -10000,
      :bigs
