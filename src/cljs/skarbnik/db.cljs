@@ -1,6 +1,8 @@
 (ns skarbnik.db
   (:require [reagent.core :as r]
             [cljs.pprint :as pp]
+            [cljs-time.core :as cljs-time]
+            [skarbnik.logic :as logic]
             [clojure.spec.alpha :as s]))
 
 ;; Specs
@@ -92,6 +94,38 @@
   [v]
   (reset! current-credit-account v))
 
+
+;;;;;;;;;;;;;;;;;;;; DATES ;;;;;;;;;;;;;;;;
+
+(def from-date
+  (r/cursor db [ :from-date ]))
+
+(defn from-date!
+  [v]
+  (reset! from-date v))
+
+(def to-date
+  (r/cursor db [ :to-date ]))
+
+(defn to-date!
+  [v]
+  (reset! to-date v))
+
+(def current-date-range-bank-data
+  (r/cursor db [ :current-date-range-bank-data ]))
+
+(defn current-date-range-bank-data!
+  [v]
+  (reset! current-date-range-bank-data v))
+
+(def current-date-range-credit-data
+  (r/cursor db [ :current-date-range-credit-data ]))
+
+(defn current-date-range-credit-data!
+  [v]
+  (reset! current-date-range-credit-data v))
+
+
 ;;;;;;;;;;; DATA ;;;;;;;;;;;;;;;
 
 (def bank-data
@@ -99,18 +133,29 @@
 
 (defn bank-data!
   [v]
-  (let [transaction-type (-> v first :TransactionType)
-        debit?          #(= "debit" (:TransactionType %))
-        data             (if transaction-type
-                           (map
-                            #(if (debit? %)
-                               (update % :amount - )
-                               ;;else
-                               %)
-                            v)
-                           ;;else
-                           v)]
-    (reset! bank-data (sort-by :date data))))
+  (let [;; This is needed for Mint app, that doesn't add minus to transactions
+        ;; instead it gives Transaction Type
+        transaction-type? (-> v first :TransactionType)
+        debit?            #(= "debit" (:TransactionType %))
+        data              (if transaction-type?
+                            (map
+                             #(if (debit? %)
+                                (-> %
+                                    (update , :amount -)
+                                    (assoc , :_sk-id (str (random-uuid))))
+                                ;;else
+                                (assoc % :_sk-id (str (random-uuid))))
+                             v)
+                            ;;else
+                            (map #(assoc % :_sk-id (str (random-uuid))) v))]
+    (do
+      (current-date-range-bank-data! {})
+      (reset! bank-data (sort-by
+                         :date
+                         #(cljs-time/before?
+                           (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+                           (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+                         data)))))
 
 ;;;
 
@@ -119,18 +164,29 @@
 
 (defn credit-data!
   [v]
-  (let [transaction-type (-> v first :TransactionType)
-        credit?          #(= "credit" (:TransactionType %))
-        data             (if transaction-type
-                           (map
-                            #(if (credit? %)
-                               (update % :amount - )
-                               ;;else
-                               %)
-                            v)
-                           ;;else
-                           v)]
-  (reset! credit-data (sort-by :date data))))
+  (let [;; This is needed for Mint app, that doesn't add minus to transactions
+        ;; instead it gives Transaction Type
+        transaction-type? (-> v first :TransactionType)
+        credit?           #(= "credit" (:TransactionType %))
+        data              (if transaction-type?
+                            (map
+                             #(if (credit? %)
+                                (-> %
+                                    (update , :amount -)
+                                    (assoc , :_sk-id (str (random-uuid))))
+                                ;;else
+                                (assoc % :_sk-id (str (random-uuid))))
+                             v)
+                            ;;else
+                            (map #(assoc % :_sk-id (str (random-uuid))) v))]
+    (do
+      (current-date-range-credit-data! {})
+      (reset! credit-data (sort-by
+                           :date
+                           #(cljs-time/before?
+                             (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+                             (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+                           data)))))
 
 ;;; <-- ENDs: DATA
 
@@ -208,38 +264,6 @@
   [v]
   (reset! credit-total-difference v))
 
-;; DATES
-
-(def from-date
-  (r/cursor db [ :from-date ]))
-
-(defn from-date!
-  [v]
-  (reset! from-date v))
-
-;;;
-
-
-(def to-date
-  (r/cursor db [ :to-date ]))
-
-(defn to-date!
-  [v]
-  (reset! to-date v))
-
-(def current-date-range-bank-data
-  (r/cursor db [ :current-date-range-bank-data ]))
-
-(defn current-date-range-bank-data!
-  [v]
-  (reset! current-date-range-bank-data v))
-
-(def current-date-range-credit-data
-  (r/cursor db [ :current-date-range-credit-data ]))
-
-(defn current-date-range-credit-data!
-  [v]
-  (reset! current-date-range-credit-data v))
 
 ;;; Error messages
 
@@ -291,3 +315,4 @@
 (defn ui-background!
   [v]
   (reset! ui-background v))
+

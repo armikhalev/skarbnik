@@ -42,7 +42,8 @@
        :initial-balance!    db/initial-credit-balance!
        :total-difference!   db/credit-total-difference!
        :read-file!          read-file!
-       :data-mutator!       db/credit-data!} ]
+       :data-mutator!       db/credit-data!
+       :account-date-range-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/button-save-account!
       {:account-kind-cursor        db/credit-accounts
@@ -77,8 +78,8 @@
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
            merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
-       ;; (prn "credt-account below, line 74" )
-       ;; (pp/pprint paids)
+       (prn "credt-account below, line 74" )
+       (pp/pprint @db/credit-big-data)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true

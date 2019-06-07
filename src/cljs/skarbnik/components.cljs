@@ -112,7 +112,8 @@
            initial-balance!
            total-difference!
            read-file!
-           data-mutator!]}]
+           data-mutator!
+           account-date-range-mutator!]}]
   [:button.button.button-smaller.open-file
    {:on-click #(open-file!
                 (fn [file-names]
@@ -123,6 +124,7 @@
                                 (fn [data]
                                   (do
                                     ;; Nullify everything
+                                    (account-date-range-mutator! {})
                                     (recur-data-mutator! {})
                                     (when big-data-mutator!
                                       (big-data-mutator! {}))
@@ -374,10 +376,10 @@
      (map-indexed
       (fn [idx entry]
         (let [selected? (r/atom (contains? @recur-data
-                                           (helpers/three-fold-key entry)))
+                                           (-> entry :_sk-id keyword)))
               big? (if credit-big-data
                      (r/atom (contains? @credit-big-data
-                                        (helpers/three-fold-key entry)))
+                                        (-> entry :_sk-id keyword)))
                      (r/atom false))]
           ^{:key idx}
           [table-row
@@ -414,7 +416,7 @@
 
      [:td (:description parent-transaction)]
      [:td (->> parent-transaction :date (str "d: "))]
-     [:td (str "$: "(-> parent-transaction :amount))]]
+     [:td (str "$: "(-> parent-transaction :amount logic/cents->dollars))]]
     [:tr
      [:td
       [:hr]]]
