@@ -94,6 +94,38 @@
   [v]
   (reset! current-credit-account v))
 
+
+;;;;;;;;;;;;;;;;;;;; DATES ;;;;;;;;;;;;;;;;
+
+(def from-date
+  (r/cursor db [ :from-date ]))
+
+(defn from-date!
+  [v]
+  (reset! from-date v))
+
+(def to-date
+  (r/cursor db [ :to-date ]))
+
+(defn to-date!
+  [v]
+  (reset! to-date v))
+
+(def current-date-range-bank-data
+  (r/cursor db [ :current-date-range-bank-data ]))
+
+(defn current-date-range-bank-data!
+  [v]
+  (reset! current-date-range-bank-data v))
+
+(def current-date-range-credit-data
+  (r/cursor db [ :current-date-range-credit-data ]))
+
+(defn current-date-range-credit-data!
+  [v]
+  (reset! current-date-range-credit-data v))
+
+
 ;;;;;;;;;;; DATA ;;;;;;;;;;;;;;;
 
 (def bank-data
@@ -116,12 +148,14 @@
                              v)
                             ;;else
                             (map #(assoc % :_sk-id (str (random-uuid))) v))]
-    (reset! bank-data (sort-by
-                       :date
-                       #(cljs-time/before?
-                         (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
-                         (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
-                       data))))
+    (do
+      (current-date-range-bank-data! {})
+      (reset! bank-data (sort-by
+                         :date
+                         #(cljs-time/before?
+                           (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+                           (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+                         data)))))
 
 ;;;
 
@@ -145,12 +179,14 @@
                              v)
                             ;;else
                             (map #(assoc % :_sk-id (str (random-uuid))) v))]
-    (reset! credit-data (sort-by
-                         :date
-                         #(cljs-time/before?
-                           (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
-                           (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
-                         data))))
+    (do
+      (current-date-range-credit-data! {})
+      (reset! credit-data (sort-by
+                           :date
+                           #(cljs-time/before?
+                             (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+                             (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+                           data)))))
 
 ;;; <-- ENDs: DATA
 
@@ -228,38 +264,6 @@
   [v]
   (reset! credit-total-difference v))
 
-;; DATES
-
-(def from-date
-  (r/cursor db [ :from-date ]))
-
-(defn from-date!
-  [v]
-  (reset! from-date v))
-
-;;;
-
-
-(def to-date
-  (r/cursor db [ :to-date ]))
-
-(defn to-date!
-  [v]
-  (reset! to-date v))
-
-(def current-date-range-bank-data
-  (r/cursor db [ :current-date-range-bank-data ]))
-
-(defn current-date-range-bank-data!
-  [v]
-  (reset! current-date-range-bank-data v))
-
-(def current-date-range-credit-data
-  (r/cursor db [ :current-date-range-credit-data ]))
-
-(defn current-date-range-credit-data!
-  [v]
-  (reset! current-date-range-credit-data v))
 
 ;;; Error messages
 

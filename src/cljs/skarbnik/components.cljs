@@ -112,7 +112,8 @@
            initial-balance!
            total-difference!
            read-file!
-           data-mutator!]}]
+           data-mutator!
+           account-date-range-mutator!]}]
   [:button.button.button-smaller.open-file
    {:on-click #(open-file!
                 (fn [file-names]
@@ -123,6 +124,7 @@
                                 (fn [data]
                                   (do
                                     ;; Nullify everything
+                                    (account-date-range-mutator! {})
                                     (recur-data-mutator! {})
                                     (when big-data-mutator!
                                       (big-data-mutator! {}))

@@ -38,7 +38,8 @@
        :initial-balance!    db/initial-bank-balance!
        :total-difference!   db/bank-total-difference!
        :read-file!          read-file!
-       :data-mutator!       db/bank-data!} ]
+       :data-mutator!       db/bank-data!
+       :account-date-range-mutator! db/current-date-range-bank-data!} ]
      ;;
      [ components/button-save-account!
       {:account-kind-cursor        db/bank-accounts
