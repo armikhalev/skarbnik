@@ -376,7 +376,7 @@
      (map-indexed
       (fn [idx entry]
         (let [selected? (r/atom (contains? @recur-data
-                                           (:_sk-id entry)))
+                                           (-> entry :_sk-id keyword)))
               big? (if credit-big-data
                      (r/atom (contains? @credit-big-data
                                         (-> entry :_sk-id keyword)))
