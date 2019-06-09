@@ -240,6 +240,53 @@
                                   @selected? "grey"
                                   @big?      "peru"
                                   :else      "")}}
+
+     ;; Additional columns --->
+     ;; Big transaction label and handling
+
+     (when credit?
+       ;; Should not show label if amount is negative, i.e. paying off debt
+       (if (< (:amount entry) 0)
+         ^{:key (str "big-"idx)}
+         [:td ""]
+
+         ;; else
+         ^{:key (str "big-"idx)}
+
+         (if-not @selected?
+           [:td
+            {:class (when @big? "color-danger")
+             :on-click #(if @big?
+                          (helpers/unset-distinct-data! big-data-mutator! entry)
+                          ;; else
+                          (helpers/set-distinct-data! big-data-mutator! entry))}
+            (if @big? "BIG" "B?")
+            ""]
+           [:td ""])))
+
+     ;; Recurring transaction label and handling
+
+     (if (and credit? (< (:amount entry) 0))
+       ;; Should not show label if amount is negative, i.e. paying off debt
+       ^{:key (str "recur-"idx)}
+       [:td ""]
+
+       ;; else
+       ^{:key (str "recur-"idx)}
+       [:td
+        (if-not @big?
+          [:label.recur-sign
+           {:on-click #(if @selected?
+                         (helpers/unset-distinct-data! recur-data-mutator! entry)
+                         ;; else
+                         (helpers/set-distinct-data! recur-data-mutator! entry))
+            :class (when @selected? "recur")}]
+          ;; else don't show recur to avoid user confusion
+          [:label ""])])
+
+     ;; <--- Additional columns
+
+     ;; ---> Columns coming from `entry`
      (doall
       (for [category-key category-keys
             :let [entry-val   (category-key entry)
@@ -248,6 +295,12 @@
                   date        (:date        entry)
                   amount      (:amount      entry)]]
         (case (name category-key)
+          "_sk-id" ;; ->
+          nil
+
+          "debt" ;; ->
+          nil
+
           "date" ;; ->
           ^{:key (str "date-" idx)}
           [:td entry-val]
@@ -277,60 +330,9 @@
             ^{:key (str "bigs-" idx)}
             [:td ""])
 
-          "debt" ;; ->
-          ^{:key (str "debt-" idx)}
-          [:td.color-burnt-orange
-           (if (> entry-val 0)
-             (str "$" (logic/cents->dollars entry-val))
-             "")]
-
           ;; else ->
           ^{:key (str category-key "-" idx)}
-          [:td entry-val])))
-
-
-     ;; Recurring transaction label and handling
-
-     (if (and credit? (< (:amount entry) 0))
-       ;; Should not show label if amount is negative, i.e. paying off debt
-       ^{:key (str "recur-"idx)}
-       [:td ""]
-
-       ;; else
-       ^{:key (str "recur-"idx)}
-       [:td
-        (if-not @big?
-          [:label.recur-sign
-           {:on-click #(if @selected?
-                         (helpers/unset-distinct-data! recur-data-mutator! entry)
-                         ;; else
-                         (helpers/set-distinct-data! recur-data-mutator! entry))
-            :class (when @selected? "recur")}]
-          ;; else don't show recur to avoid user confusion
-          [:label ""])])
-
-
-     ;; Big transaction label and handling
-
-     (when credit?
-       ;; Should not show label if amount is negative, i.e. paying off debt
-       (if (< (:amount entry) 0)
-         ^{:key (str "big-"idx)}
-         [:td ""]
-
-         ;; else
-         ^{:key (str "big-"idx)}
-
-         (if-not @selected?
-           [:td
-            {:class (when @big? "color-danger")
-             :on-click #(if @big?
-                          (helpers/unset-distinct-data! big-data-mutator! entry)
-                          ;; else
-                          (helpers/set-distinct-data! big-data-mutator! entry))}
-            (if @big? "BIG" "B?")
-            ""]
-           [:td ""])))]))
+          [:td entry-val])))]))
 
 ;; ENDs: ROW
 
@@ -346,6 +348,11 @@
   [:table
    [:thead
     [:tr
+    (if credit?
+      (take 2 (cycle '([:th ""])))
+      ;; else
+      [:th ""])
+
      (for [th (logic/get-maps-categories-str data)]
        (case th
          "description"
@@ -365,8 +372,14 @@
          [:th.color-burnt-orange "Bigs"]
 
          "debt"
-         ^{:key th}
-         [:th.color-burnt-orange "Debt"]
+         nil
+        ;  ^{:key th}
+        ;  [:th.color-burnt-orange "Debt"]
+
+         "_sk-id"
+         nil
+        ;  ^{:key th}
+        ;  [:th.color-burnt-orange "sk-id"]
 
          ;; else
          ^{:key th}
