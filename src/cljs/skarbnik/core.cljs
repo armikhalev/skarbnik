@@ -212,6 +212,21 @@
                            :credit-big-transactions   credit-big-transactions
                            :credit-recur-transactions credit-recur-transactions}))
 
+   (let [bank-recur-sum*     (logic/sum-recur-amounts @db/bank-recur-data)
+         bank-recur-sum      (if (and
+                                  (not (number? bank-recur-sum*))
+                                  (js/Number.isNaN bank-recur-sum*))
+                               0
+                               bank-recur-sum*)
+         credit-recur-sum      (logic/sum-recur-amounts @db/credit-recur-data)
+         sum            (logic/cents->dollars
+                         (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
+     [:h3
+      [:span "Sum of Bank and Credit recurring transactions: "]
+      [:span
+       (helpers/colorize-numbers sum)
+       sum]])
+
    (let [sum (logic/get-sum
               (- @db/credit-total-difference)
               @db/bank-total-difference)]
