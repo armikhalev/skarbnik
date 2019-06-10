@@ -266,12 +266,17 @@
 
      ;; Recurring transaction label and handling
 
-     (if (and credit? (< (:amount entry) 0))
+     (cond
        ;; Should not show label if amount is negative, i.e. paying off debt
+       (and credit? (< (:amount entry) 0)) ;; -->
        ^{:key (str "recur-"idx)}
        [:td ""]
-
-       ;; else
+       ;;
+       (and (not credit?) (> (:amount entry) 0)) ;; -->
+       ^{:key (str "recur-"idx)}
+       [:td ""]
+       ;;
+       :else ;; -->
        ^{:key (str "recur-"idx)}
        [:td
         (if-not @big?
