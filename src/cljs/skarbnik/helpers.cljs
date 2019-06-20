@@ -11,7 +11,7 @@
    And value being a map of those key/value pairs in `entry`"
   [mutator! entry]
   (let [data-key    (-> entry :_sk-id keyword)
-        parsed-entry (select-keys entry [:description :amount :date])]
+        parsed-entry (select-keys entry [:description :amount :date :AccountName])] ;; <-- `AccountName` used in Mint
     (mutator! assoc data-key parsed-entry)))
 
 

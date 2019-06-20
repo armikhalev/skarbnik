@@ -446,6 +446,8 @@
 ;; ENDs: Big amounts
 
 
+;; Random
+
 (defn get-maps-categories-str
   "[{}] -> [String]"
   [maps]
@@ -462,5 +464,14 @@
   (-> maps
       first
       keys))
+
+(defn recur-by-account-name
+  "{:_sk-id ^::transaction{:AccountName string?}} ->
+   {string?: [^::transaction{}]}
+   If no `:AccountName` found ret-> {nil ^::transactions[]}"
+  [recur-data]
+  (->> recur-data
+       vals
+       (group-by :AccountName)))
 
 ;; (g/check)

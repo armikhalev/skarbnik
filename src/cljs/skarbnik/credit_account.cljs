@@ -78,21 +78,26 @@
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
            merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
-       (prn "credt-account below, line 74" )
-       (pp/pprint @db/credit-big-data)
+       ;; (prn "credt-account below, line 74" )
+       ;; (pp/pprint @db/credit-big-data)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true
          :recur-data-mutator!     db/credit-recur-data!
          :credit-big-data         db/credit-big-data
          :big-data-mutator!       db/credit-big-data!
-         :side-drawer-mutator!    db/side-drawer!
+         :side-drawer-mutator!    db/credit-side-drawer!
          :recur-data              db/credit-recur-data}])
+
+     ;; (prn "credt-account below, line 92:---> " )
+     ;; (pp/pprint (-> @db/credit-side-drawer-data))
      [components/side-drawer
-      @db/side-drawer-data
-      db/side-drawer-closed?
-      db/side-drawer!]
+      @db/credit-side-drawer-data
+      @db/credit-side-drawer-closed?
+      db/credit-side-drawer!]
+
      [:hr]
+
      [ components/date-picker
       {:from-date!            db/from-date!
        :from-date             db/from-date
@@ -102,7 +107,10 @@
        :account-data-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/credit-analyze {:data                     data
-                                  :initial-credit-balance   db/initial-credit-balance
-                                  :credit-recur-data        db/credit-recur-data
-                                  :credit-total-difference! db/credit-total-difference!}]]))
+                                  :initial-credit-balance   @db/initial-credit-balance
+                                  :credit-recur-data        @db/credit-recur-data
+                                  :credit-total-difference! db/credit-total-difference!}]
+
+     [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!
+                                      :recur-data           db/credit-recur-data}]]))
 

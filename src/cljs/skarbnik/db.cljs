@@ -41,12 +41,14 @@
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :error-message            ""
 
-                     :side-drawer              {:data
-                                                {:entry []
-                                                 :parent-transaction {:date nil
-                                                                      :description ""
-                                                                      :amount ""}}
-                                                :closed? true}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-side-drawer       {:closed? true
+                                              :data {}}
+
+                     :credit-side-drawer     {:closed? true
+                                              :data {}}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
                      ;; Those two can handle all the meta/UI info about accounts
                      :bank                     {:error "" :message ""}
                      :credit                   {:error "" :message ""}
@@ -274,20 +276,37 @@
   [v]
   (reset! error-message v))
 
-;; Account meta/UI
+;; Account meta/UI ;;;
 
-(def side-drawer
-  (r/cursor db [ :side-drawer ]))
+;; Bank side-drawer
 
-(def side-drawer-data
-  (r/cursor db [ :side-drawer :data ]))
+(def bank-side-drawer
+  (r/cursor db [ :bank-side-drawer ]))
 
-(def side-drawer-closed?
-  (r/cursor db [ :side-drawer :closed?]))
+(def bank-side-drawer-data
+  (r/cursor db [ :bank-side-drawer :data ]))
 
-(defn side-drawer!
+(def bank-side-drawer-closed?
+  (r/cursor db [ :bank-side-drawer :closed?]))
+
+(defn bank-side-drawer!
   [path v]
-  (r/rswap! side-drawer assoc path v))
+  (r/rswap! bank-side-drawer assoc path v))
+
+;; Credit side-drawer
+
+(def credit-side-drawer
+  (r/cursor db [ :credit-side-drawer ]))
+
+(def credit-side-drawer-data
+  (r/cursor db [ :credit-side-drawer :data ]))
+
+(def credit-side-drawer-closed?
+  (r/cursor db [ :credit-side-drawer :closed?]))
+
+(defn credit-side-drawer!
+  [path v]
+  (r/rswap! credit-side-drawer assoc path v))
 
 ;;
 

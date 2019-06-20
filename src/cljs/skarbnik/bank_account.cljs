@@ -1,6 +1,7 @@
 (ns skarbnik.bank-account
   (:require [reagent.core :as r]
             [cljs.nodejs :as nodejs]
+            [clojure.pprint :as pp]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
             [skarbnik.db :as db]
@@ -66,7 +67,13 @@
        :recur-data-mutator!     db/bank-recur-data!
        :recur-data              db/bank-recur-data}]
 
+     [components/side-drawer
+      @db/bank-side-drawer-data
+      @db/bank-side-drawer-closed?
+      db/bank-side-drawer!]
+
      [:hr]
+
      [ components/date-picker
       {:from-date! db/from-date!
        :from-date db/from-date
@@ -76,7 +83,10 @@
        :account-data-mutator! db/current-date-range-bank-data!} ]
      ;;
      [ components/bank-analyze {:data                   data
-                                :initial-bank-balance   db/initial-bank-balance
-                                :bank-recur-data        db/bank-recur-data
-                                :bank-total-difference! db/bank-total-difference!}]]))
+                                :initial-bank-balance   @db/initial-bank-balance
+                                :bank-recur-data        @db/bank-recur-data
+                                :bank-total-difference! db/bank-total-difference!}]
+
+     [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
+                                      :recur-data           db/bank-recur-data}]]))
 

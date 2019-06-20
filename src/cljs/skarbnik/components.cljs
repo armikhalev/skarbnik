@@ -24,8 +24,8 @@
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
         difference     (logic/get-sum plus minus)
-        ending-balance (logic/get-sum @initial-bank-balance difference)
-        recur-sum*     (logic/sum-recur-amounts @bank-recur-data)
+        ending-balance (logic/get-sum initial-bank-balance difference)
+        recur-sum*     (logic/sum-recur-amounts bank-recur-data)
         recur-sum      (if (and
                             (not (number? recur-sum*))
                             (js/Number.isNaN recur-sum*))
@@ -68,8 +68,8 @@
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
         difference     (logic/get-sum plus minus)
-        ending-balance (logic/get-sum @initial-credit-balance difference)
-        recur-sum      (logic/sum-recur-amounts @credit-recur-data)]
+        ending-balance (logic/get-sum initial-credit-balance difference)
+        recur-sum      (logic/sum-recur-amounts credit-recur-data)]
 
        (do
          ;; Update
@@ -211,6 +211,21 @@
 ;; ENDs: SAVE button
 
 
+;; Recurring by account BTN
+
+(defn rec-by-account-btn
+  [{:keys [recur-data
+           side-drawer-mutator!]}]
+  (let [recur-by-account (logic/recur-by-account-name @recur-data)]
+    [:button.button.button-smaller
+     {:on-click #(do
+                  (side-drawer-mutator! :data {:recur-entry recur-by-account})
+                  (side-drawer-mutator! :closed? false))}
+     "Recurring by account"]))
+
+;; ENDs: Recurring by account BTN
+
+
 (defn input-initial-balance!
   [initial-balance-mutator!]
   [:p  "Press Enter to set Initial balance: "
@@ -325,7 +340,7 @@
             [:td.color-peru
              {:on-click #(do
                            (side-drawer-mutator! :closed? false)
-                           (side-drawer-mutator! :data {:entry entry-val
+                           (side-drawer-mutator! :data {:big-entry entry-val
                                                         :parent-transaction {:description description
                                                                              :date        date
                                                                              :amount      amount}}))}
@@ -354,8 +369,10 @@
    [:thead
     [:tr
     (if credit?
-      (take 2 (cycle '([:th ""])))
+      '(^{:key "empty-0"} [:th ""]
+        ^{:key "empty-1"} [:th ""])
       ;; else
+      ^{:key "empty-2"}
       [:th ""])
 
      (for [th (logic/get-maps-categories-str data)]
@@ -414,40 +431,6 @@
       ;; feed `map-indexed`
       data))]])
 
-(defn side-drawer
-  [{:keys [entry parent-transaction]} ;; <- `db/side-drawer-data` desctructured
-   closed?
-   side-drawer-mutator!]
-  [:table.side-drawer
-   {:class (when @closed? "closed")
-    :on-click #(do
-                (side-drawer-mutator! :closed? true)
-                (side-drawer-mutator! :data {:entry []
-                                             :parent-transaction {:date nil
-                                                                  :description ""
-                                                                  :amount ""}}))}
-   [:tbody
-    [:tr
-     [:td.close-btn.color-burnt-orange]]
-    [:tr
-     [:td.color-blue "Clicked: "]
-
-     [:td (:description parent-transaction)]
-     [:td (->> parent-transaction :date (str "d: "))]
-     [:td (str "$: "(-> parent-transaction :amount logic/cents->dollars))]]
-    [:tr
-     [:td
-      [:hr]]]
-    (doall
-     (for [v entry]
-       ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
-       [:tr
-        [:td.color-burnt-orange "desc: "]
-        [:td (:description v)]
-        [:td.color-burnt-orange "date: "]
-        [:td (-> v :date logic/cljs-time->str)]
-        [:td.color-burnt-orange "amount: "]
-        [:td (str "$" (-> v :amount logic/cents->dollars))]]))]])
 
 (defn date-picker
   [{:keys [from-date
@@ -478,3 +461,85 @@
    [:button.margin-left-5
     {:on-click #(account-data-mutator! {})}
     "Reset"]])
+
+;; MULTIMETHODS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn side-drawer*->
+  [drawer-data
+   closed?
+   side-drawer-mutator!]
+  (try
+    (-> drawer-data keys set)
+    (catch js/Object e (js.console.error "Multimethod `side-drawer` expects a map."))))
+
+(defmulti side-drawer #'side-drawer*->)
+
+(defmethod side-drawer #{:big-entry :parent-transaction}
+  [drawer-data
+   closed?
+   side-drawer-mutator!]
+  (let [{:keys [big-entry parent-transaction]} drawer-data]
+    [:table.side-drawer
+     {:class (when closed? "closed")
+      :on-click #(do
+                   (side-drawer-mutator! :closed? true)
+                   (side-drawer-mutator! :data {}))}
+     [:tbody
+      [:tr
+       [:td.close-btn.color-burnt-orange]]
+      [:tr
+       [:td.color-blue "Clicked: "]
+
+       [:td (:description parent-transaction)]
+       [:td (->> parent-transaction :date (str "d: "))]
+       [:td (str "$: "(-> parent-transaction :amount logic/cents->dollars))]]
+      [:tr
+       [:td
+        [:hr]]]
+      (doall
+       (for [v big-entry]
+         ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+         [:tr
+          [:td.color-burnt-orange "desc: "]
+          [:td (:description v)]
+          [:td.color-burnt-orange "date: "]
+          [:td (-> v :date logic/cljs-time->str)]
+          [:td.color-burnt-orange "amount: "]
+          [:td (str "$" (-> v :amount logic/cents->dollars))]]))]]))
+
+(defmethod side-drawer #{:recur-entry}
+  [drawer-data
+   closed?
+   side-drawer-mutator!]
+  [:table.side-drawer
+   {:class (when closed? "closed")
+    :on-click #(do
+                 (side-drawer-mutator! :closed? true)
+                 (side-drawer-mutator! :data {}))}
+   (doall
+    (for [[account-name data] (:recur-entry drawer-data)]
+      ^{:key (str account-name"-"uuid)}
+      [:tbody
+       [:tr
+        [:td.close-btn.color-burnt-orange]]
+       [:tr
+        [:td ""]
+        [:td.color-blue account-name]]
+       [:tr
+        [:td
+         [:hr]]]
+       (for [v data]
+         ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+         [:tr
+          [:td.color-burnt-orange "desc: "]
+          [:td (:description v)]
+          [:td.color-burnt-orange "date: "]
+          [:td (-> v :date logic/cljs-time->str)]
+          [:td.color-burnt-orange "amount: "]
+          [:td (str "$" (-> v :amount logic/cents->dollars))]])]))])
+
+(defmethod side-drawer :default
+  [drawer-data
+   closed?
+   side-drawer-mutator!]
+  #_(prn "This is default side-drawer, no implementation."))

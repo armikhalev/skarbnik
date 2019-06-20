@@ -105,14 +105,16 @@ label.recur-sign.recur:before {
 table.side-drawer {
     padding: 5px;
     position: fixed;
-    top: 50%;
+    top: 12px;
+    transition: right 4s;
     right: 0;
     background-color: rosybrown;
     border-bottom: 2px solid grey;
 }
 
-.closed {
-    visibility: hidden;
+table.side-drawer.closed {
+    transition: right 4s;
+    right: -100%;
 }
 
 .close-btn:before {
