@@ -462,84 +462,69 @@
     {:on-click #(account-data-mutator! {})}
     "Reset"]])
 
-;; MULTIMETHODS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn side-drawer*->
-  [drawer-data
-   closed?
-   side-drawer-mutator!]
-  (try
-    (-> drawer-data keys set)
-    (catch js/Object e (js.console.error "Multimethod `side-drawer` expects a map."))))
+;; SIDE DRAWER
 
-(defmulti side-drawer #'side-drawer*->)
+(defn side-drawer-bigs
+  [data]
+  (let [{:keys [big-entry parent-transaction]} data]
+    [:tbody
+     [:tr
+      [:td.close-btn.color-burnt-orange]]
+     [:tr
+      [:td.color-blue "Clicked: "]
 
-(defmethod side-drawer #{:big-entry :parent-transaction}
-  [drawer-data
-   closed?
-   side-drawer-mutator!]
-  (let [{:keys [big-entry parent-transaction]} drawer-data]
-    [:table.side-drawer
-     {:class (when closed? "closed")
-      :on-click #(do
-                   (side-drawer-mutator! :closed? true)
-                   (side-drawer-mutator! :data {}))}
+      [:td (:description parent-transaction)]
+      [:td (->> parent-transaction :date (str "d: "))]
+      [:td (str "$: "(-> parent-transaction :amount logic/cents->dollars))]]
+     [:tr
+      [:td
+       [:hr]]]
+     (doall
+      (for [v big-entry]
+        ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+        [:tr
+         [:td.color-burnt-orange "desc: "]
+         [:td (:description v)]
+         [:td.color-burnt-orange "date: "]
+         [:td (-> v :date logic/cljs-time->str)]
+         [:td.color-burnt-orange "amount: "]
+         [:td (str "$" (-> v :amount logic/cents->dollars))]]))]))
+
+(defn side-drawer-recurs
+  [{:keys [recur-entry]}]
+  (doall
+   (for [[account-name data] recur-entry]
+     ^{:key (str account-name"-"uuid)}
      [:tbody
       [:tr
        [:td.close-btn.color-burnt-orange]]
       [:tr
-       [:td.color-blue "Clicked: "]
-
-       [:td (:description parent-transaction)]
-       [:td (->> parent-transaction :date (str "d: "))]
-       [:td (str "$: "(-> parent-transaction :amount logic/cents->dollars))]]
+       [:td ""]
+       [:td.color-blue account-name]]
       [:tr
        [:td
         [:hr]]]
-      (doall
-       (for [v big-entry]
-         ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
-         [:tr
-          [:td.color-burnt-orange "desc: "]
-          [:td (:description v)]
-          [:td.color-burnt-orange "date: "]
-          [:td (-> v :date logic/cljs-time->str)]
-          [:td.color-burnt-orange "amount: "]
-          [:td (str "$" (-> v :amount logic/cents->dollars))]]))]]))
+      (for [v data]
+        ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+        [:tr
+         [:td.color-burnt-orange "desc: "]
+         [:td (:description v)]
+         [:td.color-burnt-orange "date: "]
+         [:td (-> v :date logic/cljs-time->str)]
+         [:td.color-burnt-orange "amount: "]
+         [:td (str "$" (-> v :amount logic/cents->dollars))]])])))
 
-(defmethod side-drawer #{:recur-entry}
-  [drawer-data
+(defn side-drawer-wrapper
+  [data
    closed?
    side-drawer-mutator!]
   [:table.side-drawer
    {:class (when closed? "closed")
-    :on-click #(do
-                 (side-drawer-mutator! :closed? true)
-                 (side-drawer-mutator! :data {}))}
-   (doall
-    (for [[account-name data] (:recur-entry drawer-data)]
-      ^{:key (str account-name"-"uuid)}
-      [:tbody
-       [:tr
-        [:td.close-btn.color-burnt-orange]]
-       [:tr
-        [:td ""]
-        [:td.color-blue account-name]]
-       [:tr
-        [:td
-         [:hr]]]
-       (for [v data]
-         ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
-         [:tr
-          [:td.color-burnt-orange "desc: "]
-          [:td (:description v)]
-          [:td.color-burnt-orange "date: "]
-          [:td (-> v :date logic/cljs-time->str)]
-          [:td.color-burnt-orange "amount: "]
-          [:td (str "$" (-> v :amount logic/cents->dollars))]])]))])
+    :on-click #(side-drawer-mutator! :closed? true)}
+   (let [k (-> data keys first)]
+     (case k
+       :recur-entry (side-drawer-recurs data)
+       :big-entry   (side-drawer-bigs data)))])
 
-(defmethod side-drawer :default
-  [drawer-data
-   closed?
-   side-drawer-mutator!]
-  #_(prn "This is default side-drawer, no implementation."))
+;; ENDs: Side Drawer

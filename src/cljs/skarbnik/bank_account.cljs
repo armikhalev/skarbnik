@@ -67,7 +67,7 @@
        :recur-data-mutator!     db/bank-recur-data!
        :recur-data              db/bank-recur-data}]
 
-     [components/side-drawer
+     [components/side-drawer-wrapper
       @db/bank-side-drawer-data
       @db/bank-side-drawer-closed?
       db/bank-side-drawer!]

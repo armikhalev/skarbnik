@@ -89,9 +89,7 @@
          :side-drawer-mutator!    db/credit-side-drawer!
          :recur-data              db/credit-recur-data}])
 
-     ;; (prn "credt-account below, line 92:---> " )
-     ;; (pp/pprint (-> @db/credit-side-drawer-data))
-     [components/side-drawer
+     [components/side-drawer-wrapper
       @db/credit-side-drawer-data
       @db/credit-side-drawer-closed?
       db/credit-side-drawer!]

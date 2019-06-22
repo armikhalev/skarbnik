@@ -106,14 +106,14 @@ table.side-drawer {
     padding: 5px;
     position: fixed;
     top: 12px;
-    transition: right 4s;
+    transition: right .4s;
     right: 0;
     background-color: rosybrown;
     border-bottom: 2px solid grey;
 }
 
 table.side-drawer.closed {
-    transition: right 4s;
+    transition: right .9s;
     right: -100%;
 }
 
