@@ -216,7 +216,7 @@
 (defn rec-by-account-btn
   [{:keys [recur-data
            side-drawer-mutator!]}]
-  (let [recur-by-account (logic/recur-by-account-name @recur-data)]
+  (let [recur-by-account (logic/recur-by-account-name recur-data)]
     [:button.button.button-smaller
      {:on-click #(do
                   (side-drawer-mutator! :data {:recur-entry recur-by-account})
@@ -325,6 +325,10 @@
           ^{:key (str "date-" idx)}
           [:td entry-val]
 
+          "description" ;; ->
+          ^{:key (str "description-" idx)}
+          [:td.description entry-val]
+
           "amount" ;; ->
           ^{:key (str "amount-" idx)}
           [:td
@@ -365,71 +369,72 @@
            side-drawer-mutator!
            credit?
            recur-data]}]
-  [:table
-   [:thead
-    [:tr
-    (if credit?
-      '(^{:key "empty-0"} [:th ""]
-        ^{:key "empty-1"} [:th ""])
-      ;; else
-      ^{:key "empty-2"}
-      [:th ""])
+  [:section.transactions-table-wrapper
+   [:table.transactions-table
+    [:thead
+     [:tr
+      (if credit?
+        '(^{:key "empty-0"} [:th ""]
+          ^{:key "empty-1"} [:th ""])
+        ;; else
+        ^{:key "empty-2"}
+        [:th ""])
 
-     (for [th (logic/get-maps-categories-str data)]
-       (case th
-         "description"
-         ^{:key th}
-         [:th "Description"]
+      (for [th (logic/get-maps-categories-str data)]
+        (case th
+          "description"
+          ^{:key th}
+          [:th.description "Description"]
 
-         "amount"
-         ^{:key th}
-         [:th "Amount"]
+          "amount"
+          ^{:key th}
+          [:th "Amount"]
 
-         "date"
-         ^{:key th}
-         [:th "Date"]
+          "date"
+          ^{:key th}
+          [:th "Date"]
 
-         "bigs"
-         ^{:key th}
-         [:th.color-burnt-orange "Bigs"]
+          "bigs"
+          ^{:key th}
+          [:th.color-burnt-orange "Bigs"]
 
-         "debt"
-         nil
-        ;  ^{:key th}
-        ;  [:th.color-burnt-orange "Debt"]
+          "debt"
+          nil
+                                        ;  ^{:key th}
+                                        ;  [:th.color-burnt-orange "Debt"]
 
-         "_sk-id"
-         nil
-        ;  ^{:key th}
-        ;  [:th.color-burnt-orange "sk-id"]
+          "_sk-id"
+          nil
+                                        ;  ^{:key th}
+                                        ;  [:th.color-burnt-orange "sk-id"]
 
-         ;; else
-         ^{:key th}
-         [:th th]))]]
-   [:tbody
-    (doall
-     (map-indexed
-      (fn [idx entry]
-        (let [selected? (r/atom (contains? @recur-data
-                                           (-> entry :_sk-id keyword)))
-              big? (if credit-big-data
-                     (r/atom (contains? @credit-big-data
-                                        (-> entry :_sk-id keyword)))
-                     (r/atom false))]
-          ^{:key idx}
-          [table-row
-           {:recur-data-mutator!  recur-data-mutator!
-            :big-data-mutator!    big-data-mutator!
-            :side-drawer-mutator! side-drawer-mutator!
-            :idx             idx
-            :entry           entry
-            :selected?       selected?
-            :category-keys   (logic/get-maps-categories data)
-            :credit?         credit?
-            :big?            big?
-            :data            data}]))
-      ;; feed `map-indexed`
-      data))]])
+          ;; else
+          ^{:key th}
+          [:th th]))]]
+    [:tbody
+     (doall
+      (map-indexed
+       (fn [idx entry]
+         (let [selected? (r/atom (contains? @recur-data
+                                            (-> entry :_sk-id keyword)))
+               big? (if credit-big-data
+                      (r/atom (contains? @credit-big-data
+                                         (-> entry :_sk-id keyword)))
+                      (r/atom false))]
+           ^{:key idx}
+           [table-row
+            {:recur-data-mutator!  recur-data-mutator!
+             :big-data-mutator!    big-data-mutator!
+             :side-drawer-mutator! side-drawer-mutator!
+             :idx             idx
+             :entry           entry
+             :selected?       selected?
+             :category-keys   (logic/get-maps-categories data)
+             :credit?         credit?
+             :big?            big?
+             :data            data}]))
+       ;; feed `map-indexed`
+       data))]]])
 
 
 (defn date-picker
@@ -470,8 +475,6 @@
   (let [{:keys [big-entry parent-transaction]} data]
     [:tbody
      [:tr
-      [:td.close-btn.color-burnt-orange]]
-     [:tr
       [:td.color-blue "Clicked: "]
 
       [:td (:description parent-transaction)]
@@ -495,25 +498,32 @@
   [{:keys [recur-entry]}]
   (doall
    (for [[account-name data] recur-entry]
-     ^{:key (str account-name"-"uuid)}
-     [:tbody
-      [:tr
-       [:td.close-btn.color-burnt-orange]]
-      [:tr
-       [:td ""]
-       [:td.color-blue account-name]]
-      [:tr
-       [:td
-        [:hr]]]
-      (for [v data]
-        ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+     (let [sum-amounts (reduce #(+ %1 (:amount %2)) 0 data)]
+       ^{:key (str account-name"-"uuid)}
+       [:tbody
         [:tr
-         [:td.color-burnt-orange "desc: "]
-         [:td (:description v)]
-         [:td.color-burnt-orange "date: "]
-         [:td (-> v :date logic/cljs-time->str)]
-         [:td.color-burnt-orange "amount: "]
-         [:td (str "$" (-> v :amount logic/cents->dollars))]])])))
+         [:td ""]
+         [:td.color-blue account-name]]
+        (for [v data]
+          ^{:key (str "recur-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+          [:tr
+           [:td.color-burnt-orange "desc: "]
+           [:td (:description v)]
+           [:td.color-burnt-orange "date: "]
+           [:td (-> v :date logic/cljs-time->str)]
+           [:td.color-burnt-orange "amount: "]
+           [:td (str "$" (-> v :amount logic/cents->dollars))]])
+        [:tr
+         [:td]
+         [:td]
+         [:td]
+         [:td]
+         [:td "Sum: "]
+         [:td.color-danger (str "$"(logic/cents->dollars sum-amounts))]]
+        [:tr
+         [:td]
+         [:td
+          [:hr]]]]))))
 
 (defn side-drawer-wrapper
   [data
@@ -522,6 +532,9 @@
   [:table.side-drawer
    {:class (when closed? "closed")
     :on-click #(side-drawer-mutator! :closed? true)}
+   [:tbody
+    [:tr
+     [:td.close-btn.color-burnt-orange]]]
    (let [k (-> data keys first)]
      (case k
        :recur-entry (side-drawer-recurs data)

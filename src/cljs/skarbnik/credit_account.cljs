@@ -110,5 +110,5 @@
                                   :credit-total-difference! db/credit-total-difference!}]
 
      [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!
-                                      :recur-data           db/credit-recur-data}]]))
+                                      :recur-data           @db/credit-recur-data}]]))
 

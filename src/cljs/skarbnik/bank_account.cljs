@@ -88,5 +88,5 @@
                                 :bank-total-difference! db/bank-total-difference!}]
 
      [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
-                                      :recur-data           db/bank-recur-data}]]))
+                                      :recur-data           @db/bank-recur-data}]]))
 

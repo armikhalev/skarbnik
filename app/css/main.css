@@ -102,10 +102,22 @@ label.recur-sign.recur:before {
     content: "\021BA"
 }
 
+
+.close-btn:before {
+    /* Unicode for Circle Times ⊗ */
+    content: "\02297";
+}
+
+.ui-styles {
+    text-align: center;
+}
+
+/* Drawer Table */
+
 table.side-drawer {
     padding: 5px;
     position: fixed;
-    top: 12px;
+    top: 0px;
     transition: right .4s;
     right: 0;
     background-color: rosybrown;
@@ -117,16 +129,36 @@ table.side-drawer.closed {
     right: -100%;
 }
 
-.close-btn:before {
-    /* Unicode for Circle Times ⊗ */
-    content: "\02297";
+main.white-background table.side-drawer tr:nth-child(even) {
+    background-color: #ececec;
 }
 
-.ui-styles {
-    text-align: center;
+main.white-background table.side-drawer {
+    background-color: #f5f5f5;
+    border-bottom: 2px grey outset;
+    border-left: 2px grey outset;
+    box-shadow: -5px 5px 5px grey;
 }
 
 /* Transactions Table */
+
+.transactions-table-wrapper {
+    height: 500px;
+    overflow-y: auto;
+}
+
+.transactions-table {
+    border-collapse: collapse;
+}
+
+.transactions-table th, .transactions-table td {
+    padding: 5px;
+    text-align: left;
+}
+
+/* ENDs: Transactions Table */
+
+
 main.white-background tr:nth-child(even) {
     background-color: #f2f2f2;
 }
