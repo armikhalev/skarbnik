@@ -341,7 +341,7 @@
           "bigs" ;; ->
           (if entry-val
             ^{:key (str "bigs-" idx)}
-            [:td.color-peru
+            [:td.big-entry.color-peru
              {:on-click #(do
                            (side-drawer-mutator! :closed? false)
                            (side-drawer-mutator! :data {:big-entry entry-val
@@ -369,72 +369,81 @@
            side-drawer-mutator!
            credit?
            recur-data]}]
-  [:section.transactions-table-wrapper
-   [:table.transactions-table
-    [:thead
-     [:tr
-      (if credit?
-        '(^{:key "empty-0"} [:th ""]
-          ^{:key "empty-1"} [:th ""])
-        ;; else
-        ^{:key "empty-2"}
-        [:th ""])
+  (if-not (seq data)
+    [:section.transactions-table-wrapper
+     [:div.padder]
+     [:table.transactions-table
+      [:h2.text-center.color-peru
+       "Start by clicking <Open File> button and choose data file."]]]
 
-      (for [th (logic/get-maps-categories-str data)]
-        (case th
-          "description"
-          ^{:key th}
-          [:th.description "Description"]
+    ;; If there is table `data`
+    [:section.transactions-table-wrapper
+     [:div.padder]
+     [:table.transactions-table
+      [:thead
+       [:tr
+        (if credit?
+          '(^{:key "empty-0"} [:th nil]
+            ^{:key "empty-1"} [:th nil])
+          ;; else
+          ^{:key "empty-2"}
+          [:th nil])
 
-          "amount"
-          ^{:key th}
-          [:th "Amount"]
+        (for [th (logic/get-maps-categories-str data)]
+          (case th
+            "description"
+            ^{:key th}
+            [:th.description [:div "Description"]]
 
-          "date"
-          ^{:key th}
-          [:th "Date"]
+            "amount"
+            ^{:key th}
+            [:th [:div "Amount"]]
 
-          "bigs"
-          ^{:key th}
-          [:th.color-burnt-orange "Bigs"]
+            "date"
+            ^{:key th}
+            [:th [:div "Date"]]
 
-          "debt"
-          nil
+            "bigs"
+            ^{:key th}
+            [:th.color-burnt-orange [:div "Bigs"]]
+
+            "debt"
+            nil
                                         ;  ^{:key th}
                                         ;  [:th.color-burnt-orange "Debt"]
 
-          "_sk-id"
-          nil
+            "_sk-id"
+            nil
                                         ;  ^{:key th}
                                         ;  [:th.color-burnt-orange "sk-id"]
 
-          ;; else
-          ^{:key th}
-          [:th th]))]]
-    [:tbody
-     (doall
-      (map-indexed
-       (fn [idx entry]
-         (let [selected? (r/atom (contains? @recur-data
-                                            (-> entry :_sk-id keyword)))
-               big? (if credit-big-data
-                      (r/atom (contains? @credit-big-data
-                                         (-> entry :_sk-id keyword)))
-                      (r/atom false))]
-           ^{:key idx}
-           [table-row
-            {:recur-data-mutator!  recur-data-mutator!
-             :big-data-mutator!    big-data-mutator!
-             :side-drawer-mutator! side-drawer-mutator!
-             :idx             idx
-             :entry           entry
-             :selected?       selected?
-             :category-keys   (logic/get-maps-categories data)
-             :credit?         credit?
-             :big?            big?
-             :data            data}]))
-       ;; feed `map-indexed`
-       data))]]])
+            ;; else
+            ^{:key th}
+            [:th [:div th]]))]]
+      [:tbody
+       (doall
+        (map-indexed
+         (fn [idx entry]
+           (let [selected? (r/atom (contains? @recur-data
+                                              (-> entry :_sk-id keyword)))
+                 big? (if credit-big-data
+                        (r/atom (contains? @credit-big-data
+                                           (-> entry :_sk-id keyword)))
+                        (r/atom false))]
+             ^{:key idx}
+             [table-row
+              {:recur-data-mutator!  recur-data-mutator!
+               :big-data-mutator!    big-data-mutator!
+               :side-drawer-mutator! side-drawer-mutator!
+               :idx             idx
+               :entry           entry
+               :selected?       selected?
+               :category-keys   (logic/get-maps-categories data)
+               :credit?         credit?
+               :big?            big?
+               :data            data}]))
+         ;; feed `map-indexed`
+         data))]]]))
 
 
 (defn date-picker
@@ -507,11 +516,11 @@
         (for [v data]
           ^{:key (str "recur-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
           [:tr
-           [:td.color-burnt-orange "desc: "]
+           [:td.color-peru "desc: "]
            [:td (:description v)]
-           [:td.color-burnt-orange "date: "]
+           [:td.color-peru "date: "]
            [:td (-> v :date logic/cljs-time->str)]
-           [:td.color-burnt-orange "amount: "]
+           [:td.color-peru "amount: "]
            [:td (str "$" (-> v :amount logic/cents->dollars))]])
         [:tr
          [:td]
@@ -538,6 +547,10 @@
    (let [k (-> data keys first)]
      (case k
        :recur-entry (side-drawer-recurs data)
-       :big-entry   (side-drawer-bigs data)))])
+       :big-entry   (side-drawer-bigs data)
+       ;; Else - never appears
+       [:thead
+        [:tr
+         [:th "There is no data provided."]]]))])
 
 ;; ENDs: Side Drawer
