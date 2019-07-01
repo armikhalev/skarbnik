@@ -14,6 +14,21 @@
 
 ;; END: Specs
 
+
+;; Auxiliary fns
+
+(defn sort-by-date
+  [data]
+  (sort-by
+   :date
+   #(cljs-time/before?
+     (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
+     (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
+   data))
+
+;; ENDs: Auxiliary fns
+
+
 (defonce db (r/atom {:bank-accounts            []
                      :credit-accounts          []
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -134,30 +149,34 @@
   (r/cursor db [ :bank-data ]))
 
 (defn bank-data!
-  [v]
-  (let [;; This is needed for Mint app, that doesn't add minus to transactions
-        ;; instead it gives Transaction Type
-        transaction-type? (-> v first :TransactionType)
-        debit?            #(= "debit" (:TransactionType %))
-        data              (if transaction-type?
-                            (map
-                             #(if (debit? %)
-                                (-> %
-                                    (update , :amount -)
-                                    (assoc , :_sk-id (str (random-uuid))))
-                                ;;else
-                                (assoc % :_sk-id (str (random-uuid))))
-                             v)
-                            ;;else
-                            (map #(assoc % :_sk-id (str (random-uuid))) v))]
-    (do
-      (current-date-range-bank-data! {})
-      (reset! bank-data (sort-by
-                         :date
-                         #(cljs-time/before?
-                           (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
-                           (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
-                         data)))))
+  ([v]
+   (let [;; This is needed for Mint app, that doesn't add minus to transactions
+         ;; instead it gives Transaction Type
+         transaction-type? (-> v first :TransactionType)
+         debit?            #(= "debit" (:TransactionType %))
+         data              (if transaction-type?
+                             (map
+                              #(if (debit? %)
+                                 (-> %
+                                     (update , :amount -)
+                                     (assoc , :_sk-id (str (random-uuid))))
+                                 ;;else
+                                 (assoc % :_sk-id (str (random-uuid))))
+                              v)
+                             ;;else
+                             (map #(assoc % :_sk-id (str (random-uuid))) v))]
+     (do
+       (current-date-range-bank-data! {})
+       (reset! bank-data (sort-by-date data)))))
+  ([v from-file?]
+   (do
+     (current-date-range-bank-data! {})
+     (let [data (map
+                 #(update % :_sk-id
+                          (fn [sk-id]
+                            (when sk-id (clojure.string/trim sk-id))))
+                 v)]
+       (reset! bank-data (sort-by-date data))))))
 
 ;;;
 
@@ -165,30 +184,34 @@
   (r/cursor db [ :credit-data ]))
 
 (defn credit-data!
-  [v]
-  (let [;; This is needed for Mint app, that doesn't add minus to transactions
-        ;; instead it gives Transaction Type
-        transaction-type? (-> v first :TransactionType)
-        credit?           #(= "credit" (:TransactionType %))
-        data              (if transaction-type?
-                            (map
-                             #(if (credit? %)
-                                (-> %
-                                    (update , :amount -)
-                                    (assoc , :_sk-id (str (random-uuid))))
-                                ;;else
-                                (assoc % :_sk-id (str (random-uuid))))
-                             v)
-                            ;;else
-                            (map #(assoc % :_sk-id (str (random-uuid))) v))]
-    (do
-      (current-date-range-credit-data! {})
-      (reset! credit-data (sort-by
-                           :date
-                           #(cljs-time/before?
-                             (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
-                             (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
-                           data)))))
+  ([v]
+   (let [;; This is needed for Mint app, that doesn't add minus to transactions
+         ;; instead it gives Transaction Type
+         transaction-type? (-> v first :TransactionType)
+         credit?           #(= "credit" (:TransactionType %))
+         data              (if transaction-type?
+                             (map
+                              #(if (credit? %)
+                                 (-> %
+                                     (update , :amount -)
+                                     (assoc , :_sk-id (str (random-uuid))))
+                                 ;;else
+                                 (assoc % :_sk-id (str (random-uuid))))
+                              v)
+                             ;;else
+                             (map #(assoc % :_sk-id (str (random-uuid))) v))]
+     (do
+       (current-date-range-credit-data! {})
+       (reset! credit-data (sort-by-date data)))))
+  ([v from-file?]
+   (do
+     (current-date-range-credit-data! {})
+     (let [data (map
+                 #(update % :_sk-id
+                          (fn [sk-id]
+                            (when sk-id (clojure.string/trim sk-id))))
+                 v)]
+       (reset! credit-data (sort-by-date data))))))
 
 ;;; <-- ENDs: DATA
 

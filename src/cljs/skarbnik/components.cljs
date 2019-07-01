@@ -373,8 +373,11 @@
     [:section.transactions-table-wrapper
      [:div.padder]
      [:table.transactions-table
-      [:h2.text-center.color-peru
-       "Start by clicking <Open File> button and choose data file."]]]
+      [:thead
+       [:tr
+        [:th
+         [:h2.color-peru
+          "Start by clicking <Open File> button and choose data file."]]]]]]
 
     ;; If there is table `data`
     [:section.transactions-table-wrapper

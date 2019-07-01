@@ -48,7 +48,7 @@
                       ;;
                       (read-file!
                        (str bank-dir-path"/"bank-data-file-path)
-                       (fn [data] (db/bank-data! data))
+                       (fn [data] (db/bank-data! data :from-file))
                        :parse)
                       ;;
                       (read-file!
@@ -92,7 +92,7 @@
                       ;;
                       (read-file!
                        (str credit-dir-path"/"credit-data-file-path)
-                       (fn [data] (db/credit-data! data))
+                       (fn [data] (db/credit-data! data :from-file))
                        :parse)
                       ;;
                       (read-file!
