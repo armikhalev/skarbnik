@@ -56,8 +56,13 @@
           (helpers/colorize-numbers recur-sum)
           (logic/cents->dollars recur-sum)]]
         [:span.inline-flex.h3
-         [:span "Balance: "] [:span (helpers/colorize-numbers ending-balance)
-                              (logic/cents->dollars ending-balance)]]]])))
+         [:span "Balance: "]
+         [:span
+          (if (not= 0 ending-balance)
+            {:class "color-red margin-left-5"})
+          (if (logic/is-number? ending-balance)
+            (logic/cents->dollars ending-balance)
+            "Fix numbers in your data file")]]]])))
 
 
 (defn credit-analyze

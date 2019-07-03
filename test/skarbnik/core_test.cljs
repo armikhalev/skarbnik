@@ -1,6 +1,7 @@
 (ns skarbnik.core-test
   (:require [cljs.test :refer-macros [is testing async]]
             [reagent.core :as r]
+            [cljs.pprint :as pp]
             [devcards.core :refer-macros [deftest defcard-rg]]
             [skarbnik.logic :as logic]
             [cljs-time.coerce :as ->cl-time]
@@ -100,7 +101,6 @@
      ending-balance]))
 
 ;; Bank
-
 (defcard-rg bank-analyze-comp
   "Should show correct calculation numbers:
   This period:
@@ -113,15 +113,15 @@
     Balance:
     -50.00"
   [ components/bank-analyze {:data test-data
-                             :initial-bank-balance   initial-bank-balance
-                             :bank-recur-data        bank-recur-data
+                             :initial-bank-balance   @initial-bank-balance
+                             :bank-recur-data        @bank-recur-data
                              :bank-total-difference! bank-total-difference!}])
 
 ;; ENDs: Bank
 
 ;; Credit
 
-
+(pp/pprint (logic/get-sum @initial-credit-balance (logic/get-sum 5000 -10000)))
 (defcard-rg credit-analyze-comp
   "Should show correct calculation numbers:
   This period:
@@ -134,8 +134,8 @@
     Total debt:
     -50.00"
   [ components/credit-analyze {:data                     test-data
-                               :initial-credit-balance   initial-credit-balance
-                               :credit-recur-data        credit-recur-data
+                               :initial-credit-balance   @initial-credit-balance
+                               :credit-recur-data        @credit-recur-data
                                :credit-total-difference! credit-total-difference!}])
 
 ;; ENDs: Credit
