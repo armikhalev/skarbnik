@@ -38,25 +38,18 @@
 
        ;; SELECT acconut button
        [:button.button-smaller.select-bank
-        {:on-click #(do
-                      (reset! current-page :bank)
-                      ;;
-                      (read-file!
-                       (str bank-dir-path"/"bank-initial-balance-file-path)
-                       (fn [data] (db/initial-bank-balance!
-                                         (logic/dollars->cents data))))
-                      ;;
-                      (read-file!
-                       (str bank-dir-path"/"bank-data-file-path)
-                       (fn [data] (db/bank-data! data :from-file))
-                       :parse)
-                      ;;
-                      (read-file!
-                       (str bank-dir-path"/"bank-recur-transactions)
-                       ;; Read EDN and put it into state
-                       (fn [data]
-                         (db/bank-recur-data! (reader/read-string data))))
-                      (db/current-bank-account! bank-name))}
+        {:on-click #(helpers/read-and-set-data!
+                     {:set-current-page!         (fn [] (reset! current-page :bank))
+                      :dir-path                  bank-dir-path
+                      :initial-balance-file-path bank-initial-balance-file-path
+                      :read-file!                read-file!
+                      :initial-balance-mutator!  db/initial-bank-balance!
+                      :data-file-path            bank-data-file-path
+                      :data-mutator!             db/bank-data!
+                      :recur-transactions-path   bank-recur-transactions
+                      :recur-data-mutator!       db/bank-recur-data!
+                      :current-account-mutator!  db/current-bank-account!
+                      :current-name              bank-name})}
         bank-name]
 
        ;; DELETE account button
@@ -82,32 +75,20 @@
 
        ;; SELECT acconut button
        [:button.button-smaller.select-credit
-        {:on-click #(do
-                      (reset! current-page :credit)
-                      ;;
-                      (read-file!
-                       (str credit-dir-path"/"credit-initial-balance-file-path)
-                       (fn [data] (db/initial-credit-balance!
-                                   (logic/dollars->cents data))))
-                      ;;
-                      (read-file!
-                       (str credit-dir-path"/"credit-data-file-path)
-                       (fn [data] (db/credit-data! data :from-file))
-                       :parse)
-                      ;;
-                      (read-file!
-                       (str credit-dir-path"/"credit-recur-transactions)
-                       ;; Read EDN and put it into state
-                       (fn [data]
-                         (db/credit-recur-data! (reader/read-string data))))
-                      ;;
-                      (read-file!
-                       (str credit-dir-path"/"credit-big-transactions)
-                       ;; Read EDN and put it into state
-                       (fn [data]
-                         (db/credit-big-data! (reader/read-string data))))
-                      ;;
-                      (db/current-credit-account! credit-name))}
+        {:on-click #(helpers/read-and-set-data!
+                     {:set-current-page!         (fn [] (reset! current-page :credit))
+                      :dir-path                  credit-dir-path
+                      :initial-balance-file-path credit-initial-balance-file-path
+                      :read-file!                read-file!
+                      :initial-balance-mutator!  db/initial-credit-balance!
+                      :data-file-path            credit-data-file-path
+                      :data-mutator!             db/credit-data!
+                      :recur-transactions-path   credit-recur-transactions
+                      :recur-data-mutator!       db/credit-recur-data!
+                      :big-transactions-path     credit-big-transactions
+                      :big-data-mutator!         db/credit-big-data!
+                      :current-account-mutator!  db/current-credit-account!
+                      :current-name              credit-name})}
         credit-name]
 
        ;; DELETE account button

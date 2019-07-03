@@ -1,5 +1,6 @@
 (ns skarbnik.core
   (:require [reagent.core :as r]
+            [clojure.pprint :as pp]
             [clojure.core.async :as async]
             [cljs-time.core :as cl-time]
             [cljs.nodejs :as nodejs]
@@ -138,9 +139,7 @@
        ;; else
        (do
          (fs.appendFileSync $filepath "" "utf-8")
-         (fs-read-file-fn))))
-
-   ))
+         (fs-read-file-fn))))))
 
 ;; ENDs file management fns
 
@@ -221,6 +220,8 @@
          credit-recur-sum      (logic/sum-recur-amounts @db/credit-recur-data)
          sum            (logic/cents->dollars
                          (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
+     ;; (prn "In `core`, line 226:----> ")
+     ;; (pp/pprint recur-by-account)
      [:h3
       [:span "Sum of Bank and Credit recurring transactions: "]
       [:span
