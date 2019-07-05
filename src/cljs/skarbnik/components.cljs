@@ -284,7 +284,8 @@
      (doall
       (for [category-key category-keys
             :let [entry-val   (category-key entry)
-                  ;; this three are used in side-drawer not in the row
+                  ;; these vals are used in side-drawer not in the row
+                  debt (:debt entry)
                   description (:description entry)
                   date        (:date        entry)
                   amount      (:amount      entry)]]
@@ -294,7 +295,11 @@
 
           "debt" ;; ->
           nil
-
+          ;; ^{:key (str "debt-" idx)}
+          ;; [:td.color-burnt-orange
+          ;;  (if (> entry-val 0)
+          ;;    (str "$" (logic/cents->dollars entry-val))
+          ;;    "")]
           "date" ;; ->
           ^{:key (str "date-" idx)}
           [:td entry-val]
@@ -315,14 +320,14 @@
           "bigs" ;; ->
           (if entry-val
             ^{:key (str "bigs-" idx)}
-            [:td.big-entry.color-peru
+            [:td.big-entry.color-burnt-orange
              {:on-click #(do
                            (side-drawer-mutator! :closed? false)
                            (side-drawer-mutator! :data {:big-entry entry-val
                                                         :parent-transaction {:description description
                                                                              :date        date
                                                                              :amount      amount}}))}
-             (when (seq entry-val) "...")]
+             (when (> debt 0) (str "$" (logic/cents->dollars debt)))]
 
             ;; else
             ^{:key (str "bigs-" idx)}
@@ -382,17 +387,17 @@
 
             "bigs"
             ^{:key th}
-            [:th.color-burnt-orange [:div "Bigs"]]
+            [:th.color-burnt-orange [:div "BDebt"]]
 
             "debt"
             nil
-                                        ;  ^{:key th}
-                                        ;  [:th.color-burnt-orange "Debt"]
+            ;; ^{:key th}
+            ;; [:th.color-burnt-orange [:div "Debt"]]
 
             "_sk-id"
             nil
-                                        ;  ^{:key th}
-                                        ;  [:th.color-burnt-orange "sk-id"]
+            ;  ^{:key th}
+            ;  [:th.color-burnt-orange "sk-id"]
 
             ;; else
             ^{:key th}
