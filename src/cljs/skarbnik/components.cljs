@@ -144,16 +144,6 @@
 
 ;; SAVE button
 
-(defn account-NOT-in-accounts?
-  "Filters names in `*-accounts.edn` to find dir-path name in there,
-  if DOESN'T find one returns true."
-  [accounts
-   dir-path]
-  (= (count
-      (filter #(= % dir-path)
-              accounts))
-     0))
-
 (defn button-save-account!
   [{:keys [account-kind-cursor
            account-kind-mutator!
@@ -171,46 +161,25 @@
            read-file!
            data]}]
   [:button.button.button-smaller.save-file
-   {:on-click #(let [dir-path (-> (show-save-file-dialog!) str)]
-                (when dir-path
-                  (do
-                    ;; Update and save it to file
-                    (when (account-NOT-in-accounts? @account-kind-cursor dir-path)
 
-                      ;; add directory name to accounts
-                      (account-kind-mutator! conj dir-path)
+   ;; TODO: Needs to be factor out into helper fn for use in testing
 
-                      ;; write path to *-accounts.edn for persistance
-                      (write-file!
-                       accounts-path
-                       @account-kind-cursor))
-
-                    ;; create dir (if doesn't exist fn will handle it)
-                    (make-dir! dir-path)
-
-                    ;; Write files
-                    (write-file!
-                     (str dir-path"/"recur-transactions)
-                     @recur-data)
-                    ;;
-                    (when credit-big-data
-                      (write-file!
-                       (str dir-path"/"big-transactions-path)
-                       @credit-big-data))
-                    ;;
-                    (write-file!
-                     (str dir-path"/"initial-balance-file-path)
-                     (logic/cents->dollars
-                      @initial-balance))
-                    ;;
-                    (let [data* (map (fn [m]
-                                       (-> m
-                                        (update , :amount
-                                                  logic/cents->dollars)))
-                                     data)]
-                      (write-file!
-                       (str dir-path"/"data-file-path)
-                       (logic/maps->js data*))))))}
+   {:on-click #(helpers/save-account!
+                {:account-kind-cursor       account-kind-cursor
+                 :account-kind-mutator!     account-kind-mutator!
+                 :accounts-path             accounts-path
+                 :recur-transactions        recur-transactions
+                 :big-transactions-path     big-transactions-path
+                 :recur-data                recur-data
+                 :credit-big-data           credit-big-data
+                 :initial-balance           initial-balance
+                 :initial-balance-file-path initial-balance-file-path
+                 :data-file-path            data-file-path
+                 :show-save-file-dialog!    show-save-file-dialog!
+                 :make-dir!                 make-dir!
+                 :write-file!               write-file!
+                 :read-file!                read-file!
+                 :data                      data})}
    "Save account"])
 
 ;; ENDs: SAVE button

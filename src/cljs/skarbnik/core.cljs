@@ -31,6 +31,7 @@
 
 ;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
 ;; Windows is not supported
+;; NOTE: The path on Mac is: `/Users/megatron/Library/Application Support/skarbnik/..`
 (def root-path (.join path (app.getPath "userData")))
 
 ;; file paths
@@ -45,7 +46,6 @@
 (def bank-accounts-path (str root-path "/bank-accounts.edn"))
 (def credit-accounts-path (str root-path "/credit-accounts.edn"))
 ;;
-
 
 ;; FILE MANAGEMENT FNs
 

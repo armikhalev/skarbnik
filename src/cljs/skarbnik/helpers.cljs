@@ -66,3 +66,69 @@
     ;;
     (current-account-mutator! current-name)))
 
+(defn account-NOT-in-accounts?
+  "Filters names in `*-accounts.edn` to find dir-path name in there,
+  if DOESN'T find one returns true."
+  [accounts
+   dir-path]
+  (= (count
+      (filter #(= % dir-path)
+              accounts))
+     0))
+
+(defn save-account!
+  [{:keys [account-kind-cursor
+           account-kind-mutator!
+           accounts-path
+           recur-transactions
+           big-transactions-path
+           recur-data
+           credit-big-data
+           initial-balance
+           initial-balance-file-path
+           data-file-path
+           show-save-file-dialog!
+           make-dir!
+           write-file!
+           read-file!
+           data]}]
+  (let [dir-path (-> (show-save-file-dialog!) str)]
+                (when dir-path
+                  (do
+                    ;; Update and save it to file
+                    (when (account-NOT-in-accounts? @account-kind-cursor dir-path)
+
+                      ;; add directory name to accounts
+                      (account-kind-mutator! conj dir-path)
+
+                      ;; write path to *-accounts.edn for persistance
+                      (write-file!
+                       accounts-path
+                       @account-kind-cursor))
+
+                    ;; create dir (if doesn't exist fn will handle it)
+                    (make-dir! dir-path)
+
+                    ;; Write files
+                    (write-file!
+                     (str dir-path"/"recur-transactions)
+                     @recur-data)
+                    ;;
+                    (when credit-big-data
+                      (write-file!
+                       (str dir-path"/"big-transactions-path)
+                       @credit-big-data))
+                    ;;
+                    (write-file!
+                     (str dir-path"/"initial-balance-file-path)
+                     (logic/cents->dollars
+                      @initial-balance))
+                    ;;
+                    (let [data* (map (fn [m]
+                                       (-> m
+                                        (update , :amount
+                                                  logic/cents->dollars)))
+                                     data)]
+                      (write-file!
+                       (str dir-path"/"data-file-path)
+                       (logic/maps->js data*)))))))
