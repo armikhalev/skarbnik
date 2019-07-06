@@ -46,14 +46,14 @@
        :account-date-range-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/button-save-account!
-      {:account-kind-cursor        db/credit-accounts
+      {:all-accounts-paths         @db/credit-accounts
        :account-kind-mutator!      db/credit-accounts!
        :accounts-path              credit-accounts-path
        :recur-transactions         credit-recur-transactions
        :big-transactions-path      big-transactions-path
-       :recur-data                 db/credit-recur-data
-       :credit-big-data            db/credit-big-data
-       :initial-balance            db/initial-credit-balance
+       :recur-data                 @db/credit-recur-data
+       :credit-big-data            @db/credit-big-data
+       :initial-balance            @db/initial-credit-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!

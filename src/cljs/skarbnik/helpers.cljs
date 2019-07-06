@@ -77,7 +77,7 @@
      0))
 
 (defn save-account!
-  [{:keys [account-kind-cursor
+  [{:keys [all-accounts-paths
            account-kind-mutator!
            accounts-path
            recur-transactions
@@ -96,7 +96,7 @@
                 (when dir-path
                   (do
                     ;; Update and save it to file
-                    (when (account-NOT-in-accounts? @account-kind-cursor dir-path)
+                    (when (account-NOT-in-accounts? all-accounts-paths dir-path)
 
                       ;; add directory name to accounts
                       (account-kind-mutator! conj dir-path)
@@ -104,7 +104,7 @@
                       ;; write path to *-accounts.edn for persistance
                       (write-file!
                        accounts-path
-                       @account-kind-cursor))
+                       all-accounts-paths))
 
                     ;; create dir (if doesn't exist fn will handle it)
                     (make-dir! dir-path)
@@ -112,17 +112,17 @@
                     ;; Write files
                     (write-file!
                      (str dir-path"/"recur-transactions)
-                     @recur-data)
+                     recur-data)
                     ;;
                     (when credit-big-data
                       (write-file!
                        (str dir-path"/"big-transactions-path)
-                       @credit-big-data))
+                       credit-big-data))
                     ;;
                     (write-file!
                      (str dir-path"/"initial-balance-file-path)
                      (logic/cents->dollars
-                      @initial-balance))
+                      initial-balance))
                     ;;
                     (let [data* (map (fn [m]
                                        (-> m

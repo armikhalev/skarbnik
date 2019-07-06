@@ -145,7 +145,7 @@
 ;; SAVE button
 
 (defn button-save-account!
-  [{:keys [account-kind-cursor
+  [{:keys [all-accounts-paths
            account-kind-mutator!
            accounts-path
            recur-transactions
@@ -161,11 +161,8 @@
            read-file!
            data]}]
   [:button.button.button-smaller.save-file
-
-   ;; TODO: Needs to be factor out into helper fn for use in testing
-
    {:on-click #(helpers/save-account!
-                {:account-kind-cursor       account-kind-cursor
+                {:all-accounts-paths        all-accounts-paths
                  :account-kind-mutator!     account-kind-mutator!
                  :accounts-path             accounts-path
                  :recur-transactions        recur-transactions
