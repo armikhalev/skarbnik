@@ -92,7 +92,10 @@ const browserWindowOptions = {
   height: 850,
   title: 'skarbnik',
   width: 1400,
-  icon: __dirname + '/img/logo_96x96.png'
+  icon: __dirname + '/img/logo_96x96.png',
+  webPreferences: {
+    nodeIntegration: true
+  }
 };
 
 
@@ -111,7 +114,7 @@ const browserWindowOptions = {
 app.on('ready', function() {
   // Create the browser window.
   mainWindow = new BrowserWindow(browserWindowOptions);
-    mainWindow.maximize();
+  mainWindow.maximize();
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 

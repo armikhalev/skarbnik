@@ -53,7 +53,7 @@ Run `lein figwheel app devcards-test` in terminal then in your browser go to htt
 
 ---
 
-This project uses Electron v3.0.10 Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
+This project uses Electron v5.0.6 Please check [Electron's GitHub page](https://github.com/atom/electron) for the latest version. The version is specified in `Gruntfile.js` under the `Grunt Config` section.
 
 ## Setup
 
