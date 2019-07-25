@@ -38,7 +38,8 @@
 
        ;; SELECT acconut button
        [:button.button-smaller.select-bank
-        {:on-click #(helpers/read-and-set-data!
+        {:data-test "select-account-button"
+         :on-click #(helpers/read-and-set-data!
                      {:set-current-page!         (fn [] (reset! current-page :bank))
                       :dir-path                  bank-dir-path
                       :initial-balance-file-path bank-initial-balance-file-path
@@ -54,7 +55,8 @@
 
        ;; DELETE account button
        [:button.button.margin-left-5.delete-bank
-        {:on-click #(do
+        {:data-test "delete-account-button"
+         :on-click #(do
                       ;; remove bank-dir from state
                       (db/bank-accounts! (partial remove #{bank-dir-path}))
 

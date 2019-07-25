@@ -90,7 +90,6 @@
            show-save-file-dialog!
            make-dir!
            write-file!
-           read-file!
            data]}]
   (let [dir-path (-> (show-save-file-dialog!) str)]
                 (when dir-path

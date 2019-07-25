@@ -150,17 +150,20 @@
   [:nav
    [:button.button
     {:on-click #(reset! current-page :home)
-     :style (if (= @current-page :home) {:color "blue"})}
+     :style (if (= @current-page :home) {:color "blue"})
+     :data-test "home-menu-button"}
     "Home"]
 
    [:button.button
     {:on-click #(reset! current-page :bank)
-     :style (if (= @current-page :bank) {:color "blue"})}
+     :style (if (= @current-page :bank) {:color "blue"})
+     :data-test "bank-account-menu-button"}
     "Bank Account"]
 
    [:button.button
     {:on-click #(reset! current-page :credit)
-     :style (if (= @current-page :credit) {:color "blue"})}
+     :style (if (= @current-page :credit) {:color "blue"})
+     :data-test "credit-account-menu-button"}
     "Credit Account"]])
 
 ;; ENDs: Aux

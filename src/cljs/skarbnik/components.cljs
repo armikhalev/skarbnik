@@ -120,7 +120,8 @@
            data-mutator!
            account-date-range-mutator!]}]
   [:button.button.button-smaller.open-file
-   {:on-click #(open-file!
+   {:data-test "button-open-file"
+    :on-click #(open-file!
                 (fn [file-names]
                   ;; Then read file and update
                   (if (= file-names nil)
@@ -158,10 +159,10 @@
            show-save-file-dialog!
            make-dir!
            write-file!
-           read-file!
            data]}]
   [:button.button.button-smaller.save-file
-   {:on-click #(helpers/save-account!
+   {:data-test "button-save-account"
+    :on-click #(helpers/save-account!
                 {:all-accounts-paths        all-accounts-paths
                  :account-kind-mutator!     account-kind-mutator!
                  :accounts-path             accounts-path
@@ -175,7 +176,6 @@
                  :show-save-file-dialog!    show-save-file-dialog!
                  :make-dir!                 make-dir!
                  :write-file!               write-file!
-                 :read-file!                read-file!
                  :data                      data})}
    "Save account"])
 
@@ -400,6 +400,7 @@
             ^{:key th}
             [:th [:div th]]))]]
       [:tbody
+       {:data-test "transactions-table"}
        (doall
         (map-indexed
          (fn [idx entry]

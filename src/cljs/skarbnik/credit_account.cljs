@@ -58,7 +58,6 @@
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
        :write-file!                write-file!
-       :read-file!                 read-file!
        :make-dir!                  make-dir!
        :data                       data} ]
 

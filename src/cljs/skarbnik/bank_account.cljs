@@ -28,7 +28,9 @@
                          @db/bank-data
                          cur-range-data)]
     [:section
-     [:h2 (str "Bank account: " @db/current-bank-account)]
+     [:h2
+      {:data-test "bank-account-title"}
+      (str "Bank account: " @db/current-bank-account)]
      [:h2.error-message
       (:error @db/bank)]
      ;;
@@ -53,7 +55,6 @@
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
        :write-file!                write-file!
-       :read-file!                 read-file!
        :make-dir!                  make-dir!
        :data                       data} ]
      ;;
