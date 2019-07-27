@@ -31,77 +31,83 @@
   [:section
    [:h2 "Bank accounts"]
    [:ul.banks
-    (for [bank-dir-path @db/bank-accounts
-          :let [bank-name (-> bank-dir-path (split #"/") last)]]
-      ^{:key bank-name}
-      [:li.inline-flex.border.margin-left-5
+    (if (seq @db/bank-accounts)
+      (for [bank-dir-path @db/bank-accounts
+            :let [bank-name (-> bank-dir-path (split #"/") last)]]
+        ^{:key bank-name}
+        [:li.inline-flex.border.margin-left-5
 
-       ;; SELECT acconut button
-       [:button.button-smaller.select-bank
-        {:data-test "select-account-button"
-         :on-click #(helpers/read-and-set-data!
-                     {:set-current-page!         (fn [] (reset! current-page :bank))
-                      :dir-path                  bank-dir-path
-                      :initial-balance-file-path bank-initial-balance-file-path
-                      :read-file!                read-file!
-                      :initial-balance-mutator!  db/initial-bank-balance!
-                      :data-file-path            bank-data-file-path
-                      :data-mutator!             db/bank-data!
-                      :recur-transactions-path   bank-recur-transactions
-                      :recur-data-mutator!       db/bank-recur-data!
-                      :current-account-mutator!  db/current-bank-account!
-                      :current-name              bank-name})}
-        bank-name]
+         ;; SELECT acconut button
+         [:button.button-smaller.select-bank
+          {:data-test "select-account-button"
+           :on-click #(helpers/read-and-set-data!
+                       {:set-current-page!         (fn [] (reset! current-page :bank))
+                        :dir-path                  bank-dir-path
+                        :initial-balance-file-path bank-initial-balance-file-path
+                        :read-file!                read-file!
+                        :initial-balance-mutator!  db/initial-bank-balance!
+                        :data-file-path            bank-data-file-path
+                        :data-mutator!             db/bank-data!
+                        :recur-transactions-path   bank-recur-transactions
+                        :recur-data-mutator!       db/bank-recur-data!
+                        :current-account-mutator!  db/current-bank-account!
+                        :current-name              bank-name})}
+          bank-name]
 
-       ;; DELETE account button
-       [:button.button.margin-left-5.delete-bank
-        {:data-test "delete-account-button"
-         :on-click #(do
-                      ;; remove bank-dir from state
-                      (db/bank-accounts! (partial remove #{bank-dir-path}))
+         ;; DELETE account button
+         [:button.button.margin-left-5.delete-bank
+          {:data-test "delete-account-button"
+           :on-click #(do
+                        ;; remove bank-dir from state
+                        (db/bank-accounts! (partial remove #{bank-dir-path}))
 
-                      ;; then remove it from file
-                      (write-file!
-                       bank-accounts-path
-                       (vec @db/bank-accounts)))}
-        "X"]])]
+                        ;; then remove it from file
+                        (write-file!
+                         bank-accounts-path
+                         (vec @db/bank-accounts)))}
+          "X"]])
+      ;; else - no bank-accounts
+      [:li "You don't have any saved Bank accounts, click <Bank Account>, open file and then save it as an account."])]
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
    [:h2 "Credit accounts"]
    [:ul.credits
-    (for [credit-dir-path @db/credit-accounts
-          :let [credit-name (-> credit-dir-path (split #"/") last)]]
-      ^{:key credit-name}
-      [:li.inline-flex.border.margin-left-5
+    (if (seq @db/credit-accounts)
+      (for [credit-dir-path @db/credit-accounts
+            :let [credit-name (-> credit-dir-path (split #"/") last)]]
+        ^{:key credit-name}
+        [:li.inline-flex.border.margin-left-5
 
-       ;; SELECT acconut button
-       [:button.button-smaller.select-credit
-        {:on-click #(helpers/read-and-set-data!
-                     {:set-current-page!         (fn [] (reset! current-page :credit))
-                      :dir-path                  credit-dir-path
-                      :initial-balance-file-path credit-initial-balance-file-path
-                      :read-file!                read-file!
-                      :initial-balance-mutator!  db/initial-credit-balance!
-                      :data-file-path            credit-data-file-path
-                      :data-mutator!             db/credit-data!
-                      :recur-transactions-path   credit-recur-transactions
-                      :recur-data-mutator!       db/credit-recur-data!
-                      :big-transactions-path     credit-big-transactions
-                      :big-data-mutator!         db/credit-big-data!
-                      :current-account-mutator!  db/current-credit-account!
-                      :current-name              credit-name})}
-        credit-name]
+         ;; SELECT acconut button
+         [:button.button-smaller.select-credit
+          {:on-click #(helpers/read-and-set-data!
+                       {:set-current-page!         (fn [] (reset! current-page :credit))
+                        :dir-path                  credit-dir-path
+                        :initial-balance-file-path credit-initial-balance-file-path
+                        :read-file!                read-file!
+                        :initial-balance-mutator!  db/initial-credit-balance!
+                        :data-file-path            credit-data-file-path
+                        :data-mutator!             db/credit-data!
+                        :recur-transactions-path   credit-recur-transactions
+                        :recur-data-mutator!       db/credit-recur-data!
+                        :big-transactions-path     credit-big-transactions
+                        :big-data-mutator!         db/credit-big-data!
+                        :current-account-mutator!  db/current-credit-account!
+                        :current-name              credit-name})}
+          credit-name]
 
-       ;; DELETE account button
-       [:button.button.margin-left-5.delete-credit
-        {:on-click #(do
-                      ;; remove bank-dir from state
-                      (db/credit-accounts! (partial remove #{credit-dir-path}))
+         ;; DELETE account button
+         [:button.button.margin-left-5.delete-credit
+          {:on-click #(do
+                        ;; remove bank-dir from state
+                        (db/credit-accounts! (partial remove #{credit-dir-path}))
 
-                      ;; then remove it from file
-                      (write-file!
-                       credit-accounts-path
-                       (vec @db/credit-accounts)))}
-        "X"]])]])
+                        ;; then remove it from file
+                        (write-file!
+                         credit-accounts-path
+                         (vec @db/credit-accounts)))}
+          "X"]])
+      ;; else - no credit accounts
+      [:li "You don't have any saved Credit accounts, click <Credit Account>, open file and then save it as an account."])]])
 
