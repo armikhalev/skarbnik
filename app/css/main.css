@@ -38,6 +38,10 @@ section {
     color: red;
 }
 
+.color-green {
+    color: green;
+}
+
 .margin-left-5 {
     margin-left: 5px;
 }

@@ -104,6 +104,7 @@
        :account-data-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/credit-analyze {:data                     data
+                                  :big-data                 @db/credit-big-data
                                   :initial-credit-balance   @db/initial-credit-balance
                                   :credit-recur-data        @db/credit-recur-data
                                   :credit-total-difference! db/credit-total-difference!}]

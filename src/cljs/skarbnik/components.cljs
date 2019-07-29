@@ -69,11 +69,13 @@
   [{:keys [data
            initial-credit-balance
            credit-recur-data
+           big-data
            credit-total-difference!]}]
   (let [plus           (logic/get-total data >)
         minus          (logic/get-total data <)
         difference     (logic/get-sum plus minus)
         ending-balance (logic/get-sum initial-credit-balance difference)
+        big-data-sum   (logic/sum-recur-amounts big-data)
         recur-sum      (logic/sum-recur-amounts credit-recur-data)]
 
        (do
@@ -86,12 +88,22 @@
           ;; sum `plus` and `minus` to get difference
           [:section
            [:h2 "This period:"]
-           [:h3 "Debt: " (logic/cents->dollars plus)]
+           [:h3 "Debt Balance: " (logic/cents->dollars plus)]
            [:h3 "Paid: " (logic/cents->dollars minus)]
            [:h3.color-danger
-            "Non-recurring spendings: " (logic/cents->dollars
-                                         (logic/get-sum plus (- recur-sum)))]
-           [:h3 "Added debt: " (logic/cents->dollars difference)]]
+            "All Non-recurring spendings: " (logic/cents->dollars
+                                             (logic/get-sum plus (- recur-sum)))]
+           (when (seq big-data)
+             [:h3.color-danger
+              "Non-recurring spendings without Bigs: " (logic/cents->dollars
+                                                        (- (logic/get-sum plus (- recur-sum )) big-data-sum))])
+
+           ;; This is `Debt` minus `Paid`
+           (if (> difference 0)
+             [:h3 "Added debt: " (logic/cents->dollars difference)]
+             ;; else if all paid
+             [:h3.color-green "All paid, nice job!"])]
+
           [:section
            [:hr]
            [:h2 "All time:"]
