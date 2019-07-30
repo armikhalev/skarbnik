@@ -252,7 +252,7 @@
          ^{:key (str "big-"idx)}
 
          (if-not @selected?
-           [:td
+           [:td.cursor-pointer
             {:class (when @big? "color-danger")
              :on-click #(if @big?
                           (helpers/unset-distinct-data! big-data-mutator! entry)
@@ -278,7 +278,7 @@
        ^{:key (str "recur-"idx)}
        [:td
         (if-not @big?
-          [:label.recur-sign
+          [:label.recur-sign.cursor-pointer
            {:on-click #(if @selected?
                          (helpers/unset-distinct-data! recur-data-mutator! entry)
                          ;; else
@@ -329,7 +329,7 @@
           "bigs" ;; ->
           (if entry-val
             ^{:key (str "bigs-" idx)}
-            [:td.big-entry.color-burnt-orange
+            [:td.big-entry.color-burnt-orange.cursor-pointer
              {:on-click #(do
                            (side-drawer-mutator! :closed? false)
                            (side-drawer-mutator! :data {:big-entry entry-val

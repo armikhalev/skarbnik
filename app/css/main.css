@@ -63,6 +63,10 @@ section {
     font-weight: bold;
 }
 
+button {
+    cursor: pointer;
+}
+
 .button {
     padding: 8px;
     border-radius: 14px;
@@ -188,6 +192,10 @@ main.white-background table.side-drawer {
 
 .transactions-table .big-entry {
     width: 2em;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
 
 /* ENDs: Transactions Table */
