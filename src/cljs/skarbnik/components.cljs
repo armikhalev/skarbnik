@@ -64,6 +64,25 @@
             (logic/cents->dollars ending-balance)
             "Fix numbers in your data file")]]]])))
 
+(defn tooltip
+  [show-tooltip?
+   text]
+  (when @show-tooltip?
+    [:div.tooltip (if text text "")]))
+
+(defn added-debt-analyze-row
+  [difference]
+  (let [show-tooltip? (r/atom false)]
+    [:span
+     {:on-mouse-over #(reset! show-tooltip? true)
+      :on-mouse-out  #(reset! show-tooltip? false)}
+     [tooltip show-tooltip? "This is `Debt` minus `Paid`"]
+     (if (> difference 0)
+       [:h3
+        "Added debt: " (logic/cents->dollars difference)]
+       ;; else if all paid
+       [:h3.color-green
+        "All paid, nice job!"])]))
 
 (defn credit-analyze
   [{:keys [data
@@ -98,11 +117,7 @@
               "Non-recurring spendings without Bigs: " (logic/cents->dollars
                                                         (- (logic/get-sum plus (- recur-sum )) big-data-sum))])
 
-           ;; This is `Debt` minus `Paid`
-           (if (> difference 0)
-             [:h3 "Added debt: " (logic/cents->dollars difference)]
-             ;; else if all paid
-             [:h3.color-green "All paid, nice job!"])]
+           [added-debt-analyze-row difference]]
 
           [:section
            [:hr]
