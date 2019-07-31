@@ -70,19 +70,32 @@
   (when @show-tooltip?
     [:div.tooltip (if text text "")]))
 
-(defn added-debt-analyze-row
-  [difference]
+(defn tooltip-parent
+  [parent-el
+   tooltip-text]
   (let [show-tooltip? (r/atom false)]
     [:span
      {:on-mouse-over #(reset! show-tooltip? true)
       :on-mouse-out  #(reset! show-tooltip? false)}
-     [tooltip show-tooltip? "This is `Debt` minus `Paid`"]
-     (if (> difference 0)
-       [:h3
-        "Added debt: " (logic/cents->dollars difference)]
-       ;; else if all paid
-       [:h3.color-green
-        "All paid, nice job!"])]))
+     [tooltip show-tooltip? tooltip-text]
+     (if parent-el parent-el [:div ""])]))
+
+(defn added-debt-analyze-row
+  [difference]
+  [tooltip-parent
+   (if (> difference 0)
+     [:h3
+      "Added debt: " (logic/cents->dollars difference)]
+     ;; else if all paid
+     [:h3.color-green
+      "All debt is paid, nice job!"]),
+   "This is `Debt` minus `Paid`"])
+
+(defn debt-sum
+  [debt-sum]
+  [tooltip-parent
+   [:h3 "Debt Sum: " (logic/cents->dollars debt-sum)]
+   "Sum of all debt increasing transactions"])
 
 (defn credit-analyze
   [{:keys [data
@@ -107,7 +120,8 @@
           ;; sum `plus` and `minus` to get difference
           [:section
            [:h2 "This period:"]
-           [:h3 "Debt Balance: " (logic/cents->dollars plus)]
+           [debt-sum plus]
+           ;; [:h3 "Debt Sum: " (logic/cents->dollars plus)]
            [:h3 "Paid: " (logic/cents->dollars minus)]
            [:h3.color-danger
             "All Non-recurring spendings: " (logic/cents->dollars
