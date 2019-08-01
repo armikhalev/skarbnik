@@ -365,7 +365,10 @@
                                                         :parent-transaction {:description description
                                                                              :date        date
                                                                              :amount      amount}}))}
-             (when (> debt 0) (str "$" (logic/cents->dollars debt)))]
+             (if (> debt 0)
+               (str "$" (logic/cents->dollars debt))
+               (when (< amount 0)
+                 "Paid off"))]
 
             ;; else
             ^{:key (str "bigs-" idx)}
