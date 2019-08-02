@@ -67,18 +67,20 @@
 (defn tooltip
   [show-tooltip?
    text]
-  (when @show-tooltip?
-    [:div.tooltip (if text text "")]))
+  [:div.tooltip
+   {:class (when @show-tooltip? "show")}
+   (if text text "")
+   [:i]])
 
 (defn tooltip-parent
   [parent-el
    tooltip-text]
   (let [show-tooltip? (r/atom false)]
-    [:span
+    [:span.tooltip-parent
      {:on-mouse-over #(reset! show-tooltip? true)
       :on-mouse-out  #(reset! show-tooltip? false)}
-     [tooltip show-tooltip? tooltip-text]
-     (if parent-el parent-el [:div ""])]))
+     (if parent-el parent-el [:div ""])
+     [tooltip show-tooltip? tooltip-text]]))
 
 (defn added-debt-analyze-row
   [difference]

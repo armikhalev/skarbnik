@@ -222,12 +222,46 @@ th {
 
 /* Tooltips */
 
-.tooltip {
-    position: absolute;
-    left: 21rem;
-    border-radius: 0% 20% 20%;
-    padding: 1rem;
-    background: rgba(251,248, 284, 0.8);
+.tooltip-parent {
+    display: inline-flex;
 }
 
+.tooltip {
+    position: relative;
+    margin-left: .7em;
+    min-width:200px;
+    top: .8em;
+    border-radius:10px 15% 0;
+    padding: 1rem;
+    background: rgba(251,248, 284, 0.8);
+    opacity: 0;
+    box-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
 
+.show {
+    opacity: 1;
+}
+
+.tooltip i {
+    position:absolute;
+    top:30%;
+    right:100%;
+    margin-top:-12px;
+    width:12px;
+    height:24px;
+    overflow:hidden;
+}
+
+.tooltip i::after {
+    content:'';
+    position:absolute;
+    width:12px;
+    height:12px;
+    left:0;
+    top:50%;
+    transform:translate(50%,-50%) rotate(-45deg);
+    background: rgba(251,248, 284, 0.8);
+    box-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
+
+/* ENDS: Tooltips */
