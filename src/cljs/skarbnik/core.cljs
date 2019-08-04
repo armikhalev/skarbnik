@@ -28,6 +28,24 @@
 (def path (nodejs/require "path"))
 (def app (.-app (.-remote electron)))
 (def win (.getCurrentWindow (.-remote electron)))
+(def Menu (.-Menu (.-remote electron)))
+(def MenuItem (.-MenuItem (.-remote electron)))
+
+
+;; Vars for CONTEXT MENU
+(def cut-copy-paste-menu-items
+  (-> (.-items (Menu.getApplicationMenu))
+      (nth , 2)
+      .-submenu
+      .-items
+      vec
+      (subvec , 3 6)
+      clj->js))
+
+(def context-menu (new Menu))
+
+;; ENDs: Vars for CONTEXT MENU
+
 
 ;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
 ;; Windows is not supported
@@ -256,15 +274,30 @@
 
 ;; ENDs: Root
 
+
 ;; Init
 (defn mount-root
   []
   (r/render [main-page] (.getElementById js/document "app")))
 
+
 (defn init!
   []
   (do
     (mount-root)
+
+    ;; CONTEXT MENU (Right Click)
+    (do
+      (doseq [menu-item cut-copy-paste-menu-items]
+        (.append context-menu menu-item))
+
+      (.addEventListener js/document "contextmenu" (fn [e]
+                                                     (do (.preventDefault e)
+                                                         (.popup context-menu {:window win})))
+                         false))
+
+    ;; ENDs: CONTEXT MENU (Right Click)
+
 
     ;; BANK
 
