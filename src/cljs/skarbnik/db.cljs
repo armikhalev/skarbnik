@@ -38,6 +38,12 @@
                      :bank-data                []
                      :credit-data              []
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-meta-data           {}
+                     :credit-meta-data         {}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-tags-choice          #{:Recur :Ignore}
+                     :credit-tags-choice        #{:Recur :BIG :Ignore :gas}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :bank-recur-data          {}
                      :credit-recur-data        {}
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -214,6 +220,54 @@
        (reset! credit-data (sort-by-date data))))))
 
 ;;; <-- ENDs: DATA
+
+
+;;; Meta Data (Tags)
+
+(def bank-meta-data
+  (r/cursor db [ :bank-meta-data ]))
+
+(defn bank-meta-data!
+  ([v]
+   (reset! bank-meta-data v))
+  ([f v]
+   (r/rswap! bank-meta-data f v))
+  ([f ks ap]
+   "Use: (update-in<f> [:uuid<key is passed from caller> :meta-data :tags]<ks> #(disj % :BIG)<ap>)"
+   (r/rswap! bank-meta-data f ks ap)))
+
+(def credit-meta-data
+  (r/cursor db [ :credit-meta-data ]))
+
+(defn credit-meta-data!
+  ([v]
+   (reset! credit-meta-data v))
+  ([f v]
+   (r/rswap! credit-meta-data f v))
+  ([f ks ap]
+   "Use: (update-in<f> [:uuid<key is passed from caller> :meta-data :tags]<ks> #(disj % :BIG)<ap>)"
+   (r/rswap! credit-meta-data f ks ap)))
+
+(def bank-tags-choice
+  (r/cursor db [ :bank-tags-choice ]))
+
+(defn bank-tags-choice!
+  ([v]
+   (reset! bank-tags-choice v))
+  ([f v]
+   (r/rswap! bank-tags-choice f v)))
+
+(def credit-tags-choice
+  (r/cursor db [ :credit-tags-choice ]))
+
+(defn credit-tags-choice!
+  ([v]
+   (reset! credit-tags-choice v))
+  ([f v]
+   (r/rswap! credit-tags-choice f v)))
+
+;;; ENDs: Meta Data (Tags)
+
 
 ;;; REcur data
 

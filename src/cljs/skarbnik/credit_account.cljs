@@ -20,14 +20,16 @@
      write-file!
      make-dir!
      initial-balance-file-path
-     big-transactions-path
      data-file-path
-     credit-recur-transactions]}]
+     credit-meta-data-path]}]
 
   (let [cur-range-data @db/current-date-range-credit-data
         data           (if (empty? cur-range-data)
                          @db/credit-data
-                         cur-range-data)]
+                         cur-range-data)
+        meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
+        recur-data     (logic/filter-by-tag meta-data :Recur)
+        big-data       (logic/filter-by-tag meta-data :BIG)]
     [:section
      [:h2 (str "Credit account: " @db/current-credit-account)]
      [:h2.error-message
@@ -49,16 +51,14 @@
       {:all-accounts-paths         @db/credit-accounts
        :account-kind-mutator!      db/credit-accounts!
        :accounts-path              credit-accounts-path
-       :recur-transactions         credit-recur-transactions
-       :big-transactions-path      big-transactions-path
-       :recur-data                 @db/credit-recur-data
-       :credit-big-data            @db/credit-big-data
        :initial-balance            @db/initial-credit-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
        :write-file!                write-file!
        :make-dir!                  make-dir!
+       :meta-data-path             credit-meta-data-path
+       :meta-data                  @db/credit-meta-data
        :data                       data} ]
 
      ;;
@@ -71,21 +71,25 @@
      ;; Add `:bigs` and `:debt`
      (let [paids*                  (logic/payments data)
            paids                   (logic/str-dates->cljs-time paids*)
-           bigs*                   (vals @db/credit-big-data)
+           bigs*                   (vals (if-let [md @db/credit-meta-data] md {}))
            bigs                    (logic/str-dates->cljs-time bigs*)
-           paids-with-bigs         (logic/paids-with-bigs paids bigs)
+           bigs-from-meta          (logic/filter-by-tag bigs :BIG)
+           paids-with-bigs         (logic/paids-with-bigs paids bigs-from-meta)
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
            merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
        ;; (prn "credt-account below, line 74" )
-       ;; (pp/pprint @db/credit-big-data)
+       ;; (pp/pprint merged-data)
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true
          :recur-data-mutator!     db/credit-recur-data!
+         :meta-data-mutator!      db/credit-meta-data!
          :credit-big-data         db/credit-big-data
          :big-data-mutator!       db/credit-big-data!
          :side-drawer-mutator!    db/credit-side-drawer!
+         :meta-data               @db/credit-meta-data
+         :tags-choice             @db/credit-tags-choice
          :recur-data              db/credit-recur-data}])
 
      [components/side-drawer-wrapper
@@ -106,9 +110,10 @@
      [ components/credit-analyze {:data                     data
                                   :big-data                 @db/credit-big-data
                                   :initial-credit-balance   @db/initial-credit-balance
-                                  :credit-recur-data        @db/credit-recur-data
+                                  :credit-recur-data        recur-data
                                   :credit-total-difference! db/credit-total-difference!}]
 
+
      [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!
-                                      :recur-data           @db/credit-recur-data}]]))
+                                      :recur-data           recur-data}]]))
 

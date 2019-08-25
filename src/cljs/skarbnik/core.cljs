@@ -49,7 +49,7 @@
 
 ;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
 ;; Windows is not supported
-;; NOTE: The path on Mac is: `/Users/megatron/Library/Application Support/skarbnik/..`
+;; NOTE: The path on Mac is: `/Users/megatron/Library/Application Support/Skarbnik/..`
 (def root-path (.join path (app.getPath "userData")))
 
 ;; file paths
@@ -58,9 +58,8 @@
 (def credit-data-file-path "credit-data-file.txt")
 (def bank-initial-balance-file-path "bank-initial-balance.txt")
 (def credit-initial-balance-file-path "credit-initial-balance.txt")
-(def bank-recur-transactions "bank-recurring-transactions.edn")
-(def credit-recur-transactions "credit-recurring-transactions.edn")
-(def credit-big-transactions "credit-big-transactions.edn")
+(def bank-meta-data-path "bank-meta-data.edn")
+(def credit-meta-data-path "credit-meta-data.edn")
 (def bank-accounts-path (str root-path "/bank-accounts.edn"))
 (def credit-accounts-path (str root-path "/credit-accounts.edn"))
 ;;
@@ -201,14 +200,14 @@
                        :credit-accounts-path            credit-accounts-path
                        :read-file!                      read-file!
 
+                       :credit-meta-data-path           credit-meta-data-path
+                       :bank-meta-data-path             bank-meta-data-path
+
                        :credit-initial-balance-file-path  credit-initial-balance-file-path
                        :credit-data-file-path             credit-data-file-path
-                       :credit-recur-transactions         credit-recur-transactions
-                       :credit-big-transactions           credit-big-transactions
 
                        :bank-initial-balance-file-path  bank-initial-balance-file-path
-                       :bank-data-file-path             bank-data-file-path
-                       :bank-recur-transactions         bank-recur-transactions})
+                       :bank-data-file-path             bank-data-file-path})
 
      :bank (bank/page {:bank-accounts-path        bank-accounts-path
                        :show-save-file-dialog!    show-save-file-dialog!
@@ -217,8 +216,8 @@
                        :write-file!               write-file!
                        :make-dir!                 make-dir!
                        :initial-balance-file-path bank-initial-balance-file-path
-                       :data-file-path            bank-data-file-path
-                       :bank-recur-transactions   bank-recur-transactions})
+                       :bank-meta-data-path       bank-meta-data-path
+                       :data-file-path            bank-data-file-path})
 
      :credit (credit/page {:credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
@@ -227,11 +226,10 @@
                            :write-file!               write-file!
                            :make-dir!                 make-dir!
                            :initial-balance-file-path credit-initial-balance-file-path
-                           :big-transactions-path     credit-big-transactions
-                           :data-file-path            credit-data-file-path
-                           :credit-big-transactions   credit-big-transactions
-                           :credit-recur-transactions credit-recur-transactions}))
+                           :credit-meta-data-path     credit-meta-data-path
+                           :data-file-path            credit-data-file-path}))
 
+   ;; FIXME: should be `meta-data`
    (let [bank-recur-sum*     (logic/sum-recur-amounts @db/bank-recur-data)
          bank-recur-sum      (if (and
                                   (not (number? bank-recur-sum*))

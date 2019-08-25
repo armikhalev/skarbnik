@@ -21,7 +21,7 @@
      make-dir!
      initial-balance-file-path
      data-file-path
-     bank-recur-transactions]}]
+     bank-meta-data-path]}]
 
   (let [cur-range-data @db/current-date-range-bank-data
         data           (if (empty? cur-range-data)
@@ -48,14 +48,14 @@
       {:all-accounts-paths         @db/bank-accounts
        :account-kind-mutator!      db/bank-accounts!
        :accounts-path              bank-accounts-path
-       :recur-transactions         bank-recur-transactions
-       :recur-data                 @db/bank-recur-data
        :initial-balance            @db/initial-bank-balance
        :initial-balance-file-path  initial-balance-file-path
        :data-file-path             data-file-path
        :show-save-file-dialog!     show-save-file-dialog!
        :write-file!                write-file!
        :make-dir!                  make-dir!
+       :meta-data-path             bank-meta-data-path
+       :meta-data                  @db/bank-meta-data
        :data                       data} ]
      ;;
      [components/input-initial-balance! db/initial-bank-balance!]
@@ -88,6 +88,7 @@
                                 :bank-recur-data        @db/bank-recur-data
                                 :bank-total-difference! db/bank-total-difference!}]
 
-     [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
-                                      :recur-data           @db/bank-recur-data}]]))
+     (let [recur-data (logic/filter-by-tag (vals @db/bank-meta-data) :Recur)]
+       [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
+                                        :recur-data           recur-data}])]))
 

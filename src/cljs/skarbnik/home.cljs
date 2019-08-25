@@ -24,9 +24,8 @@
            credit-initial-balance-file-path
            bank-data-file-path
            credit-data-file-path
-           bank-recur-transactions
-           credit-recur-transactions
-           credit-big-transactions]}]
+           credit-meta-data-path
+           bank-meta-data-path]}]
   ;;
   [:section
    [:h2 "Bank accounts"]
@@ -48,8 +47,8 @@
                         :initial-balance-mutator!  db/initial-bank-balance!
                         :data-file-path            bank-data-file-path
                         :data-mutator!             db/bank-data!
-                        :recur-transactions-path   bank-recur-transactions
-                        :recur-data-mutator!       db/bank-recur-data!
+                        :meta-data-path            bank-meta-data-path
+                        :meta-data-mutator!        db/bank-meta-data!
                         :current-account-mutator!  db/current-bank-account!
                         :current-name              bank-name})}
           bank-name]
@@ -89,10 +88,8 @@
                         :initial-balance-mutator!  db/initial-credit-balance!
                         :data-file-path            credit-data-file-path
                         :data-mutator!             db/credit-data!
-                        :recur-transactions-path   credit-recur-transactions
-                        :recur-data-mutator!       db/credit-recur-data!
-                        :big-transactions-path     credit-big-transactions
-                        :big-data-mutator!         db/credit-big-data!
+                        :meta-data-path            credit-meta-data-path
+                        :meta-data-mutator!        db/credit-meta-data!
                         :current-account-mutator!  db/current-credit-account!
                         :current-name              credit-name})}
           credit-name]

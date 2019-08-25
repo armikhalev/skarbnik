@@ -95,17 +95,17 @@ button {
     color: #cc5500;
 }
 
-label.recur-sign {
+td.tag-with-tooltip.recur-sign {
     display: block;
     width: 50px;
     text-align: center;
 }
 
-label.recur-sign:before {
+td.tag-with-tooltip.recur-sign:before {
     content: "r?"
 }
 
-label.recur-sign.recur:before {
+td.tag-with-tooltip.recur-sign.recur:before {
     /* Unicode for open circle arrow */
     content: "\021BA"
 }
@@ -190,6 +190,14 @@ main.white-background table.side-drawer {
     width: 16em;
 }
 
+.transactions-table .amount {
+    width: 4em;
+}
+
+.transactions-table .tag-with-tooltip {
+    width: 2em;
+}
+
 .transactions-table .big-entry {
     width: 2em;
 }
@@ -222,6 +230,22 @@ th {
 
 /* Tooltips */
 
+.show {
+    opacity: 1;
+}
+
+.recur-bg {
+    background-color: grey;
+}
+
+.big-bg {
+    background-color: peru;
+}
+
+.opaque {
+    opacity: .3;
+}
+
 .tooltip-parent {
     display: inline-flex;
 }
@@ -236,10 +260,6 @@ th {
     background: rgba(251,248, 284, 0.8);
     opacity: 0;
     box-shadow:0 1px 8px rgba(0,0,0,0.5);
-}
-
-.show {
-    opacity: 1;
 }
 
 .tooltip i {
@@ -262,6 +282,22 @@ th {
     transform:translate(50%,-50%) rotate(-45deg);
     background: rgba(251,248, 284, 0.8);
     box-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
+
+.tooltip-tag {
+    position: relative;
+    display: none;
+    /* opacity: 0; */
+    min-width:200px;
+    border-radius:0 15% 10px; left: 3rem;
+    padding: 1rem;
+    background: rgba(251,248, 284, 0.9);
+    box-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
+
+.show-tooltip-tag {
+    /* Do not know why we need separate class for this but otherwise it doesn't work */
+    display: block;
 }
 
 /* ENDS: Tooltips */
