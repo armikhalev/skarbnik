@@ -46,8 +46,17 @@
            meta-data-path
            meta-data-mutator!
            current-account-mutator!
-           current-name]}]
+           current-name
+           total-difference-mutator!
+           account-date-range-mutator!]}]
   (do
+    ;; Nullify everything
+    (account-date-range-mutator! {})
+    (data-mutator! {})
+    (meta-data-mutator! {})
+    (initial-balance-mutator! 0)
+    (total-difference-mutator! 0)
+    ;;
     (set-current-page!)
     ;;
     (read-file!
@@ -60,24 +69,11 @@
      (fn [data] (data-mutator! data :from-file))
      :parse)
     ;;
-    (prn "meta data path: ---> " meta-data-path)
     (read-file!
      (str dir-path"/"meta-data-path)
      ;; Read EDN and put it into state
      (fn [data]
        (meta-data-mutator! (reader/read-string data))))
-    #_(read-file!
-     (str dir-path"/"recur-transactions-path)
-     ;; Read EDN and put it into state
-     (fn [data]
-       (recur-data-mutator! (reader/read-string data))))
-    ;;
-    #_(when big-transactions-path
-      (read-file!
-       (str dir-path"/"big-transactions-path)
-       ;; Read EDN and put it into state
-       (fn [data]
-         (big-data-mutator! (reader/read-string data)))))
     ;;
     (current-account-mutator! current-name)))
 

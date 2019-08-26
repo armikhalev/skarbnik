@@ -40,17 +40,19 @@
          [:button.button-smaller.select-bank
           {:data-test "select-account-button"
            :on-click #(helpers/read-and-set-data!
-                       {:set-current-page!         (fn [] (reset! current-page :bank))
-                        :dir-path                  bank-dir-path
-                        :initial-balance-file-path bank-initial-balance-file-path
-                        :read-file!                read-file!
-                        :initial-balance-mutator!  db/initial-bank-balance!
-                        :data-file-path            bank-data-file-path
-                        :data-mutator!             db/bank-data!
-                        :meta-data-path            bank-meta-data-path
-                        :meta-data-mutator!        db/bank-meta-data!
-                        :current-account-mutator!  db/current-bank-account!
-                        :current-name              bank-name})}
+                       {:set-current-page!           (fn [] (reset! current-page :bank))
+                        :dir-path                    bank-dir-path
+                        :initial-balance-file-path   bank-initial-balance-file-path
+                        :read-file!                  read-file!
+                        :initial-balance-mutator!    db/initial-bank-balance!
+                        :data-file-path              bank-data-file-path
+                        :data-mutator!               db/bank-data!
+                        :meta-data-path              bank-meta-data-path
+                        :meta-data-mutator!          db/bank-meta-data!
+                        :current-account-mutator!    db/current-bank-account!
+                        :current-name                bank-name
+                        :total-difference-mutator!   db/bank-total-difference!
+                        :account-date-range-mutator! db/current-date-range-bank-data!})}
           bank-name]
 
          ;; DELETE account button
@@ -81,17 +83,19 @@
          ;; SELECT acconut button
          [:button.button-smaller.select-credit
           {:on-click #(helpers/read-and-set-data!
-                       {:set-current-page!         (fn [] (reset! current-page :credit))
-                        :dir-path                  credit-dir-path
-                        :initial-balance-file-path credit-initial-balance-file-path
-                        :read-file!                read-file!
-                        :initial-balance-mutator!  db/initial-credit-balance!
-                        :data-file-path            credit-data-file-path
-                        :data-mutator!             db/credit-data!
-                        :meta-data-path            credit-meta-data-path
-                        :meta-data-mutator!        db/credit-meta-data!
-                        :current-account-mutator!  db/current-credit-account!
-                        :current-name              credit-name})}
+                       {:set-current-page!           (fn [] (reset! current-page :credit))
+                        :dir-path                    credit-dir-path
+                        :initial-balance-file-path   credit-initial-balance-file-path
+                        :read-file!                  read-file!
+                        :initial-balance-mutator!    db/initial-credit-balance!
+                        :data-file-path              credit-data-file-path
+                        :data-mutator!               db/credit-data!
+                        :meta-data-path              credit-meta-data-path
+                        :meta-data-mutator!          db/credit-meta-data!
+                        :current-account-mutator!    db/current-credit-account!
+                        :current-name                credit-name
+                        :total-difference-mutator!   db/credit-total-difference!
+                        :account-date-range-mutator! db/current-date-range-credit-data!})}
           credit-name]
 
          ;; DELETE account button

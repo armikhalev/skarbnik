@@ -42,9 +42,10 @@
        :big-data-mutator!   db/credit-big-data!
        :current-account!    db/current-credit-account!
        :initial-balance!    db/initial-credit-balance!
-       :total-difference!   db/credit-total-difference!
        :read-file!          read-file!
+       :meta-data-mutator!  db/credit-meta-data!
        :data-mutator!       db/credit-data!
+       :total-difference!   db/credit-total-difference!
        :account-date-range-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/button-save-account!

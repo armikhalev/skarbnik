@@ -171,6 +171,7 @@
            initial-balance!
            total-difference!
            read-file!
+           meta-data-mutator!
            data-mutator!
            account-date-range-mutator!]}]
   [:button.button.button-smaller.open-file
@@ -184,6 +185,7 @@
                                 (fn [data]
                                   (do
                                     ;; Nullify everything
+                                    (meta-data-mutator! {})
                                     (account-date-range-mutator! {})
                                     (recur-data-mutator! {})
                                     (when big-data-mutator!

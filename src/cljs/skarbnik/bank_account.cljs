@@ -39,9 +39,10 @@
        :recur-data-mutator! db/bank-recur-data!
        :current-account!    db/current-bank-account!
        :initial-balance!    db/initial-bank-balance!
-       :total-difference!   db/bank-total-difference!
        :read-file!          read-file!
+       :meta-data-mutator!  db/bank-meta-data!
        :data-mutator!       db/bank-data!
+       :total-difference!   db/bank-total-difference!
        :account-date-range-mutator! db/current-date-range-bank-data!} ]
      ;;
      [ components/button-save-account!
