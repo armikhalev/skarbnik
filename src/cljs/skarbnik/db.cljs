@@ -8,10 +8,6 @@
 ;; Specs
 ;; TODO
 
-;; `:bank-recur-data` and `:credit-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
-;; value a map of the form {`description`:val `amount`:val `date`:val}
-;; then it will allow find recurring amounts if that amount and other data is in this map.
-
 ;; END: Specs
 
 
@@ -43,11 +39,6 @@
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :bank-tags-choice          #{:Recur :Ignore}
                      :credit-tags-choice        #{:Recur :BIG :Ignore :gas}
-                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                     :bank-recur-data          {}
-                     :credit-recur-data        {}
-                     ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                     :credit-big-data          {}
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :initial-bank-balance     0
                      :initial-credit-balance   0
@@ -268,45 +259,6 @@
 
 ;;; ENDs: Meta Data (Tags)
 
-
-;;; REcur data
-
-(def bank-recur-data
-  (r/cursor db [ :bank-recur-data ]))
-
-(defn bank-recur-data!
-  ([v]
-   (reset! bank-recur-data v))
-  ([f v]
-   (r/rswap! bank-recur-data f v))
-  ([f k v]
-   (r/rswap! bank-recur-data f k v)))
-
-;;;
-
-(def credit-recur-data
-  (r/cursor db [ :credit-recur-data ]))
-
-(defn credit-recur-data!
-  ([v]
-   (reset! credit-recur-data v))
-  ([f v]
-   (r/rswap! credit-recur-data f v))
-  ([f k v]
-   (r/rswap! credit-recur-data f k v)))
-
-;;;; Credit Big Data
-
-(def credit-big-data
-  (r/cursor db [ :credit-big-data ]))
-
-(defn credit-big-data!
-  ([v]
-   (reset! credit-big-data v))
-  ([f v]
-   (r/rswap! credit-big-data f v))
-  ([f k v]
-   (r/rswap! credit-big-data f k v)))
 
 ;;; Initial balances
 

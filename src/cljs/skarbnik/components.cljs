@@ -165,8 +165,6 @@
 
 (defn button-open-file!
   [{:keys [open-file!
-           recur-data-mutator!
-           big-data-mutator!
            current-account!
            initial-balance!
            total-difference!
@@ -187,9 +185,6 @@
                                     ;; Nullify everything
                                     (meta-data-mutator! {})
                                     (account-date-range-mutator! {})
-                                    (recur-data-mutator! {})
-                                    (when big-data-mutator!
-                                      (big-data-mutator! {}))
                                     (current-account! "")
                                     (initial-balance! 0)
                                     (total-difference! 0)
@@ -298,11 +293,20 @@
   (let [show-tooltip? (r/atom false)]
     ^{:key (str "tag-"idx)}
 
-    ;; Should not show label if amount is negative, i.e. paying off debt
-    (if (< (:amount entry) 0)
+    ;; Should show tag-tooltip only for spendings
+    (cond
+      (and credit? (< (:amount entry) 0)) ;; -->
+      ^{:key (str "recur-"idx)}
       [:td ""]
+      ;;
 
-      ;; else
+      (and (not credit?) (> (:amount entry) 0)) ;; -->
+      ^{:key (str "recur-"idx)}
+      [:td ""]
+      ;;
+
+      :else ;; -->
+      ^{:key (str "recur-"idx)}
       [:td.tag-with-tooltip.cursor-pointer
        {:on-click #(reset! show-tooltip? (not @show-tooltip?))
         :class    (condp #(contains? %2 %1) meta-data
@@ -417,12 +421,10 @@
 (defn transactions-table
   [{:keys [data
            meta-data-mutator!
-           credit-big-data
            side-drawer-mutator!
            credit?
            meta-data
-           tags-choice
-           recur-data]}]
+           tags-choice]}]
   (if-not (seq data)
     [:section.transactions-table-wrapper
      [:div.padder]

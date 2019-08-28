@@ -229,18 +229,31 @@
                            :credit-meta-data-path     credit-meta-data-path
                            :data-file-path            credit-data-file-path}))
 
-   ;; FIXME: should be `meta-data`
-   (let [bank-recur-sum*     (logic/sum-recur-amounts @db/bank-recur-data)
+   (let [bank-meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
+         bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
+
+         credit-meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
+         credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
+
+         bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
          bank-recur-sum      (if (and
                                   (not (number? bank-recur-sum*))
                                   (js/Number.isNaN bank-recur-sum*))
                                0
                                bank-recur-sum*)
-         credit-recur-sum      (logic/sum-recur-amounts @db/credit-recur-data)
+
+         credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
+         credit-recur-sum      (if (and
+                                  (not (number? credit-recur-sum*))
+                                  (js/Number.isNaN credit-recur-sum*))
+                               0
+                               credit-recur-sum*)
+
          sum            (logic/cents->dollars
                          (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
      ;; (prn "In `core`, line 226:----> ")
-     ;; (pp/pprint recur-by-account)
+     ;; (pp/pprint @db/bank-accounts)
+
      [:h3
       [:span "Sum of Bank and Credit recurring transactions: "]
       [:span
@@ -298,7 +311,6 @@
 
 
     ;; BANK
-
     (read-file!
      bank-accounts-path
      (fn [data] (db/bank-accounts! into (reader/read-string data))))

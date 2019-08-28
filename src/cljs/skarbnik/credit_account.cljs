@@ -38,8 +38,6 @@
      ;;
      [ components/button-open-file!
       {:open-file!          open-file!
-       :recur-data-mutator! db/credit-recur-data!
-       :big-data-mutator!   db/credit-big-data!
        :current-account!    db/current-credit-account!
        :initial-balance!    db/initial-credit-balance!
        :read-file!          read-file!
@@ -49,7 +47,7 @@
        :account-date-range-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/button-save-account!
-      {:all-accounts-paths         @db/credit-accounts
+      {:all-accounts-paths         db/credit-accounts
        :account-kind-mutator!      db/credit-accounts!
        :accounts-path              credit-accounts-path
        :initial-balance            @db/initial-credit-balance
@@ -84,14 +82,10 @@
        [components/transactions-table
         {:data                    merged-data
          :credit?                 true
-         :recur-data-mutator!     db/credit-recur-data!
          :meta-data-mutator!      db/credit-meta-data!
-         :credit-big-data         db/credit-big-data
-         :big-data-mutator!       db/credit-big-data!
-         :side-drawer-mutator!    db/credit-side-drawer!
          :meta-data               @db/credit-meta-data
-         :tags-choice             @db/credit-tags-choice
-         :recur-data              db/credit-recur-data}])
+         :side-drawer-mutator!    db/credit-side-drawer!
+         :tags-choice             @db/credit-tags-choice}])
 
      [components/side-drawer-wrapper
       @db/credit-side-drawer-data
@@ -109,7 +103,6 @@
        :account-data-mutator! db/current-date-range-credit-data!} ]
      ;;
      [ components/credit-analyze {:data                     data
-                                  :big-data                 @db/credit-big-data
                                   :initial-credit-balance   @db/initial-credit-balance
                                   :credit-recur-data        recur-data
                                   :credit-total-difference! db/credit-total-difference!}]

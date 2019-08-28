@@ -104,7 +104,7 @@
                 (when dir-path
                   (do
                     ;; Update and save it to file
-                    (when (account-NOT-in-accounts? all-accounts-paths dir-path)
+                    (when (account-NOT-in-accounts? @all-accounts-paths dir-path)
 
                       ;; add directory name to accounts
                       (account-kind-mutator! conj dir-path)
@@ -112,7 +112,7 @@
                       ;; write path to *-accounts.edn for persistance
                       (write-file!
                        accounts-path
-                       all-accounts-paths))
+                       @all-accounts-paths))
 
                     ;; create dir (if doesn't exist fn will handle it)
                     (make-dir! dir-path)

@@ -26,7 +26,9 @@
   (let [cur-range-data @db/current-date-range-bank-data
         data           (if (empty? cur-range-data)
                          @db/bank-data
-                         cur-range-data)]
+                         cur-range-data)
+        meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
+        recur-data     (logic/filter-by-tag meta-data :Recur)]
     [:section
      [:h2
       {:data-test "bank-account-title"}
@@ -36,7 +38,6 @@
      ;;
      [ components/button-open-file!
       {:open-file!          open-file!
-       :recur-data-mutator! db/bank-recur-data!
        :current-account!    db/current-bank-account!
        :initial-balance!    db/initial-bank-balance!
        :read-file!          read-file!
@@ -46,7 +47,7 @@
        :account-date-range-mutator! db/current-date-range-bank-data!} ]
      ;;
      [ components/button-save-account!
-      {:all-accounts-paths         @db/bank-accounts
+      {:all-accounts-paths         db/bank-accounts
        :account-kind-mutator!      db/bank-accounts!
        :accounts-path              bank-accounts-path
        :initial-balance            @db/initial-bank-balance
@@ -66,8 +67,9 @@
      [:hr]
      [components/transactions-table
       {:data                    data
-       :recur-data-mutator!     db/bank-recur-data!
-       :recur-data              db/bank-recur-data}]
+       :meta-data-mutator!      db/bank-meta-data!
+       :meta-data               @db/bank-meta-data
+       :tags-choice             @db/bank-tags-choice}]
 
      [components/side-drawer-wrapper
       @db/bank-side-drawer-data
@@ -86,10 +88,9 @@
      ;;
      [ components/bank-analyze {:data                   data
                                 :initial-bank-balance   @db/initial-bank-balance
-                                :bank-recur-data        @db/bank-recur-data
+                                :bank-recur-data        recur-data
                                 :bank-total-difference! db/bank-total-difference!}]
 
-     (let [recur-data (logic/filter-by-tag (vals @db/bank-meta-data) :Recur)]
-       [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
-                                        :recur-data           recur-data}])]))
+     [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
+                                      :recur-data           recur-data}]]))
 
