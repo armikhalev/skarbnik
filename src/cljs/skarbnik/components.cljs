@@ -99,7 +99,7 @@
       "Added debt: " (logic/cents->dollars difference)]
      ;; else if all paid
      [:h3.color-green
-      "All debt is paid, nice job!"]),
+      "Less Debt: " (logic/cents->dollars difference)]),
    "This is `Debt` minus `Paid`"])
 
 (defn debt-sum
@@ -384,13 +384,15 @@
           [:td.description entry-val]
 
           "amount" ;; ->
-          ^{:key (str "amount-" idx)}
-          [:td.amount
-           (helpers/colorize-numbers entry-val)
-           (if (logic/is-number? entry-val)
-             (logic/cents->dollars entry-val)
-             ;;else
-             "?")]
+          (if (logic/is-number? entry-val)
+            ^{:key (str "amount-" idx)}
+            [:td.amount
+             (helpers/colorize-numbers entry-val)
+             (logic/cents->dollars entry-val)]
+            ;;else
+            ^{:key (str "amount-" idx)}
+            [:td.amount.color-danger.bold
+             "???"])
 
           "bigs" ;; ->
           (if entry-val

@@ -137,7 +137,7 @@
     \nDebt: 50.00
    \n Paid: -100.00
    \n Non-recurring spendings: 20.00
-   \n All debt is paid, nice job! (NOTE: This is `Added debt: -50.00`)
+   \n Less Debt: (NOTE: This is `Added debt: -50.00`)
    \n All time:
    \n Recurring spendings sum: 30.00
    \n Total debt:
