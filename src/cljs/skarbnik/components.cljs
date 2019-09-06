@@ -14,6 +14,28 @@
    [skarbnik.logic :as logic]))
 
 
+;; Tooltip
+
+(defn tooltip
+  [show-tooltip?
+   text]
+  [:div.tooltip
+   {:class (when @show-tooltip? "show")}
+   (if text text "")
+   [:i]])
+
+(defn tooltip-parent
+  "<el> str? -> <tooltip <el>>"
+  [parent-el
+   tooltip-text]
+  (let [show-tooltip? (r/atom false)]
+    [:span.tooltip-parent
+     {:on-mouse-over #(reset! show-tooltip? true)
+      :on-mouse-out  #(reset! show-tooltip? false)}
+     (if parent-el parent-el [:div ""])
+     [tooltip show-tooltip? tooltip-text]]))
+
+;; ENDs: Tooltip
 
 
 (defn bank-analyze
@@ -64,23 +86,10 @@
             (logic/cents->dollars ending-balance)
             "Fix numbers in your data file")]]]])))
 
-(defn tooltip
-  [show-tooltip?
-   text]
-  [:div.tooltip
-   {:class (when @show-tooltip? "show")}
-   (if text text "")
-   [:i]])
+;; ENDs: bank-analyze
 
-(defn tooltip-parent
-  [parent-el
-   tooltip-text]
-  (let [show-tooltip? (r/atom false)]
-    [:span.tooltip-parent
-     {:on-mouse-over #(reset! show-tooltip? true)
-      :on-mouse-out  #(reset! show-tooltip? false)}
-     (if parent-el parent-el [:div ""])
-     [tooltip show-tooltip? tooltip-text]]))
+
+;; Credit-analyze & its tooltips
 
 (defn added-debt-analyze-row
   [difference]
@@ -90,7 +99,7 @@
       "Added debt: " (logic/cents->dollars difference)]
      ;; else if all paid
      [:h3.color-green
-      "All debt is paid, nice job!"]),
+      "Less Debt: " (logic/cents->dollars difference)]),
    "This is `Debt` minus `Paid`"])
 
 (defn debt-sum
@@ -151,15 +160,16 @@
                (logic/cents->dollars ending-balance)
                "Fix numbers in your data file")]]]])))
 
+;; ENDs: Credit-analyze & its tooltips
+
 
 (defn button-open-file!
   [{:keys [open-file!
-           recur-data-mutator!
-           big-data-mutator!
            current-account!
            initial-balance!
            total-difference!
            read-file!
+           meta-data-mutator!
            data-mutator!
            account-date-range-mutator!]}]
   [:button.button.button-smaller.open-file
@@ -173,10 +183,8 @@
                                 (fn [data]
                                   (do
                                     ;; Nullify everything
+                                    (meta-data-mutator! {})
                                     (account-date-range-mutator! {})
-                                    (recur-data-mutator! {})
-                                    (when big-data-mutator!
-                                      (big-data-mutator! {}))
                                     (current-account! "")
                                     (initial-balance! 0)
                                     (total-difference! 0)
@@ -192,16 +200,14 @@
   [{:keys [all-accounts-paths
            account-kind-mutator!
            accounts-path
-           recur-transactions
-           big-transactions-path
-           recur-data
-           credit-big-data
            initial-balance
            initial-balance-file-path
            data-file-path
            show-save-file-dialog!
            make-dir!
            write-file!
+           meta-data-path
+           meta-data
            data]}]
   [:button.button.button-smaller.save-file
    {:data-test "button-save-account"
@@ -209,16 +215,14 @@
                 {:all-accounts-paths        all-accounts-paths
                  :account-kind-mutator!     account-kind-mutator!
                  :accounts-path             accounts-path
-                 :recur-transactions        recur-transactions
-                 :big-transactions-path     big-transactions-path
-                 :recur-data                recur-data
-                 :credit-big-data           credit-big-data
                  :initial-balance           initial-balance
                  :initial-balance-file-path initial-balance-file-path
                  :data-file-path            data-file-path
                  :show-save-file-dialog!    show-save-file-dialog!
                  :make-dir!                 make-dir!
                  :write-file!               write-file!
+                 :meta-data-path            meta-data-path
+                 :meta-data                 meta-data
                  :data                      data})}
    "Save account"])
 
@@ -254,69 +258,100 @@
 
 ;; ROW
 
+(defn tooltip-tag
+  [{:keys [show-tooltip?
+           meta-data-mutator!
+           meta-data
+           tags-choice
+           entry]}]
+  [:div.tooltip-tag
+   {:class (when @show-tooltip? "show-tooltip-tag")}
+   (reduce (fn [span tag]
+             (conj span
+                   [:div
+                    {:on-click #(let [contains-tag? (contains? meta-data tag)]
+                                  (if contains-tag?
+                                    (helpers/unset-tag! meta-data-mutator! entry tag)
+                                    ;; else
+                                    (helpers/set-tag!
+                                     {:mutator!   meta-data-mutator!
+                                      :entry      entry
+                                      :meta-data  meta-data
+                                      :tag        tag})))}
+                    tag]))
+           [:span ]
+           tags-choice)])
+
+(defn tag-with-tooltip
+  [{:keys [entry
+           idx
+           selected?
+           meta-data-mutator!
+           meta-data
+           tags-choice
+           credit?]}]
+  (let [show-tooltip? (r/atom false)]
+    ^{:key (str "tag-"idx)}
+
+    ;; Should show tag-tooltip only for spendings
+    (cond
+      (and credit? (< (:amount entry) 0)) ;; -->
+      ^{:key (str "recur-"idx)}
+      [:td ""]
+      ;;
+
+      (and (not credit?) (> (:amount entry) 0)) ;; -->
+      ^{:key (str "recur-"idx)}
+      [:td ""]
+      ;;
+
+      :else ;; -->
+      ^{:key (str "recur-"idx)}
+      [:td.tag-with-tooltip.cursor-pointer
+       {:on-click #(reset! show-tooltip? (not @show-tooltip?))
+        :class    (condp #(contains? %2 %1) meta-data
+                    :BIG "color-danger"
+                    :Recur "recur-sign recur"
+                    ;; else
+                    "")}
+       [:span
+        (reduce (fn [span v]
+                  (conj span
+                        [:div (case v
+                                :Recur ""
+                                v)]))
+                [:span ] meta-data)
+        [tooltip-tag {:show-tooltip?        show-tooltip?
+                      :meta-data-mutator!   meta-data-mutator!
+                      :meta-data            meta-data
+                      :tags-choice          tags-choice
+                      :entry                entry}]]])))
+
 (defn table-row []
-  (fn [{:keys [recur-data-mutator!
-               big-data-mutator!
+  (fn [{:keys [meta-data-mutator!
                side-drawer-mutator!
                idx
                entry
-               selected?
-               big?
+               tags
+               tags-choice
                category-keys
                credit?]}]
     [:tr
-     {:style {:background-color (cond
-                                  @selected? "grey"
-                                  @big?      "peru"
-                                  :else      "")}}
+     {:class (condp #(contains? %2 %1) tags
+               :Recur  "recur-bg"
+               :BIG    "big-bg"
+               :Ignore "opaque"
+               "")}
 
      ;; Additional columns --->
-     ;; Big transaction label and handling
 
-     (when credit?
-       ;; Should not show label if amount is negative, i.e. paying off debt
-       (if (< (:amount entry) 0)
-         ^{:key (str "big-"idx)}
-         [:td ""]
-
-         ;; else
-         ^{:key (str "big-"idx)}
-
-         (if-not @selected?
-           [:td.cursor-pointer
-            {:class (when @big? "color-danger")
-             :on-click #(if @big?
-                          (helpers/unset-distinct-data! big-data-mutator! entry)
-                          ;; else
-                          (helpers/set-distinct-data! big-data-mutator! entry))}
-            (if @big? "BIG" "B?")
-            ""]
-           [:td ""])))
-
-     ;; Recurring transaction label and handling
-
-     (cond
-       ;; Should not show label if amount is negative, i.e. paying off debt
-       (and credit? (< (:amount entry) 0)) ;; -->
-       ^{:key (str "recur-"idx)}
-       [:td ""]
-       ;;
-       (and (not credit?) (> (:amount entry) 0)) ;; -->
-       ^{:key (str "recur-"idx)}
-       [:td ""]
-       ;;
-       :else ;; -->
-       ^{:key (str "recur-"idx)}
-       [:td
-        (if-not @big?
-          [:label.recur-sign.cursor-pointer
-           {:on-click #(if @selected?
-                         (helpers/unset-distinct-data! recur-data-mutator! entry)
-                         ;; else
-                         (helpers/set-distinct-data! recur-data-mutator! entry))
-            :class (when @selected? "recur")}]
-          ;; else don't show recur to avoid user confusion
-          [:label ""])])
+     ;; TAG
+     [tag-with-tooltip {:entry                entry
+                        :idx                  idx
+                        :meta-data-mutator!   meta-data-mutator!
+                        :meta-data            tags
+                        :tags-choice          tags-choice
+                        :credit?              credit?}]
 
      ;; <--- Additional columns
 
@@ -349,13 +384,15 @@
           [:td.description entry-val]
 
           "amount" ;; ->
-          ^{:key (str "amount-" idx)}
-          [:td
-           (helpers/colorize-numbers entry-val)
-           (if (logic/is-number? entry-val)
-             (logic/cents->dollars entry-val)
-             ;;else
-             "?")]
+          (if (logic/is-number? entry-val)
+            ^{:key (str "amount-" idx)}
+            [:td.amount
+             (helpers/colorize-numbers entry-val)
+             (logic/cents->dollars entry-val)]
+            ;;else
+            ^{:key (str "amount-" idx)}
+            [:td.amount.color-danger.bold
+             "???"])
 
           "bigs" ;; ->
           (if entry-val
@@ -385,12 +422,11 @@
 
 (defn transactions-table
   [{:keys [data
-           recur-data-mutator!
-           credit-big-data
-           big-data-mutator!
+           meta-data-mutator!
            side-drawer-mutator!
            credit?
-           recur-data]}]
+           meta-data
+           tags-choice]}]
   (if-not (seq data)
     [:section.transactions-table-wrapper
      [:div.padder]
@@ -407,12 +443,8 @@
      [:table.transactions-table
       [:thead
        [:tr
-        (if credit?
-          '(^{:key "empty-0"} [:th nil]
-            ^{:key "empty-1"} [:th nil])
-          ;; else
-          ^{:key "empty-2"}
-          [:th nil])
+        ^{:key "empty-2"}
+        [:th [:div "Tag"]]
 
         (for [th (logic/get-maps-categories-str data)]
           (case th
@@ -450,26 +482,22 @@
        (doall
         (map-indexed
          (fn [idx entry]
-           (let [selected? (r/atom (contains? @recur-data
-                                              (-> entry :_sk-id keyword)))
-                 big? (if credit-big-data
-                        (r/atom (contains? @credit-big-data
-                                           (-> entry :_sk-id keyword)))
-                        (r/atom false))]
+           (let [row-meta-data (get meta-data (-> entry :_sk-id keyword) [])]
              ^{:key idx}
              [table-row
-              {:recur-data-mutator!  recur-data-mutator!
-               :big-data-mutator!    big-data-mutator!
+              {:meta-data-mutator!   meta-data-mutator!
                :side-drawer-mutator! side-drawer-mutator!
-               :idx             idx
-               :entry           entry
-               :selected?       selected?
-               :category-keys   (logic/get-maps-categories data)
-               :credit?         credit?
-               :big?            big?
-               :data            data}]))
+               :idx                  idx
+               :entry                entry
+               :tags                (get-in row-meta-data [:meta-data :tags] [])
+               :tags-choice          tags-choice
+               :category-keys        (logic/get-maps-categories data)
+               :credit?              credit?
+               :data                 data}]))
          ;; feed `map-indexed`
          data))]]]))
+
+;; ENDs: Transactions Table
 
 
 (defn date-picker

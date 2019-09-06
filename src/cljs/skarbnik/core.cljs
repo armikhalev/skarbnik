@@ -49,7 +49,7 @@
 
 ;; ROOT PATH, it's diifferent on MacOS vs Linux, this is the idiomatic Electron way of doing this
 ;; Windows is not supported
-;; NOTE: The path on Mac is: `/Users/megatron/Library/Application Support/skarbnik/..`
+;; NOTE: The path on Mac is: `/Users/megatron/Library/Application Support/Skarbnik/..`
 (def root-path (.join path (app.getPath "userData")))
 
 ;; file paths
@@ -58,9 +58,8 @@
 (def credit-data-file-path "credit-data-file.txt")
 (def bank-initial-balance-file-path "bank-initial-balance.txt")
 (def credit-initial-balance-file-path "credit-initial-balance.txt")
-(def bank-recur-transactions "bank-recurring-transactions.edn")
-(def credit-recur-transactions "credit-recurring-transactions.edn")
-(def credit-big-transactions "credit-big-transactions.edn")
+(def bank-meta-data-path "bank-meta-data.edn")
+(def credit-meta-data-path "credit-meta-data.edn")
 (def bank-accounts-path (str root-path "/bank-accounts.edn"))
 (def credit-accounts-path (str root-path "/credit-accounts.edn"))
 ;;
@@ -201,14 +200,14 @@
                        :credit-accounts-path            credit-accounts-path
                        :read-file!                      read-file!
 
+                       :credit-meta-data-path           credit-meta-data-path
+                       :bank-meta-data-path             bank-meta-data-path
+
                        :credit-initial-balance-file-path  credit-initial-balance-file-path
                        :credit-data-file-path             credit-data-file-path
-                       :credit-recur-transactions         credit-recur-transactions
-                       :credit-big-transactions           credit-big-transactions
 
                        :bank-initial-balance-file-path  bank-initial-balance-file-path
-                       :bank-data-file-path             bank-data-file-path
-                       :bank-recur-transactions         bank-recur-transactions})
+                       :bank-data-file-path             bank-data-file-path})
 
      :bank (bank/page {:bank-accounts-path        bank-accounts-path
                        :show-save-file-dialog!    show-save-file-dialog!
@@ -217,8 +216,8 @@
                        :write-file!               write-file!
                        :make-dir!                 make-dir!
                        :initial-balance-file-path bank-initial-balance-file-path
-                       :data-file-path            bank-data-file-path
-                       :bank-recur-transactions   bank-recur-transactions})
+                       :bank-meta-data-path       bank-meta-data-path
+                       :data-file-path            bank-data-file-path})
 
      :credit (credit/page {:credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
@@ -227,22 +226,34 @@
                            :write-file!               write-file!
                            :make-dir!                 make-dir!
                            :initial-balance-file-path credit-initial-balance-file-path
-                           :big-transactions-path     credit-big-transactions
-                           :data-file-path            credit-data-file-path
-                           :credit-big-transactions   credit-big-transactions
-                           :credit-recur-transactions credit-recur-transactions}))
+                           :credit-meta-data-path     credit-meta-data-path
+                           :data-file-path            credit-data-file-path}))
 
-   (let [bank-recur-sum*     (logic/sum-recur-amounts @db/bank-recur-data)
+   (let [bank-meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
+         bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
+
+         credit-meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
+         credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
+
+         bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
          bank-recur-sum      (if (and
                                   (not (number? bank-recur-sum*))
                                   (js/Number.isNaN bank-recur-sum*))
                                0
                                bank-recur-sum*)
-         credit-recur-sum      (logic/sum-recur-amounts @db/credit-recur-data)
+
+         credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
+         credit-recur-sum      (if (and
+                                  (not (number? credit-recur-sum*))
+                                  (js/Number.isNaN credit-recur-sum*))
+                               0
+                               credit-recur-sum*)
+
          sum            (logic/cents->dollars
                          (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
      ;; (prn "In `core`, line 226:----> ")
-     ;; (pp/pprint recur-by-account)
+     ;; (pp/pprint @db/bank-accounts)
+
      [:h3
       [:span "Sum of Bank and Credit recurring transactions: "]
       [:span
@@ -300,7 +311,6 @@
 
 
     ;; BANK
-
     (read-file!
      bank-accounts-path
      (fn [data] (db/bank-accounts! into (reader/read-string data))))

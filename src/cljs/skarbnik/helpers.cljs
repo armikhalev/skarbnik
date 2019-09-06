@@ -1,6 +1,7 @@
 (ns skarbnik.helpers
   (:require [clojure.string :as string]
             [cljs.reader :as reader]
+            [clojure.pprint :as pp]
             [skarbnik.logic :as logic]) )
 
 (defn colorize-numbers
@@ -8,20 +9,30 @@
   {:class (str "bold margin-left-5 " (if (< number 0) "color-red" "color-blue"))})
 
 
-(defn set-distinct-data!
-  "Adds key to `bank-data` as concatenation of `description`, `amount` and `date`
-   And value being a map of those key/value pairs in `entry`"
-  [mutator! entry]
-  (let [data-key    (-> entry :_sk-id keyword)
-        parsed-entry (select-keys entry [:description :amount :date :AccountName])] ;; <-- `AccountName` used in Mint
-    (mutator! assoc data-key parsed-entry)))
+(defn set-tag!
+  "Adds `tag` key to tags meta-data."
+  [{:keys [mutator! entry meta-data tag]}]
+  (let [data-key        (-> entry :_sk-id keyword)
+                                                                       ;; `AccountName` used in Mint
+        parsed-entry    (select-keys entry [:_sk-id :description :amount :date :AccountName])
+        entry-with-meta (assoc-in parsed-entry [:meta-data :tags] meta-data)
+        ;; NOTE: `Big`s, `recur` and `ignore` are exclusive, so if one appears two others should dissappear BUT not custom tags.
+        entry-with-tags (update-in entry-with-meta [:meta-data :tags]
+                                   (fn [v t]
+                                     (let [default-tags (clojure.set/intersection #{t} #{:BIG :Recur :Ignore})
+                                           custom-tags  (clojure.set/difference v #{:BIG :Recur :Ignore})]
+                                       (if-not (empty? default-tags)
+                                         (clojure.set/union custom-tags default-tags)
+                                         (set (conj v t)))))
+                                   tag)]
+    (mutator! assoc data-key entry-with-tags)))
 
 
-(defn unset-distinct-data!
-  "Removes selected key from state."
-  [mutator! entry]
+(defn unset-tag!
+  "Removes selected `tag` from state."
+  [mutator! entry tag]
   (let [data-key    (-> entry :_sk-id keyword)]
-    (mutator! dissoc data-key)))
+    (mutator! update-in [data-key :meta-data :tags] #(disj % tag))))
 
 
 (defn read-and-set-data!
@@ -32,13 +43,20 @@
            initial-balance-mutator!
            data-file-path
            data-mutator!
-           recur-transactions-path
-           recur-data-mutator!
-           big-transactions-path
-           big-data-mutator!
+           meta-data-path
+           meta-data-mutator!
            current-account-mutator!
-           current-name]}]
+           current-name
+           total-difference-mutator!
+           account-date-range-mutator!]}]
   (do
+    ;; Nullify everything
+    (account-date-range-mutator! {})
+    (data-mutator! {})
+    (meta-data-mutator! {})
+    (initial-balance-mutator! 0)
+    (total-difference-mutator! 0)
+    ;;
     (set-current-page!)
     ;;
     (read-file!
@@ -52,17 +70,10 @@
      :parse)
     ;;
     (read-file!
-     (str dir-path"/"recur-transactions-path)
+     (str dir-path"/"meta-data-path)
      ;; Read EDN and put it into state
      (fn [data]
-       (recur-data-mutator! (reader/read-string data))))
-    ;;
-    (when big-transactions-path
-      (read-file!
-       (str dir-path"/"big-transactions-path)
-       ;; Read EDN and put it into state
-       (fn [data]
-         (big-data-mutator! (reader/read-string data)))))
+       (meta-data-mutator! (reader/read-string data))))
     ;;
     (current-account-mutator! current-name)))
 
@@ -80,22 +91,20 @@
   [{:keys [all-accounts-paths
            account-kind-mutator!
            accounts-path
-           recur-transactions
-           big-transactions-path
-           recur-data
-           credit-big-data
            initial-balance
            initial-balance-file-path
            data-file-path
            show-save-file-dialog!
            make-dir!
            write-file!
+           meta-data-path
+           meta-data
            data]}]
   (let [dir-path (-> (show-save-file-dialog!) str)]
                 (when dir-path
                   (do
                     ;; Update and save it to file
-                    (when (account-NOT-in-accounts? all-accounts-paths dir-path)
+                    (when (account-NOT-in-accounts? @all-accounts-paths dir-path)
 
                       ;; add directory name to accounts
                       (account-kind-mutator! conj dir-path)
@@ -103,21 +112,16 @@
                       ;; write path to *-accounts.edn for persistance
                       (write-file!
                        accounts-path
-                       all-accounts-paths))
+                       @all-accounts-paths))
 
                     ;; create dir (if doesn't exist fn will handle it)
                     (make-dir! dir-path)
 
                     ;; Write files
                     (write-file!
-                     (str dir-path"/"recur-transactions)
-                     recur-data)
-                    ;;
-                    (when credit-big-data
-                      (write-file!
-                       (str dir-path"/"big-transactions-path)
-                       credit-big-data))
-                    ;;
+                     (str dir-path"/"meta-data-path)
+                     meta-data)
+
                     (write-file!
                      (str dir-path"/"initial-balance-file-path)
                      (logic/cents->dollars

@@ -62,11 +62,14 @@
 (defn sum-recur-amounts
   "{int? {`:amount` int?}} -> (int? :kind number?)"
   [recur-data]
-  (reduce
-   (fn [sum [k v]]
-     (+ sum (:amount v)))
-   0
-   recur-data))
+  (if (seq recur-data)
+    (reduce
+     (fn [sum m]
+       (+ sum (get m :amount 0)))
+     0
+     recur-data)
+    ;; else
+    0))
 
 ;; ENDS: Amount fns
 
@@ -470,7 +473,13 @@
    If no `:AccountName` found ret-> {nil ^::transactions[]}"
   [recur-data]
   (->> recur-data
-       vals
        (group-by :AccountName)))
+
+(defn filter-by-tag
+  "[v: {:meta-data {:tags Set}}], tag: Keyword -> same vec but filtered by `tag`"
+  [v tag]
+  (filter
+   #(contains? (get-in % [:meta-data :tags]) tag)
+   v))
 
 ;; (g/check)

@@ -8,10 +8,6 @@
 ;; Specs
 ;; TODO
 
-;; `:bank-recur-data` and `:credit-recur-data` - each of the recurring payments is a map with keys being (str `description` `amount` `date`) and
-;; value a map of the form {`description`:val `amount`:val `date`:val}
-;; then it will allow find recurring amounts if that amount and other data is in this map.
-
 ;; END: Specs
 
 
@@ -38,10 +34,11 @@
                      :bank-data                []
                      :credit-data              []
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                     :bank-recur-data          {}
-                     :credit-recur-data        {}
+                     :bank-meta-data           {}
+                     :credit-meta-data         {}
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
-                     :credit-big-data          {}
+                     :bank-tags-choice          #{:Recur :Ignore}
+                     :credit-tags-choice        #{:Recur :BIG :Ignore :gas}
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :initial-bank-balance     0
                      :initial-credit-balance   0
@@ -215,44 +212,53 @@
 
 ;;; <-- ENDs: DATA
 
-;;; REcur data
 
-(def bank-recur-data
-  (r/cursor db [ :bank-recur-data ]))
+;;; Meta Data (Tags)
 
-(defn bank-recur-data!
+(def bank-meta-data
+  (r/cursor db [ :bank-meta-data ]))
+
+(defn bank-meta-data!
   ([v]
-   (reset! bank-recur-data v))
+   (reset! bank-meta-data v))
   ([f v]
-   (r/rswap! bank-recur-data f v))
-  ([f k v]
-   (r/rswap! bank-recur-data f k v)))
+   (r/rswap! bank-meta-data f v))
+  ([f ks ap]
+   "Use: (update-in<f> [:uuid<key is passed from caller> :meta-data :tags]<ks> #(disj % :BIG)<ap>)"
+   (r/rswap! bank-meta-data f ks ap)))
 
-;;;
+(def credit-meta-data
+  (r/cursor db [ :credit-meta-data ]))
 
-(def credit-recur-data
-  (r/cursor db [ :credit-recur-data ]))
-
-(defn credit-recur-data!
+(defn credit-meta-data!
   ([v]
-   (reset! credit-recur-data v))
+   (reset! credit-meta-data v))
   ([f v]
-   (r/rswap! credit-recur-data f v))
-  ([f k v]
-   (r/rswap! credit-recur-data f k v)))
+   (r/rswap! credit-meta-data f v))
+  ([f ks ap]
+   "Use: (update-in<f> [:uuid<key is passed from caller> :meta-data :tags]<ks> #(disj % :BIG)<ap>)"
+   (r/rswap! credit-meta-data f ks ap)))
 
-;;;; Credit Big Data
+(def bank-tags-choice
+  (r/cursor db [ :bank-tags-choice ]))
 
-(def credit-big-data
-  (r/cursor db [ :credit-big-data ]))
-
-(defn credit-big-data!
+(defn bank-tags-choice!
   ([v]
-   (reset! credit-big-data v))
+   (reset! bank-tags-choice v))
   ([f v]
-   (r/rswap! credit-big-data f v))
-  ([f k v]
-   (r/rswap! credit-big-data f k v)))
+   (r/rswap! bank-tags-choice f v)))
+
+(def credit-tags-choice
+  (r/cursor db [ :credit-tags-choice ]))
+
+(defn credit-tags-choice!
+  ([v]
+   (reset! credit-tags-choice v))
+  ([f v]
+   (r/rswap! credit-tags-choice f v)))
+
+;;; ENDs: Meta Data (Tags)
+
 
 ;;; Initial balances
 
