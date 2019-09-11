@@ -27,14 +27,14 @@
 (def dialog (.-dialog (.-remote electron)))
 (def path (nodejs/require "path"))
 (def app (.-app (.-remote electron)))
-(def win (.getCurrentWindow (.-remote electron)))
-(def Menu (.-Menu (.-remote electron)))
-(def MenuItem (.-MenuItem (.-remote electron)))
-
+(def current-window (.getCurrentWindow (.-remote electron)))
+(def Menu (-> electron .-remote .-Menu))
 
 ;; Vars for CONTEXT MENU
+(def context-menu (new Menu))
+
 (def cut-copy-paste-menu-items
-  (-> (.-items (Menu.getApplicationMenu))
+  (-> (.-items (.getApplicationMenu Menu))
       (nth , 2)
       .-submenu
       .-items
@@ -42,7 +42,6 @@
       (subvec , 3 6)
       clj->js))
 
-(def context-menu (new Menu))
 
 ;; ENDs: Vars for CONTEXT MENU
 
@@ -87,7 +86,7 @@
 
 (defn show-save-file-dialog!
   []
-  (.showOpenDialog dialog win #js {:properties #js ["openDirectory"]}))
+  (.showOpenDialog dialog current-window #js {:properties #js ["openDirectory"]}))
 
 (defn write-file!
   [filepath content]
@@ -304,7 +303,7 @@
 
       (.addEventListener js/document "contextmenu" (fn [e]
                                                      (do (.preventDefault e)
-                                                         (.popup context-menu {:window win})))
+                                                         (.popup context-menu {:window current-window})))
                          false))
 
     ;; ENDs: CONTEXT MENU (Right Click)

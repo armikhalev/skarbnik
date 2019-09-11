@@ -7,7 +7,7 @@
   :source-paths ["src/cljs"]
 
   :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.10.339"]
+                 [org.clojure/clojurescript "1.10.520"]
                  [com.andrewmcveigh/cljs-time "0.5.2"]
                  [devcards "0.2.6" :exclusions [org.clojure/clojure]]
                  [gnl/ghostwheel.tracer "0.3.8"]

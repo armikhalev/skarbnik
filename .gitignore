@@ -36,3 +36,4 @@ pom.xml.asc
 app/skarbnik-darwin-x64.zip
 *.log
 figwheel_server.log
+__builds
