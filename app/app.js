@@ -26,6 +26,8 @@ const onMac = (process.platform === 'darwin');
 const acceleratorKey = onMac ? "Command" : "Control";
 const isInternal = (devConfig.hasOwnProperty('internal') && devConfig['internal'] === true);
 
+// Disable Electron dev warning not related to App dev
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -130,9 +132,5 @@ app.on('ready', function() {
     mainWindow = null;
     app.quit();
   });
-
-  if (devConfig.hasOwnProperty('dev-tools') && devConfig['dev-tools'] === true) {
-    mainWindow.openDevTools();
-  }
 
 });
