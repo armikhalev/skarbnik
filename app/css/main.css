@@ -300,3 +300,9 @@ th {
 }
 
 /* ENDS: Tooltips */
+
+/* SUMS */
+
+.total-debt {
+    line-height: 3em;
+}

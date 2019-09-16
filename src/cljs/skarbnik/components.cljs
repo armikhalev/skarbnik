@@ -108,6 +108,19 @@
    [:h3 "Debt Sum: " (logic/cents->dollars debt-sum)]
    "Sum of all debt increasing transactions"])
 
+(defn total-debt
+  [ending-balance]
+  [tooltip-parent
+   [:span.total-debt.inline-flex.h3
+    [:span "Total debt: "]
+    [:span
+     (if (not= 0 ending-balance)
+       {:class "color-red margin-left-5"})
+     (if (logic/is-number? ending-balance)
+       (logic/cents->dollars ending-balance)
+       "Fix numbers in your data file")]]
+   "Initial Balance debt + Debt Sum of this period"])
+
 (defn credit-analyze
   [{:keys [data
            initial-credit-balance
@@ -141,24 +154,17 @@
              [:h3.color-danger
               "Non-recurring spendings without Bigs: " (logic/cents->dollars
                                                         (- (logic/get-sum plus (- recur-sum )) big-data-sum))])
+           [:h3
+            [:span "Recurring spendings sum: "]
+            [:span (helpers/colorize-numbers recur-sum)
+             (logic/cents->dollars recur-sum)]]
 
            [added-debt-analyze-row difference]]
 
           [:section
            [:hr]
            [:h2 "All time:"]
-           [:h3
-            [:span "Recurring spendings sum: "]
-            [:span (helpers/colorize-numbers recur-sum)
-             (logic/cents->dollars recur-sum)]]
-           [:span.inline-flex.h3
-            [:span "Total debt: "]
-            [:span
-             (if (not= 0 ending-balance)
-               {:class "color-red margin-left-5"})
-             (if (logic/is-number? ending-balance)
-               (logic/cents->dollars ending-balance)
-               "Fix numbers in your data file")]]]])))
+           [ total-debt ending-balance ]]])))
 
 ;; ENDs: Credit-analyze & its tooltips
 
