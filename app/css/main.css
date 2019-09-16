@@ -176,7 +176,6 @@ main.white-background table.side-drawer {
 }
 
 .transactions-table th > div {
-    border-bottom: 2px solid #888;
     line-height: 1.875em;
     position: absolute;
     top: 0;
@@ -210,12 +209,8 @@ main.white-background table.side-drawer {
 
 /* Tables */
 
-main.white-background tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-tr:nth-child(even) {
-    background-color: #cc55001c;
+tr {
+    border-top: 1px solid black;
 }
 
 main.white-background th {
