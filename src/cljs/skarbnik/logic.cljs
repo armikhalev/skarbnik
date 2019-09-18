@@ -1,7 +1,7 @@
 (ns skarbnik.logic
   (:require
    [clojure.string :as string]
-   [clojure.pprint :as pp]
+   [clojure.pprint :as pp :refer [pprint]]
    [cljs-time.core :as cl-time]
    [cljs-time.coerce :as ->cl-time]
    [clojure.spec.alpha :as s]
@@ -170,6 +170,11 @@
     (map (partial zipmap categories) entries)))
 ;; ENDS: csv->maps
 
+(defn remove-empty-maps
+  "Removes empty maps from vector.
+   Used to prevent empty lines from csv breaking the app."
+  [v]
+  (filter seq v))
 
 (defn amount->ints
   [data]
@@ -190,12 +195,12 @@
   [csv]
   [string?
    => (s/coll-of map?)]
-
   (when csv ;; null-check
     (-> csv
         csv/parse
         js->clj
         csv->maps
+        remove-empty-maps
         amount->ints)))
 ;; ENDS: CSV->maps convertor fns
 
