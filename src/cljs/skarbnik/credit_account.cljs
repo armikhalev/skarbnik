@@ -1,6 +1,6 @@
 (ns skarbnik.credit-account
   (:require [reagent.core :as r]
-            [clojure.pprint :as pp]
+            [clojure.pprint :as pp :refer [pprint]]
             [cljs.nodejs :as nodejs]
             [ghostwheel.core :as g
              :refer [>defn >defn- >fdef => | <- ?]]
@@ -27,7 +27,8 @@
         data           (if (empty? cur-range-data)
                          @db/credit-data
                          cur-range-data)
-        meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
+        meta-data*      (vals (if-let [md @db/credit-meta-data] md {}))
+        meta-data      (logic/str-dates->cljs-time meta-data*)
         recur-data     (logic/filter-by-tag meta-data :Recur)
         big-data       (logic/filter-by-tag meta-data :BIG)]
     [:section
@@ -67,13 +68,9 @@
 
      [:hr]
 
-     ;; Add `:bigs` and `:debt`
      (let [paids*                  (logic/payments data)
            paids                   (logic/str-dates->cljs-time paids*)
-           bigs*                   (vals (if-let [md @db/credit-meta-data] md {}))
-           bigs                    (logic/str-dates->cljs-time bigs*)
-           bigs-from-meta          (logic/filter-by-tag bigs :BIG)
-           paids-with-bigs         (logic/paids-with-bigs paids bigs-from-meta)
+           paids-with-bigs         (logic/paids-with-bigs paids big-data)
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
            merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
@@ -104,6 +101,7 @@
      ;;
      [ components/credit-analyze {:data                     data
                                   :initial-credit-balance   @db/initial-credit-balance
+                                  :big-data                 big-data
                                   :credit-recur-data        recur-data
                                   :credit-total-difference! db/credit-total-difference!}]
 

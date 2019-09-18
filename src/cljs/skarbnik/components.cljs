@@ -151,9 +151,11 @@
             "All Non-recurring spendings: " (logic/cents->dollars
                                              (logic/get-sum plus (- recur-sum)))]
            (when (seq big-data)
-             [:h3.color-danger
-              "Non-recurring spendings without Bigs: " (logic/cents->dollars
-                                                        (- (logic/get-sum plus (- recur-sum )) big-data-sum))])
+             [:span.bigs-analyze
+              [:h3.color-danger
+               "Non-recurring spendings without Bigs: " (logic/cents->dollars
+                                                         (- (logic/get-sum plus (- recur-sum )) big-data-sum))]
+              [:h3 "Bigs Sum: " (logic/cents->dollars big-data-sum)]])
            [:h3
             [:span "Recurring spendings sum: "]
             [:span (helpers/colorize-numbers recur-sum)
@@ -413,7 +415,7 @@
              (if (> debt 0)
                (str "$" (logic/cents->dollars debt))
                (when (< amount 0)
-                 "Paid off"))]
+                 "Paid Bigs off"))]
 
             ;; else
             ^{:key (str "bigs-" idx)}
