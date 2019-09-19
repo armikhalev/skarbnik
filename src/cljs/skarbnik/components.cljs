@@ -414,8 +414,10 @@
                                                                              :amount      amount}}))}
              (if (> debt 0)
                (str "$" (logic/cents->dollars debt))
-               (when (< amount 0)
-                 "Paid Bigs off"))]
+               (cond
+                 (and (< amount 0) (empty? entry-val)) "No Bigs"
+                 (< amount 0) "Bigs Paid off"
+                 :else ""))]
 
             ;; else
             ^{:key (str "bigs-" idx)}
