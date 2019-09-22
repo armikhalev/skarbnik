@@ -27,7 +27,7 @@
         data           (if (empty? cur-range-data)
                          @db/credit-data
                          cur-range-data)
-        meta-data*      (vals (if-let [md @db/credit-meta-data] md {}))
+        meta-data*     (vals (if-let [md @db/credit-meta-data] md {}))
         meta-data      (logic/str-dates->cljs-time meta-data*)
         recur-data     (logic/filter-by-tag meta-data :Recur)
         big-data       (logic/filter-by-tag meta-data :BIG)]
@@ -99,11 +99,13 @@
        :data                  data
        :account-data-mutator! db/current-date-range-credit-data!} ]
      ;;
-     [ components/credit-analyze {:data                     data
-                                  :initial-credit-balance   @db/initial-credit-balance
-                                  :big-data                 big-data
-                                  :credit-recur-data        recur-data
-                                  :credit-total-difference! db/credit-total-difference!}]
+     (let [ignore-uuids     (logic/filter-by-tag meta-data :Ignore)
+           data-not-ignore  (logic/filter-out-ignored data ignore-uuids)]
+       [ components/credit-analyze {:data                     data-not-ignore
+                                    :initial-credit-balance   @db/initial-credit-balance
+                                    :big-data                 big-data
+                                    :credit-recur-data        recur-data
+                                    :credit-total-difference! db/credit-total-difference!}])
 
 
      [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!

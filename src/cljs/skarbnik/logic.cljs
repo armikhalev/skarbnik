@@ -487,4 +487,16 @@
    #(contains? (get-in % [:meta-data :tags]) tag)
    v))
 
+;; TODO: I need spec!
+(defn filter-out-ignored
+  "[v: {:_sk-id uuid?}], [uuid? ^::ignore-tag] ->
+   same `data` vec but not containing vals of `ignore-uuds`"
+  [data ignore-uuids]
+  (filter
+   (fn [v]
+     ((complement contains?)
+      (set (map :_sk-id ignore-uuids))
+      (:_sk-id v)))
+   data))
+
 ;; (g/check)
