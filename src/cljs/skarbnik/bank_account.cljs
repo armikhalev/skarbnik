@@ -86,10 +86,12 @@
        :data data
        :account-data-mutator! db/current-date-range-bank-data!} ]
      ;;
-     [ components/bank-analyze {:data                   data
-                                :initial-bank-balance   @db/initial-bank-balance
-                                :bank-recur-data        recur-data
-                                :bank-total-difference! db/bank-total-difference!}]
+     (let [ignore-uuids    (logic/filter-by-tag meta-data :Ignore)
+           data-not-ignore (logic/filter-out-ignored data ignore-uuids)]
+       [ components/bank-analyze {:data                   data-not-ignore
+                                  :initial-bank-balance   @db/initial-bank-balance
+                                  :bank-recur-data        recur-data
+                                  :bank-total-difference! db/bank-total-difference!}])
 
      [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
                                       :recur-data           recur-data}]]))

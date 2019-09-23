@@ -98,10 +98,10 @@
 (s/def ::date odd-specs/some-str-dates)
 (s/def ::amount int?)
 (s/def ::description string?)
+(s/def ::_sk-id uuid?)
 
 (s/def ::transaction (s/keys :req-un [::date ::amount ::description]))
-(s/def ::transactions
-(s/coll-of ::transaction))
+(s/def ::transactions (s/coll-of ::transaction))
 
 (defn find-cat
   [s re]
@@ -480,6 +480,14 @@
   (->> recur-data
        (group-by :AccountName)))
 
+
+(s/def ::tags #{keyword? :Big :Ignore :Recur})
+(s/def ::meta-data (s/keys :req-un [::tags]))
+(s/def ::transaction-with-meta-data (s/keys :req-un [::date ::amount ::description]))
+(s/def ::transactions-with-meta-data (s/coll-of ::transaction-with-meta-data))
+
+
+;; TODO: I need spec!
 (defn filter-by-tag
   "[v: {:meta-data {:tags Set}}], tag: Keyword -> same vec but filtered by `tag`"
   [v tag]
@@ -487,11 +495,12 @@
    #(contains? (get-in % [:meta-data :tags]) tag)
    v))
 
-;; TODO: I need spec!
-(defn filter-out-ignored
+(>defn filter-out-ignored
   "[v: {:_sk-id uuid?}], [uuid? ^::ignore-tag] ->
    same `data` vec but not containing vals of `ignore-uuds`"
   [data ignore-uuids]
+  [::transactions ::transactions-with-meta-data =>
+   ::transactions-with-meta-data]
   (filter
    (fn [v]
      ((complement contains?)
