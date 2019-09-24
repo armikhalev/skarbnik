@@ -100,7 +100,7 @@
 (s/def ::description string?)
 (s/def ::_sk-id uuid?)
 
-(s/def ::transaction (s/keys :req-un [::date ::amount ::description]))
+(s/def ::transaction (s/keys :req-un [::_sk-id ::date ::amount ::description]))
 (s/def ::transactions (s/coll-of ::transaction))
 
 (defn find-cat
@@ -481,16 +481,17 @@
        (group-by :AccountName)))
 
 
-(s/def ::tags #{keyword? :Big :Ignore :Recur})
+(s/def ::tags #{:Ignore}) ;; <-- there are `:Big` and `:Recur` also, but it is hard to test `filter-by-tag` with them included
 (s/def ::meta-data (s/keys :req-un [::tags]))
-(s/def ::transaction-with-meta-data (s/keys :req-un [::date ::amount ::description]))
+(s/def ::transaction-with-meta-data (s/keys :req-un [::_sk-id ::date ::amount ::description ::meta-data]))
 (s/def ::transactions-with-meta-data (s/coll-of ::transaction-with-meta-data))
 
 
-;; TODO: I need spec!
-(defn filter-by-tag
+(>defn filter-by-tag
   "[v: {:meta-data {:tags Set}}], tag: Keyword -> same vec but filtered by `tag`"
   [v tag]
+  [::transactions-with-meta-data #{:Ignore} =>
+   ::transactions-with-meta-data]
   (filter
    #(contains? (get-in % [:meta-data :tags]) tag)
    v))
@@ -500,7 +501,7 @@
    same `data` vec but not containing vals of `ignore-uuds`"
   [data ignore-uuids]
   [::transactions ::transactions-with-meta-data =>
-   ::transactions-with-meta-data]
+   ::transactions]
   (filter
    (fn [v]
      ((complement contains?)
@@ -509,3 +510,4 @@
    data))
 
 ;; (g/check)
+
