@@ -35,10 +35,11 @@
 
 
 (>defn get-sum
-  "Returns sum of integers, that represent cents, in dollars."
+  "Returns sum of integers, that represent cents, in dollars.
+   Spec here mostly to `trace` if we get Integers and not Floats"
   ;; {::g/trace true}
   [v1 v2]
-  [int? int? => ;; TODO: figure out how to check for float
+  [int? int? =>
    int?]
   (+ v1 v2))
 

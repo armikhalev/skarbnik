@@ -1,7 +1,7 @@
 (ns skarbnik.core-test
   (:require [cljs.test :refer-macros [is testing async]]
             [reagent.core :as r]
-            [cljs.pprint :as pp]
+            [cljs.pprint :refer [pprint]]
             [devcards.core :refer-macros [deftest defcard-rg]]
             [skarbnik.logic :as logic]
             [skarbnik.helpers :as helpers]
@@ -47,11 +47,16 @@
                               :date "10/10/2018"
                               :meta-data {:tags #{:Recur}}}})
 
-(credit-meta-data! {"Bank" {:_sk-id "Bank"
-                            :description "DISCOVER E-PAYMENT 181008",
-                            :amount 3000,
-                            :date "10/10/2018"
-                            :meta-data {:tags #{:Recur}}}})
+(credit-meta-data! {"Credit" {:_sk-id "Credit"
+                              :description "DISCOVER E-PAYMENT 181008",
+                              :amount 3000,
+                              :date "10/10/2018"
+                              :meta-data {:tags #{:Recur}}},
+                    "BigRig" {:_sk-id "BigRig"
+                              :description "Game:Big Rigs",
+                              :amount 5000,
+                              :date "10/11/2018"
+                              :meta-data {:tags #{:BIG}}}})
 
 
 (def test-data
@@ -109,46 +114,59 @@
 
 ;; Bank
 (defcard-rg bank-analyze-comp
-  "Should show correct calculation numbers:
-  \nThis period:
-   \n Income: 50.00
-   \n Spendings: -100.00
-   \n Non-recurring spendings: -50.00
-   \n Net: -50.00
-   \n All time:
-   \n Recurring spendings sum: -50.00
-   \n Balance: -50.00
-   \n --"
+  "Correct text in grey. Both should have the same text: "
   (let [meta-data      (vals (if-let [md @bank-meta-data] md {}))
         recur-data     (logic/filter-by-tag meta-data :Recur)]
-    [ components/bank-analyze {:data                   test-data
-                               :initial-bank-balance   @initial-bank-balance
-                               :bank-recur-data        recur-data
-                               :bank-total-difference! bank-total-difference!}]))
+    [:section.bank-analyze-comp
+     {:style {:display "flex"}}
+     [:div
+      {:style {:background "grey" :margin-right "1em" :padding-right "1em" :text-align "right"}}
+      [:h2 "This period:"]
+      [:h3 "Income: 50.00"]
+      [:h3 "Spendings: -100.00"]
+      [:h3 "Non-recurring spendings: -50.00"]
+      [:h3 "Net: -50.00"]
+      [:hr]
+      [:h2 "All time:"]
+      [:h3 "Recurring spendings sum: -50.00"]
+      [:h3 "Balance: -50.00"]]
+     [ components/bank-analyze {:data                   test-data
+                                :initial-bank-balance   @initial-bank-balance
+                                :bank-recur-data        recur-data
+                                :bank-total-difference! bank-total-difference!}]]))
 
 ;; ENDs: Bank
 
 ;; Credit
 
-(pp/pprint (logic/get-sum @initial-credit-balance (logic/get-sum 5000 -10000)))
 (defcard-rg credit-analyze-comp
-  "Should show correct calculation numbers:
-  \nThis period:
-    \nDebt: 50.00
-   \n Paid: -100.00
-   \n Non-recurring spendings: 20.00
-   \n Less Debt: (NOTE: This is `Added debt: -50.00`)
-   \n All time:
-   \n Recurring spendings sum: 30.00
-   \n Total debt:
-   \n -50.00
-   \n --"
+  "Correct text in grey. Both should have the same text: "
   (let [meta-data      (vals (if-let [md @credit-meta-data] md {}))
-        recur-data     (logic/filter-by-tag meta-data :Recur)]
-    [ components/credit-analyze {:data                     test-data
-                                 :initial-credit-balance   @initial-credit-balance
-                                 :credit-recur-data        recur-data
-                                 :credit-total-difference! credit-total-difference!}]))
+        recur-data     (logic/filter-by-tag meta-data :Recur)
+        big-data       (logic/filter-by-tag meta-data :BIG)]
+    [:section.credit-analyze-comp
+     {:style {:display "flex"}}
+     [:div
+      {:style {:background "grey" :margin-right "1em" :padding-right "1em" :text-align "right"}}
+      [:h2 "This period:"]
+      [:h3 "Debt Sum: 50.00 "]
+      [:p "(Popover: Sum of all debt increasing transactions)"]
+      [:h3 "Paid: -100.00"]
+      [:h3 "All Non-recurring spendings: 20.00"]
+      [:h3 "Non-recurring spendings without Bigs: -30.00"]
+      [:h3 "Bigs Sum: 50.00"]
+      [:span "Recurring spendings sum: 30.00"]
+      [:h3 "Less Debt: -50.00"]
+      [:span "(Popover: This is `Debt` minus `Paid`)"]
+      [:hr]
+      [:h2 "All time:"]
+      [:h3 "Total debt: -50.00"]
+      [:span "(Popover: Initial Balance debt + Debt Sum of this period)"]]
+     [ components/credit-analyze {:data                     test-data
+                                  :initial-credit-balance   @initial-credit-balance
+                                  :big-data                 big-data
+                                  :credit-recur-data        recur-data
+                                  :credit-total-difference! credit-total-difference!}]]))
 
 ;; ENDs: Credit
 
