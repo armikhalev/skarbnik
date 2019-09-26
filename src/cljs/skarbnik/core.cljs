@@ -1,6 +1,6 @@
 (ns skarbnik.core
   (:require [reagent.core :as r]
-            [clojure.pprint :as pp]
+            [clojure.pprint :refer [pprint]]
             [clojure.core.async :as async]
             [cljs-time.core :as cl-time]
             [cljs.nodejs :as nodejs]
@@ -11,6 +11,7 @@
              :refer [>defn >defn- >fdef => | <- ?]]
             [skarbnik.helpers :as helpers]
             [skarbnik.db :as db]
+            [skarbnik.components :as components]
             [skarbnik.bank-account :as bank]
             [skarbnik.credit-account :as credit]
             [skarbnik.home :as home]
@@ -193,7 +194,7 @@
    [ nav ]
    [:hr]
    (case @current-page
-     :home (home/page {:current-page                    current-page
+     :home [ home/page {:current-page                    current-page
                        :write-file!                     write-file!
                        :bank-accounts-path              bank-accounts-path
                        :credit-accounts-path            credit-accounts-path
@@ -206,9 +207,9 @@
                        :credit-data-file-path             credit-data-file-path
 
                        :bank-initial-balance-file-path  bank-initial-balance-file-path
-                       :bank-data-file-path             bank-data-file-path})
+                       :bank-data-file-path             bank-data-file-path} ]
 
-     :bank (bank/page {:bank-accounts-path        bank-accounts-path
+     :bank [ bank/page {:bank-accounts-path        bank-accounts-path
                        :show-save-file-dialog!    show-save-file-dialog!
                        :open-file!                open-file!
                        :read-file!                read-file!
@@ -216,9 +217,9 @@
                        :make-dir!                 make-dir!
                        :initial-balance-file-path bank-initial-balance-file-path
                        :bank-meta-data-path       bank-meta-data-path
-                       :data-file-path            bank-data-file-path})
+                       :data-file-path            bank-data-file-path} ]
 
-     :credit (credit/page {:credit-accounts-path      credit-accounts-path
+     :credit [ credit/page {:credit-accounts-path      credit-accounts-path
                            :open-file!                open-file!
                            :show-save-file-dialog!    show-save-file-dialog!
                            :read-file!                read-file!
@@ -226,7 +227,7 @@
                            :make-dir!                 make-dir!
                            :initial-balance-file-path credit-initial-balance-file-path
                            :credit-meta-data-path     credit-meta-data-path
-                           :data-file-path            credit-data-file-path}))
+                           :data-file-path            credit-data-file-path} ])
 
    (let [bank-meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
          bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
@@ -251,26 +252,15 @@
          sum            (logic/cents->dollars
                          (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
      ;; (prn "In `core`, line 226:----> ")
-     ;; (pp/pprint @db/bank-accounts)
-
-     [:h3
-      [:span "Sum of Bank and Credit recurring transactions: "]
-      [:span
-       (helpers/colorize-numbers sum)
-       sum]])
+     ;; (pprint @db/bank-accounts)
+     [ components/sum-of-bank-and-credit-recur-transactions sum ])
 
    (let [sum (logic/get-sum
               (- @db/credit-total-difference)
               @db/bank-total-difference)]
-     [:h3
-      {:class "inline-flex"}
-      [:span "Bank balance vs Credit account difference:"]
-      [:span
-       (helpers/colorize-numbers sum)
-       (if (logic/is-number? sum)
-         (logic/cents->dollars sum)
-         "Something wrong with numbers in files")]])
-   (nav)
+     [ components/bank-balance-vs-credit-account-difference sum ])
+
+   [ nav ]
 
    [:hr]
 

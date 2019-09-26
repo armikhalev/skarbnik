@@ -618,3 +618,22 @@
          [:th "There is no data provided."]]]))])
 
 ;; ENDs: Side Drawer
+
+(defn sum-of-bank-and-credit-recur-transactions
+  [sum]
+  [:h3
+   [:span "Sum of Bank and Credit recurring transactions: "]
+   [:span
+    (helpers/colorize-numbers sum)
+    sum]])
+
+(defn bank-balance-vs-credit-account-difference
+  [sum]
+  [:h3
+   {:class "inline-flex"}
+   [:span "Bank balance vs Credit account difference:"]
+   [:span
+    (helpers/colorize-numbers sum)
+    (if (logic/is-number? sum)
+      (logic/cents->dollars sum)
+      "Something wrong with numbers in files")]])

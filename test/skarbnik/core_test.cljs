@@ -58,6 +58,8 @@
                               :date "10/11/2018"
                               :meta-data {:tags #{:BIG}}}})
 
+(credit-total-difference! 176498)
+(bank-total-difference! 77561)
 
 (def test-data
   '({:date "11/26/2018",
@@ -77,6 +79,8 @@
 
 
 ;;; TESTS !!!
+
+;;; UI
 
 (deftest get-total-test
   (testing "Should correctly get total sum of amounts"
@@ -166,9 +170,47 @@
                                   :initial-credit-balance   @initial-credit-balance
                                   :big-data                 big-data
                                   :credit-recur-data        recur-data
-                                  :credit-total-difference! credit-total-difference!}]]))
+                                  :credit-total-difference! credit-total-difference!} ]]))
 
 ;; ENDs: Credit
+
+(defcard-rg sum-of-bank-and-credit-recurring-transactions-comp
+  "Sum of Bank and Credit recurring transactions: `80`: "
+  (let [bank-meta-data      (vals (if-let [md @sdb/bank-meta-data] md {}))
+         bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
+
+         credit-meta-data      (vals (if-let [md @sdb/credit-meta-data] md {}))
+         credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
+
+         bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
+         bank-recur-sum      (if (and
+                                  (not (number? bank-recur-sum*))
+                                  (js/Number.isNaN bank-recur-sum*))
+                               0
+                               bank-recur-sum*)
+
+         credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
+         credit-recur-sum      (if (and
+                                  (not (number? credit-recur-sum*))
+                                  (js/Number.isNaN credit-recur-sum*))
+                               0
+                               credit-recur-sum*)
+
+         sum            (logic/cents->dollars
+                         (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
+     ;; (prn "In `core`, line 226:----> ")
+     ;; (pp/pprint @db/bank-accounts)
+     [ components/sum-of-bank-and-credit-recur-transactions sum ]))
+
+(defcard-rg bank-balance-vs-credit-account-difference-comp
+  "Bank balance vs Credit account difference: `-989.37`"
+  (let [sum (logic/get-sum
+             (- @sdb/credit-total-difference)
+             @sdb/bank-total-difference)]
+    [ components/bank-balance-vs-credit-account-difference sum ]))
+
+;;;; ENDs: UI
+
 
 ;; LOGIC
 
