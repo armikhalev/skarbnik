@@ -36,44 +36,62 @@
 
 ;;;;;;;;;;;;;;;;;;;;; Prepare data ;;;;;
 
-(bank-meta-data! {"Loan"     {:_sk-id "Loan"
-                              :description "QUICKEN LOANS MTG PYMTS 120518",
-                              :amount -2000,
-                              :date "12/06/2018"
-                              :meta-data {:tags #{:Recur}}},
-                  "Discover" {:_sk-id "Discover"
-                              :description "DISCOVER E-PAYMENT 181008",
-                              :amount -3000,
-                              :date "10/10/2018"
-                              :meta-data {:tags #{:Recur}}}})
-
-(credit-meta-data! {"Credit" {:_sk-id "Credit"
-                              :description "DISCOVER E-PAYMENT 181008",
-                              :amount 3000,
-                              :date "10/10/2018"
-                              :meta-data {:tags #{:Recur}}},
-                    "BigRig" {:_sk-id "BigRig"
-                              :description "Game:Big Rigs",
-                              :amount 5000,
-                              :date "10/11/2018"
-                              :meta-data {:tags #{:BIG}}}})
 
 (credit-total-difference! 176498)
 (bank-total-difference! 77561)
 
-(def test-data
-  '({:date "11/26/2018",
-     :description "MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE",
-     :amount -2500}
-    {:date "11/13/2018",
-     :description "ZINAIDA LEVIN M CANTON /MA US CARD PURCHASE",
-     :amount -2500}
-    {:date "11/13/2018",
-     :description "CASH WITHDRAWAL SANTANDER D199 Holbrook /MA US",
-     :amount -5000}
-    {:date "11/13/2018",
-     :description "INTERNET TRANSFER FROM ACCT *2394 - SANTANDER SAVINGS",
-     :amount 5000}))
+(def bank-test-data
+  [{:date "12/06/2018"
+    :description "QUICKEN LOANS MTG PYMTS 120518",
+    :amount -2000}
+   {:date "11/06/2018"
+    :description "Zarplata",
+    :amount 6000}
+   {:description "DISCOVER E-PAYMENT 181008",
+    :amount -3000,
+    :date "10/10/2018"}])
+
+(def credit-test-data
+  [{:date "09/24/2018",
+    :description "No bigh deal",
+    :amount 2000}
+   {:date "09/26/2018",
+    :AccountName "Testing Account Name"
+    :description "MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE",
+    :amount 2500}
+   {:description "DISCOVER E-PAYMENT 181008",
+    :amount -3000,
+    :date "10/10/2018"}
+   {:description "DISCOVER E-PAYMENT 181008",
+    :AccountName "2 Testing Account Name"
+    :amount 1000,
+    :date "10/11/2018"}
+   {:description "Game:Big Rigs",
+    :amount 5000,
+    :date "10/12/2018"}])
+
+
+(defn stub-meta-data
+  "data: [{}], which-update: [int?], tag: keyword? ->
+  {uuid? {:_sk-id uuid? :meta-data {:tags tag}}}"
+  [data
+   which-update
+   tag]
+  (let [d-with-sk-id (map-indexed (fn [idx m] (assoc m :_sk-id idx)) data)
+        with-meta-d  (map (fn [n] (-> d-with-sk-id
+                                      (nth n)
+                                      (assoc-in [:meta-data :tags] #{tag})))
+                          which-update)]
+    (into {} (map (juxt :_sk-id identity) with-meta-d))))
+
+
+(def credit-test-data-with-meta
+  (merge
+   (stub-meta-data credit-test-data [1 3] :Recur)
+   (stub-meta-data credit-test-data [4] :BIG)))
+
+(bank-meta-data! (stub-meta-data bank-test-data [0] :Recur))
+(credit-meta-data! credit-test-data-with-meta)
 
 ;;; ENDs: prepare data
 
@@ -84,11 +102,11 @@
 
 (deftest get-total-test
   (testing "Should correctly get total sum of amounts"
-    (is (= 5000
-           (logic/get-total test-data >)))
+    (is (= 10500
+           (logic/get-total credit-test-data >)))
 
-    (is (= -10000
-           (logic/get-total test-data <)))))
+    (is (= -3000
+           (logic/get-total credit-test-data <)))))
 
 (deftest get-ending-balance-test
   (testing "Should return correct ending balance"
@@ -126,15 +144,15 @@
      [:div
       {:style {:background "grey" :margin-right "1em" :padding-right "1em" :text-align "right"}}
       [:h2 "This period:"]
-      [:h3 "Income: 50.00"]
-      [:h3 "Spendings: -100.00"]
-      [:h3 "Non-recurring spendings: -50.00"]
-      [:h3 "Net: -50.00"]
+      [:h3 "Income: 60.00"]
+      [:h3 "Spendings: -50.00"]
+      [:h3 "Non-recurring spendings: -30.00"]
+      [:h3 "Net: 10.00"]
       [:hr]
       [:h2 "All time:"]
-      [:h3 "Recurring spendings sum: -50.00"]
-      [:h3 "Balance: -50.00"]]
-     [ components/bank-analyze {:data                   test-data
+      [:h3 "Recurring spendings sum: -20.00"]
+      [:h3 "Balance: -10.00"]]
+     [ components/bank-analyze {:data                   bank-test-data
                                 :initial-bank-balance   @initial-bank-balance
                                 :bank-recur-data        recur-data
                                 :bank-total-difference! bank-total-difference!}]]))
@@ -153,20 +171,20 @@
      [:div
       {:style {:background "grey" :margin-right "1em" :padding-right "1em" :text-align "right"}}
       [:h2 "This period:"]
-      [:h3 "Debt Sum: 50.00 "]
+      [:h3 "Debt Sum: 105.00 "]
       [:p "(Popover: Sum of all debt increasing transactions)"]
-      [:h3 "Paid: -100.00"]
-      [:h3 "All Non-recurring spendings: 20.00"]
-      [:h3 "Non-recurring spendings without Bigs: -30.00"]
+      [:h3 "Paid: -30.00"]
+      [:h3 "All Non-recurring spendings: 70.00"]
+      [:h3 "Non-recurring spendings without Bigs: 20.00"]
       [:h3 "Bigs Sum: 50.00"]
-      [:span "Recurring spendings sum: 30.00"]
-      [:h3 "Less Debt: -50.00"]
+      [:span "Recurring spendings sum: 35.00"]
+      [:h3 "Added Debt: 75.00"]
       [:span "(Popover: This is `Debt` minus `Paid`)"]
       [:hr]
       [:h2 "All time:"]
-      [:h3 "Total debt: -50.00"]
+      [:h3 "Total debt: 75.00"]
       [:span "(Popover: Initial Balance debt + Debt Sum of this period)"]]
-     [ components/credit-analyze {:data                     test-data
+     [ components/credit-analyze {:data                     credit-test-data
                                   :initial-credit-balance   @initial-credit-balance
                                   :big-data                 big-data
                                   :credit-recur-data        recur-data
@@ -174,33 +192,53 @@
 
 ;; ENDs: Credit
 
+(deftest recur-by-account-name
+  (testing
+      "Should return recur-data arranged by account"
+    (let [meta-data     (vals (if-let [md @credit-meta-data] md {}))
+          recur-data    (logic/filter-by-tag meta-data :Recur)
+          rd-by-account (logic/recur-by-account-name recur-data)]
+      (is (= rd-by-account
+             {"Testing Account Name"
+              [{:date "09/26/2018",
+                :AccountName "Testing Account Name",
+                :description "MBTA PAY BY PHO BOSTON /MA US CARD PURCHASE",
+                :amount 2500,
+                :_sk-id 1,
+                :meta-data {:tags #{:Recur}}}],
+              "2 Testing Account Name"
+              [{:description "DISCOVER E-PAYMENT 181008",
+                :AccountName "2 Testing Account Name",
+                :amount 1000,
+                :date "10/11/2018",
+                :_sk-id 3,
+                :meta-data {:tags #{:Recur}}}]})))))
+
 (defcard-rg sum-of-bank-and-credit-recurring-transactions-comp
-  "Sum of Bank and Credit recurring transactions: `80`: "
+  "Sum of Bank and Credit recurring transactions: `-55`: "
   (let [bank-meta-data      (vals (if-let [md @sdb/bank-meta-data] md {}))
-         bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
+        bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
 
-         credit-meta-data      (vals (if-let [md @sdb/credit-meta-data] md {}))
-         credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
+        credit-meta-data      (vals (if-let [md @sdb/credit-meta-data] md {}))
+        credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
 
-         bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
-         bank-recur-sum      (if (and
-                                  (not (number? bank-recur-sum*))
-                                  (js/Number.isNaN bank-recur-sum*))
-                               0
-                               bank-recur-sum*)
+        bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
+        bank-recur-sum      (if (and
+                                 (not (number? bank-recur-sum*))
+                                 (js/Number.isNaN bank-recur-sum*))
+                              0
+                              bank-recur-sum*)
 
-         credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
-         credit-recur-sum      (if (and
-                                  (not (number? credit-recur-sum*))
-                                  (js/Number.isNaN credit-recur-sum*))
-                               0
-                               credit-recur-sum*)
+        credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
+        credit-recur-sum      (if (and
+                                   (not (number? credit-recur-sum*))
+                                   (js/Number.isNaN credit-recur-sum*))
+                                0
+                                credit-recur-sum*)
 
-         sum            (logic/cents->dollars
-                         (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
-     ;; (prn "In `core`, line 226:----> ")
-     ;; (pp/pprint @db/bank-accounts)
-     [ components/sum-of-bank-and-credit-recur-transactions sum ]))
+        sum            (logic/cents->dollars
+                        (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
+    [ components/sum-of-bank-and-credit-recur-transactions sum ]))
 
 (defcard-rg bank-balance-vs-credit-account-difference-comp
   "Bank balance vs Credit account difference: `-989.37`"
@@ -395,7 +433,7 @@
    ATM DEPOSIT, 580.00, Bank Marvel, 4/01/2019,   , Income,        , credit\n")
 
 (deftest select-account-test
-  "User clicks open file to get data from csv file into Skarbnik. Saves that data as an account and then opens that account from Home page."
+  (testing "User clicks open file to get data from csv file into Skarbnik. Saves that data as an account and then opens that account from Home page." (is true))
   (testing "1. Bank data should be empty"
     (is (= [] @sdb/bank-data)))
 
