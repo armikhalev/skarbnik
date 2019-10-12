@@ -308,6 +308,24 @@
                   (cl-time/before? date $to-date)))))
      entries)))
 
+(defn sort-by-date
+  "{:date 'mm/dd/yyyy'} -> sorted"
+  [data]
+  (sort-by
+   :date
+   #(cl-time/before?
+     (-> %1 mdy->ymd a-str-date->cljs-time)
+     (-> %2 mdy->ymd a-str-date->cljs-time))
+   data))
+
+(defn sort-by-cljs-date
+  "{:date 'mm/dd/yyyy'} -> sorted"
+  [data]
+  (sort-by
+   :date
+   #(cl-time/before? %1 %2)
+   data))
+
 ;; ENDs Dates
 
 
@@ -344,7 +362,7 @@
 
 
 (>defn paids-with-bigs
-  "1 step of paids getting bigs.
+  "1st step of paids getting bigs.
    [{:date}], [{:date}] -> [{:bigs []}]"
   [paids bigs]
   [::cl-time-transactions ::cl-time-transactions
@@ -389,7 +407,7 @@
       0)))
 
 (>defn reduce-bigs-and-paids
-  "2 step of paids getting bigs.
+  "2nd step of paids getting bigs.
    Here the `diff-paid-bigs` gets debt that goes to next paid-off.
    [{:amount int?, :bigs [{:amount int?}]}] ->
    [{:amount int?, :bigs [{:amount int?}]}] ;; but with debt moved to next paid-off transaction."
@@ -397,27 +415,27 @@
   [::paid-offs
    => ::paid-offs]
   (loop [b paids-with-bigs
-         res []
-         bigs {}
+         res []  ;; Comes from previous iteration
+         bigs {} ;; Same as above
          debt 0]
     (if (empty? b)
       res
       ;; else
       (let [fb*  (first b)
             ;; Since `diff-paid-bigs` cannot get `bigs` before recur, easier to calculate debt overflow here
-            fb   (if (> debt 0)
+            fb   (if (> debt 0) ;; Current data
                    (-> fb*
                        ;; (update :overflow-bigs into (:bigs fb*))
                        (update :overflow-debt + debt))
                    fb*)
-            diff (diff-paid-bigs fb)]
-        (recur (rest b),
+            diff (diff-paid-bigs fb)] ;; Current data
+        (recur (rest b),                              ;; b
                (conj res
                      (-> fb
                          (update , :debt + diff)
-                         (update , :bigs into bigs)))
-               (if (> diff 0) (:bigs fb) bigs)
-               diff)))))
+                         (update , :bigs into bigs))) ;; res
+               (if (> diff 0) (:bigs fb) {})          ;; bigs ;; If current bigs have debt we send them to next, otherwise clear bigs
+               diff)))))                              ;; debt
 ;; <-
 
 (defn reduce-back-to-str-dates

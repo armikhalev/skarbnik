@@ -1,6 +1,6 @@
 (ns skarbnik.db
   (:require [reagent.core :as r]
-            [cljs.pprint :as pp]
+            [cljs.pprint :as pp :refer [pprint]]
             [cljs-time.core :as cljs-time]
             [skarbnik.logic :as logic]
             [clojure.spec.alpha :as s]))
@@ -10,17 +10,6 @@
 
 ;; END: Specs
 
-
-;; Auxiliary fns
-
-(defn sort-by-date
-  [data]
-  (sort-by
-   :date
-   #(cljs-time/before?
-     (-> %1 logic/mdy->ymd logic/a-str-date->cljs-time)
-     (-> %2 logic/mdy->ymd logic/a-str-date->cljs-time))
-   data))
 
 ;; ENDs: Auxiliary fns
 
@@ -164,7 +153,7 @@
                              (map #(assoc % :_sk-id (str (random-uuid))) v))]
      (do
        (current-date-range-bank-data! {})
-       (reset! bank-data (sort-by-date data)))))
+       (reset! bank-data (logic/sort-by-date data)))))
   ([v from-file?]
    (do
      (current-date-range-bank-data! {})
@@ -173,7 +162,7 @@
                           (fn [sk-id]
                             (when sk-id (clojure.string/trim sk-id))))
                  v)]
-       (reset! bank-data (sort-by-date data))))))
+       (reset! bank-data (logic/sort-by-date data))))))
 
 ;;;
 
@@ -197,9 +186,10 @@
                               v)
                              ;;else
                              (map #(assoc % :_sk-id (str (random-uuid))) v))]
+
      (do
        (current-date-range-credit-data! {})
-       (reset! credit-data (sort-by-date data)))))
+       (reset! credit-data (logic/sort-by-date data)))))
   ([v from-file?]
    (do
      (current-date-range-credit-data! {})
@@ -208,7 +198,7 @@
                           (fn [sk-id]
                             (when sk-id (clojure.string/trim sk-id))))
                  v)]
-       (reset! credit-data (sort-by-date data))))))
+       (reset! credit-data (logic/sort-by-date data))))))
 
 ;;; <-- ENDs: DATA
 

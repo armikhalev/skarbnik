@@ -3,7 +3,7 @@
    State management should be provided only through args."
   (:require
    [reagent.core :as r]
-   [clojure.pprint :as pp]
+   [clojure.pprint :as pp :refer [pprint]]
    [cljs.reader :as reader]
    [cljs-time.core :as cl-time]
    [clojure.string :as string
@@ -544,8 +544,10 @@
 ;; SIDE DRAWER
 
 (defn side-drawer-bigs
-  [data]
-  (let [{:keys [big-entry parent-transaction]} data]
+  [{big-entry          :big-entry
+    parent-transaction :parent-transaction}]
+  (let [bigs-by-date (logic/sort-by-cljs-date big-entry)
+        sum-amounts  (reduce #(+ %1 (:amount %2)) 0 big-entry)]
     [:tbody
      [:tr
       [:td.color-blue "Clicked: "]
@@ -557,7 +559,7 @@
       [:td
        [:hr]]]
      (doall
-      (for [v big-entry]
+      (for [v bigs-by-date]
         ^{:key (str "bigs-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
         [:tr
          [:td.color-burnt-orange "desc: "]
@@ -565,7 +567,14 @@
          [:td.color-burnt-orange "date: "]
          [:td (-> v :date logic/cljs-time->str)]
          [:td.color-burnt-orange "amount: "]
-         [:td (str "$" (-> v :amount logic/cents->dollars))]]))]))
+         [:td (str "$" (-> v :amount logic/cents->dollars))]]))
+     [:tr
+      [:td]
+      [:td]
+      [:td]
+      [:td]
+      [:td "Sum: "]
+      [:td.color-danger (str "$"(logic/cents->dollars sum-amounts))]]]))
 
 (defn side-drawer-recurs
   [{:keys [recur-entry]}]
