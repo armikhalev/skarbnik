@@ -29,7 +29,9 @@
 (def path (nodejs/require "path"))
 (def app (.-app (.-remote electron)))
 (def current-window (.getCurrentWindow (.-remote electron)))
+(def web-contents (.-webContents current-window))
 (def Menu (-> electron .-remote .-Menu))
+
 
 ;; Vars for CONTEXT MENU
 (def context-menu (new Menu))
@@ -160,6 +162,16 @@
 
 ;; ENDs file management fns
 
+;; Print to PDF
+(defn print-to-pdf!
+  []
+  (web-contents.printToPDF {}, (fn [error, data]
+                                 (if error
+                                   (js/console.error "Oops, error printing to pdf" error)
+                                   (let [dir-path  (show-save-file-dialog!)
+                                         file-path (str dir-path "/report-" (random-uuid) ".pdf")]
+                                     (write-file! file-path data)))))),
+;; ENDs: Print to PDF
 
 ;; Aux
 
@@ -265,6 +277,9 @@
    [:hr]
 
    [:div.ui-styles
+    [:button.button-micro
+     {:on-click #(print-to-pdf!)}
+     "Print to PDF"]
     [:button.button-micro
      {:on-click #(db/ui-background!
                   (case @db/ui-background
