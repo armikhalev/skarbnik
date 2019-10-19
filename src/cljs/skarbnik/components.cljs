@@ -492,6 +492,7 @@
        (doall
         (map-indexed
          (fn [idx entry]
+                                ;; NOTE: Main magic that links `:Recur` `:BIG` and other tags
            (let [row-meta-data (get meta-data (-> entry :_sk-id keyword) [])]
              ^{:key idx}
              [table-row

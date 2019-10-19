@@ -199,6 +199,5 @@ To run a command, type `lein <command>` in the terminal.
 - On Open File: If recur payments selected, then notify user that all selections will be lost if not saved
 - Fix all the error messages, they should notify user about solution of the problem that caused error
 - Create search bar
-- Add reset for Dates range
 - Add ability to switch between accounts with keyboard, possibly arrow keys
 - Home page: Add message indicating that `there are no accounts yet` on first use of the app

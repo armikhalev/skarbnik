@@ -165,12 +165,21 @@
 ;; Print to PDF
 (defn print-to-pdf!
   []
-  (web-contents.printToPDF {}, (fn [error, data]
-                                 (if error
-                                   (js/console.error "Oops, error printing to pdf" error)
-                                   (let [dir-path  (show-save-file-dialog!)
-                                         file-path (str dir-path "/report-" (random-uuid) ".pdf")]
-                                     (write-file! file-path data)))))),
+  (do
+    ;; 1
+    (db/pdf-page! :show? true)
+    ;;
+    (web-contents.printToPDF
+     {},
+     (fn [error, data]
+       (if error
+         (js/console.error "Oops, error printing to pdf" error)
+         (let [dir-path  (show-save-file-dialog!)
+               file-path (str dir-path "/skarbnik-report-" (name @current-page) "-"(random-uuid) ".pdf")]
+           ;; 2
+           (write-file! file-path data)
+           ;; 3
+           (db/pdf-page! :show? false))))))),
 ;; ENDs: Print to PDF
 
 ;; Aux
@@ -179,19 +188,19 @@
   [:nav
    [:button.button
     {:on-click #(reset! current-page :home)
-     :style (if (= @current-page :home) {:color "blue"})
+     :style (when (= @current-page :home) {:color "blue"})
      :data-test "home-menu-button"}
     "Home"]
 
    [:button.button
     {:on-click #(reset! current-page :bank)
-     :style (if (= @current-page :bank) {:color "blue"})
+     :style (when (= @current-page :bank) {:color "blue"})
      :data-test "bank-account-menu-button"}
     "Bank Account"]
 
    [:button.button
     {:on-click #(reset! current-page :credit)
-     :style (if (= @current-page :credit) {:color "blue"})
+     :style (when (= @current-page :credit) {:color "blue"})
      :data-test "credit-account-menu-button"}
     "Credit Account"]])
 
@@ -201,91 +210,164 @@
 ;; Root
 
 (defn main-page []
-  [:main
-   {:class @db/ui-background}
-   [ nav ]
-   [:hr]
-   (case @current-page
-     :home [ home/page {:current-page                    current-page
-                       :write-file!                     write-file!
-                       :bank-accounts-path              bank-accounts-path
-                       :credit-accounts-path            credit-accounts-path
-                       :read-file!                      read-file!
+  (if (:show? @db/pdf-page)
+    [:main
+     (case @current-page
+       :home [ home/page {:print?                          true
+                          :current-page                    current-page
+                          :write-file!                     write-file!
+                          :bank-accounts-path              bank-accounts-path
+                          :credit-accounts-path            credit-accounts-path
+                          :read-file!                      read-file!
 
-                       :credit-meta-data-path           credit-meta-data-path
-                       :bank-meta-data-path             bank-meta-data-path
+                          :credit-meta-data-path           credit-meta-data-path
+                          :bank-meta-data-path             bank-meta-data-path
 
-                       :credit-initial-balance-file-path  credit-initial-balance-file-path
-                       :credit-data-file-path             credit-data-file-path
+                          :credit-initial-balance-file-path  credit-initial-balance-file-path
+                          :credit-data-file-path             credit-data-file-path
 
-                       :bank-initial-balance-file-path  bank-initial-balance-file-path
-                       :bank-data-file-path             bank-data-file-path} ]
+                          :bank-initial-balance-file-path  bank-initial-balance-file-path
+                          :bank-data-file-path             bank-data-file-path} ]
 
-     :bank [ bank/page {:bank-accounts-path        bank-accounts-path
-                       :show-save-file-dialog!    show-save-file-dialog!
-                       :open-file!                open-file!
-                       :read-file!                read-file!
-                       :write-file!               write-file!
-                       :make-dir!                 make-dir!
-                       :initial-balance-file-path bank-initial-balance-file-path
-                       :bank-meta-data-path       bank-meta-data-path
-                       :data-file-path            bank-data-file-path} ]
+       :bank [ bank/page {:print?                    true
+                          :bank-accounts-path        bank-accounts-path
+                          :show-save-file-dialog!    show-save-file-dialog!
+                          :open-file!                open-file!
+                          :read-file!                read-file!
+                          :write-file!               write-file!
+                          :make-dir!                 make-dir!
+                          :initial-balance-file-path bank-initial-balance-file-path
+                          :bank-meta-data-path       bank-meta-data-path
+                          :data-file-path            bank-data-file-path} ]
 
-     :credit [ credit/page {:credit-accounts-path      credit-accounts-path
-                           :open-file!                open-file!
-                           :show-save-file-dialog!    show-save-file-dialog!
-                           :read-file!                read-file!
-                           :write-file!               write-file!
-                           :make-dir!                 make-dir!
-                           :initial-balance-file-path credit-initial-balance-file-path
-                           :credit-meta-data-path     credit-meta-data-path
-                           :data-file-path            credit-data-file-path} ])
+       :credit [ credit/page {:print?                    true
+                              :credit-accounts-path      credit-accounts-path
+                              :open-file!                open-file!
+                              :show-save-file-dialog!    show-save-file-dialog!
+                              :read-file!                read-file!
+                              :write-file!               write-file!
+                              :make-dir!                 make-dir!
+                              :initial-balance-file-path credit-initial-balance-file-path
+                              :credit-meta-data-path     credit-meta-data-path
+                              :data-file-path            credit-data-file-path} ])
 
-   (let [bank-meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
-         bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
+     (let [bank-meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
+           bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
 
-         credit-meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
-         credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
+           credit-meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
+           credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
 
-         bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
-         bank-recur-sum      (if (and
-                                  (not (number? bank-recur-sum*))
-                                  (js/Number.isNaN bank-recur-sum*))
-                               0
-                               bank-recur-sum*)
+           bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
+           bank-recur-sum      (if (and
+                                    (not (number? bank-recur-sum*))
+                                    (js/Number.isNaN bank-recur-sum*))
+                                 0
+                                 bank-recur-sum*)
 
-         credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
-         credit-recur-sum      (if (and
-                                  (not (number? credit-recur-sum*))
-                                  (js/Number.isNaN credit-recur-sum*))
-                               0
-                               credit-recur-sum*)
+           credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
+           credit-recur-sum      (if (and
+                                      (not (number? credit-recur-sum*))
+                                      (js/Number.isNaN credit-recur-sum*))
+                                   0
+                                   credit-recur-sum*)
 
-         sum            (logic/cents->dollars
-                         (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
-     ;; (prn "In `core`, line 226:----> ")
-     ;; (pprint @db/bank-accounts)
-     [ components/sum-of-bank-and-credit-recur-transactions sum ])
+           sum            (logic/cents->dollars
+                           (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
+       ;; (prn "In `core`, line 226:----> ")
+       ;; (pprint @db/bank-accounts)
+       [ components/sum-of-bank-and-credit-recur-transactions sum ])
 
-   (let [sum (logic/get-sum
-              (- @db/credit-total-difference)
-              @db/bank-total-difference)]
-     [ components/bank-balance-vs-credit-account-difference sum ])
+     (let [sum (logic/get-sum
+                (- @db/credit-total-difference)
+                @db/bank-total-difference)]
+       [ components/bank-balance-vs-credit-account-difference sum ])]
 
-   [ nav ]
+    ;; Else show full page
+    [:main
+     {:class @db/ui-background}
+     [ nav ]
+     [:hr]
+     (case @current-page
+       :home [ home/page {:current-page                    current-page
+                          :write-file!                     write-file!
+                          :bank-accounts-path              bank-accounts-path
+                          :credit-accounts-path            credit-accounts-path
+                          :read-file!                      read-file!
 
-   [:hr]
+                          :credit-meta-data-path           credit-meta-data-path
+                          :bank-meta-data-path             bank-meta-data-path
 
-   [:div.ui-styles
-    [:button.button-micro
-     {:on-click #(print-to-pdf!)}
-     "Print to PDF"]
-    [:button.button-micro
-     {:on-click #(db/ui-background!
-                  (case @db/ui-background
-                    "" "white-background"
-                    ""))}
-     "Theme"]]])
+                          :credit-initial-balance-file-path  credit-initial-balance-file-path
+                          :credit-data-file-path             credit-data-file-path
+
+                          :bank-initial-balance-file-path  bank-initial-balance-file-path
+                          :bank-data-file-path             bank-data-file-path} ]
+
+       :bank [ bank/page {:bank-accounts-path        bank-accounts-path
+                          :show-save-file-dialog!    show-save-file-dialog!
+                          :open-file!                open-file!
+                          :read-file!                read-file!
+                          :write-file!               write-file!
+                          :make-dir!                 make-dir!
+                          :initial-balance-file-path bank-initial-balance-file-path
+                          :bank-meta-data-path       bank-meta-data-path
+                          :data-file-path            bank-data-file-path} ]
+
+       :credit [ credit/page {:credit-accounts-path      credit-accounts-path
+                              :open-file!                open-file!
+                              :show-save-file-dialog!    show-save-file-dialog!
+                              :read-file!                read-file!
+                              :write-file!               write-file!
+                              :make-dir!                 make-dir!
+                              :initial-balance-file-path credit-initial-balance-file-path
+                              :credit-meta-data-path     credit-meta-data-path
+                              :data-file-path            credit-data-file-path} ])
+
+     (let [bank-meta-data      (vals (if-let [md @db/bank-meta-data] md {}))
+           bank-recur-data     (logic/filter-by-tag bank-meta-data :Recur)
+
+           credit-meta-data      (vals (if-let [md @db/credit-meta-data] md {}))
+           credit-recur-data     (logic/filter-by-tag credit-meta-data :Recur)
+
+           bank-recur-sum*     (logic/sum-recur-amounts bank-recur-data)
+           bank-recur-sum      (if (and
+                                    (not (number? bank-recur-sum*))
+                                    (js/Number.isNaN bank-recur-sum*))
+                                 0
+                                 bank-recur-sum*)
+
+           credit-recur-sum*     (logic/sum-recur-amounts credit-recur-data)
+           credit-recur-sum      (if (and
+                                      (not (number? credit-recur-sum*))
+                                      (js/Number.isNaN credit-recur-sum*))
+                                   0
+                                   credit-recur-sum*)
+
+           sum            (logic/cents->dollars
+                           (logic/get-sum bank-recur-sum (- credit-recur-sum)))]
+       ;; (prn "In `core`, line 226:----> ")
+       ;; (pprint @db/bank-accounts)
+       [ components/sum-of-bank-and-credit-recur-transactions sum ])
+
+     (let [sum (logic/get-sum
+                (- @db/credit-total-difference)
+                @db/bank-total-difference)]
+       [ components/bank-balance-vs-credit-account-difference sum ])
+
+     [ nav ]
+
+     [:hr]
+
+     [:div.ui-styles
+      [:button.button-micro
+       {:on-click #(print-to-pdf!)}
+       "Print to PDF"]
+      [:button.button-micro
+       {:on-click #(db/ui-background!
+                    (case @db/ui-background
+                      "" "white-background"
+                      ""))}
+       "Theme"]]]))
 
 ;; ENDs: Root
 

@@ -13,7 +13,8 @@
 (defn page
   "Creates CREDIT account page"
   [{:keys
-    [credit-accounts-path
+    [print?
+     credit-accounts-path
      open-file!
      show-save-file-dialog!
      read-file!
@@ -37,32 +38,34 @@
       (:error @db/credit)]
 
      ;;
-     [ components/button-open-file!
-      {:open-file!          open-file!
-       :current-account!    db/current-credit-account!
-       :initial-balance!    db/initial-credit-balance!
-       :read-file!          read-file!
-       :meta-data-mutator!  db/credit-meta-data!
-       :data-mutator!       db/credit-data!
-       :total-difference!   db/credit-total-difference!
-       :account-date-range-mutator! db/current-date-range-credit-data!} ]
-     ;;
-     [ components/button-save-account!
-      {:all-accounts-paths         db/credit-accounts
-       :account-kind-mutator!      db/credit-accounts!
-       :accounts-path              credit-accounts-path
-       :initial-balance            @db/initial-credit-balance
-       :initial-balance-file-path  initial-balance-file-path
-       :data-file-path             data-file-path
-       :show-save-file-dialog!     show-save-file-dialog!
-       :write-file!                write-file!
-       :make-dir!                  make-dir!
-       :meta-data-path             credit-meta-data-path
-       :meta-data                  @db/credit-meta-data
-       :data                       data} ]
+     (when-not print?
+       [:span
+        [ components/button-open-file!
+         {:open-file!          open-file!
+          :current-account!    db/current-credit-account!
+          :initial-balance!    db/initial-credit-balance!
+          :read-file!          read-file!
+          :meta-data-mutator!  db/credit-meta-data!
+          :data-mutator!       db/credit-data!
+          :total-difference!   db/credit-total-difference!
+          :account-date-range-mutator! db/current-date-range-credit-data!} ]
+        ;;
+        [ components/button-save-account!
+         {:all-accounts-paths         db/credit-accounts
+          :account-kind-mutator!      db/credit-accounts!
+          :accounts-path              credit-accounts-path
+          :initial-balance            @db/initial-credit-balance
+          :initial-balance-file-path  initial-balance-file-path
+          :data-file-path             data-file-path
+          :show-save-file-dialog!     show-save-file-dialog!
+          :write-file!                write-file!
+          :make-dir!                  make-dir!
+          :meta-data-path             credit-meta-data-path
+          :meta-data                  @db/credit-meta-data
+          :data                       data} ]
 
-     ;;
-     [components/input-initial-balance! db/initial-credit-balance!]
+        ;;
+        [components/input-initial-balance! db/initial-credit-balance!]])
 
      [:h3 (str "Initial Balance: " (logic/cents->dollars @db/initial-credit-balance))]
 
@@ -73,16 +76,33 @@
            paids-with-bigs         (logic/paids-with-bigs paids big-data)
            data-with-bigs-and-debt (logic/reduce-bigs-and-paids paids-with-bigs)
            back-to-str-dates       (logic/reduce-back-to-str-dates data-with-bigs-and-debt)
-           merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)]
-       ;; (prn "credt-account below, line 74" )
-       ;; (pp/pprint merged-data)
-       [components/transactions-table
-        {:data                    merged-data
-         :credit?                 true
-         :meta-data-mutator!      db/credit-meta-data!
-         :meta-data               @db/credit-meta-data
-         :side-drawer-mutator!    db/credit-side-drawer!
-         :tags-choice             @db/credit-tags-choice}])
+           merged-data             (logic/merge-bigs-debt-and-data data back-to-str-dates)
+           payments                (filter #(-> % :amount neg?) merged-data)
+           meta-data-vals          (vals @db/credit-meta-data)
+           print-data              (->> (concat payments meta-data-vals)
+                                       logic/sort-by-date
+                                       (map (fn [v] (dissoc v :meta-data))))]
+       (prn "credt-account below, line 74" )
+       ;; (pp/pprint print-data)
+       (if print?
+         [:div.print-mode
+          [components/transactions-table
+           {:data                    print-data
+            :credit?                 true
+            :meta-data-mutator!      db/credit-meta-data!
+            :meta-data               @db/credit-meta-data
+            :side-drawer-mutator!    db/credit-side-drawer!
+            :tags-choice             @db/credit-tags-choice}]]
+
+         ;; Else show full transactions
+
+         [components/transactions-table
+          {:data                    merged-data
+           :credit?                 true
+           :meta-data-mutator!      db/credit-meta-data!
+           :meta-data               @db/credit-meta-data
+           :side-drawer-mutator!    db/credit-side-drawer!
+           :tags-choice             @db/credit-tags-choice}]))
 
      [components/side-drawer-wrapper
       @db/credit-side-drawer-data
@@ -91,13 +111,14 @@
 
      [:hr]
 
-     [ components/date-picker
-      {:from-date!            db/from-date!
-       :from-date             db/from-date
-       :to-date!              db/to-date!
-       :to-date               db/to-date
-       :data                  data
-       :account-data-mutator! db/current-date-range-credit-data!} ]
+     (when-not print?
+       [ components/date-picker
+        {:from-date!            db/from-date!
+         :from-date             db/from-date
+         :to-date!              db/to-date!
+         :to-date               db/to-date
+         :data                  data
+         :account-data-mutator! db/current-date-range-credit-data!} ])
      ;;
      (let [ignore-uuids     (logic/filter-by-tag meta-data :Ignore)
            data-not-ignore  (logic/filter-out-ignored data ignore-uuids)]
@@ -108,6 +129,7 @@
                                     :credit-total-difference! db/credit-total-difference!}])
 
 
-     [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!
-                                      :recur-data           recur-data}]]))
+     (when-not print?
+       [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!
+                                        :recur-data           recur-data}])]))
 

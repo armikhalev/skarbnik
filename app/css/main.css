@@ -154,6 +154,10 @@ main.white-background table.side-drawer {
 
 /* Transactions Table */
 /* Thanks to: https://codereview.stackexchange.com/questions/160979/fixed-table-header-with-scrollable-body-and-aligning-columns */
+.print-mode .transactions-table {
+    height: 100%;
+    overflow-y: unset;
+}
 
 .transactions-table-wrapper {
     padding-top: 2em;

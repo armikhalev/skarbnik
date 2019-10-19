@@ -14,7 +14,10 @@
 ;; ENDs: Auxiliary fns
 
 
-(defonce db (r/atom {:bank-accounts            []
+(defonce db (r/atom {:pdf-page                {:show? false
+                                               :page  ""}
+                     ;;;;;;;;;;;;;;;;;;;;;;;;;
+                     :bank-accounts            []
                      :credit-accounts          []
                      ;;;;;;;;;;;;;;;;;;;;;;;;;;
                      :current-bank-account     ""
@@ -58,6 +61,15 @@
                      :ui-styles {:background ""}}))
 
 ;;;;;;;;;;;;; Cursors & Mutators ;;;;;;;;;;;;;
+
+(def pdf-page
+  (r/cursor db [ :pdf-page ]))
+
+(defn pdf-page!
+  [path v]
+  (r/rswap! pdf-page assoc path v))
+
+;;;
 
 (def bank-accounts
   (r/cursor db [ :bank-accounts ]))
