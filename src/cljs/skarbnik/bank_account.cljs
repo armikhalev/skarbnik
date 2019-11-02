@@ -109,6 +109,11 @@
                                   :bank-total-difference! db/bank-total-difference!}])
 
      (when-not print?
+       [ components/sum-by-tags-btn {:side-drawer-mutator! db/bank-side-drawer!
+                                     :tags-choice          @db/bank-tags-choice
+                                     :meta-data            meta-data} ])
+
+     (when-not print?
        [ components/rec-by-account-btn {:side-drawer-mutator! db/bank-side-drawer!
                                         :recur-data           recur-data}])]))
 

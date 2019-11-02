@@ -252,6 +252,21 @@
 ;; ENDs: Recurring by account BTN
 
 
+;; Sum by tags button
+
+(defn sum-by-tags-btn
+  [{:keys [meta-data
+           tags-choice
+           side-drawer-mutator!]}]
+  (let [data-by-custom-tags (logic/filter-by-custom-tags meta-data tags-choice)]
+    [:button.button.button-smaller
+     {:on-click #(do
+                   (side-drawer-mutator! :data {:tags-entry data-by-custom-tags})
+                   (side-drawer-mutator! :closed? false))}
+     "Sum by tags"]))
+
+;; ENDs: Sum by tags button
+
 (defn input-initial-balance!
   [initial-balance-mutator!]
   [:p  "Press Enter to set Initial balance: "
@@ -305,12 +320,12 @@
     (cond
       (and credit? (< (:amount entry) 0)) ;; -->
       ^{:key (str "recur-"idx)}
-      [:td ""]
+      [:td.tag-with-tooltip ""]
       ;;
 
       (and (not credit?) (> (:amount entry) 0)) ;; -->
       ^{:key (str "recur-"idx)}
-      [:td ""]
+      [:td.tag-with-tooltip ""]
       ;;
 
       :else ;; -->
@@ -608,7 +623,41 @@
          [:td
           [:hr]]]]))))
 
+(defn side-drawer-by-tags
+  [{:keys [tags-entry]}]
+  (doall
+   (for [[account-name data] tags-entry]
+     (let [sum-amounts (reduce #(+ %1 (:amount %2)) 0 data)]
+       ^{:key (str account-name"-"uuid)}
+       [:tbody
+        [:tr
+         [:td ""]
+         [:td.color-blue account-name]]
+        (for [v data]
+          ^{:key (str "tags-sub-"(:amount v)"-"(-> v :date str)"-"(:description v))}
+          [:tr
+           [:td.color-peru "desc: "]
+           [:td (:description v)]
+           [:td.color-peru "date: "]
+           [:td (-> v :date logic/cljs-time->str)]
+           [:td.color-peru "amount: "]
+           [:td (str "$" (-> v :amount logic/cents->dollars))]])
+        [:tr
+         [:td]
+         [:td]
+         [:td]
+         [:td]
+         [:td "Sum: "]
+         [:td.color-danger (str "$"(logic/cents->dollars sum-amounts))]]
+        [:tr
+         [:td]
+         [:td
+          [:hr]]]]))))
+
 (defn side-drawer-wrapper
+  "{:recur-entry {^`account-name`:String ^::transactions-with-meta-data}
+    || :big-entry ^::transactions-with-meta-data} ->
+    `side-drawer-recurs` || `side-drawer-bigs`"
   [data
    closed?
    side-drawer-mutator!]
@@ -622,6 +671,7 @@
      (case k
        :recur-entry (side-drawer-recurs data)
        :big-entry   (side-drawer-bigs data)
+       :tags-entry  (side-drawer-by-tags data)
        ;; Else - never appears
        [:thead
         [:tr

@@ -82,7 +82,7 @@
            print-data              (->> (concat payments meta-data-vals)
                                        logic/sort-by-date
                                        (map (fn [v] (dissoc v :meta-data))))]
-       (prn "credt-account below, line 74" )
+       ;; (prn "credt-account below, line 74" )
        ;; (pp/pprint print-data)
        (if print?
          [:div.print-mode
@@ -130,6 +130,10 @@
 
 
      (when-not print?
+       [ components/sum-by-tags-btn {:side-drawer-mutator! db/credit-side-drawer!
+                                     :tags-choice          @db/credit-tags-choice
+                                     :meta-data            meta-data} ])
+     (when-not print?
        [ components/rec-by-account-btn {:side-drawer-mutator! db/credit-side-drawer!
-                                        :recur-data           recur-data}])]))
+                                        :recur-data           recur-data} ])]))
 

@@ -528,5 +528,19 @@
       (:_sk-id v)))
    data))
 
+(s/def ::gas (s/coll-of ::transaction-with-meta-data))
+(s/def ::transactions-by-tag (s/keys :opt-un [::gas]))
+
+(>defn filter-by-custom-tags
+  "Filters all custom tags, i.e. not `:BIG`, `:Recur` or `:Ignore`"
+  [meta-data tags-choice]
+  [::transactions-with-meta-data set? =>
+   ::transactions-by-tag]
+  (let [diff #(clojure.set/difference % #{:BIG :Recur :Ignore})]
+    (as-> tags-choice $
+      (diff $)
+      (mapcat #(filter-by-tag meta-data %) $)
+      (group-by #(-> (get-in % [:meta-data :tags]) diff first) $))))
+
 ;; (g/check)
 
