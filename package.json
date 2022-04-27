@@ -6,7 +6,7 @@
     "fs-extra": "7.0.1"
   },
   "devDependencies": {
-    "grunt": "1.0.3",
+    "grunt": "1.5.2",
     "grunt-download-electron": "2.1.4",
     "moment": "2.24.0",
     "shelljs": "0.8.3",
